@@ -1,7 +1,7 @@
 {
     "name": "danielburger1337/oauth2-dpop",
     "type": "library",
-    "description": "Create/Verify OpenID Connect (OIDC) verification hashes.",
+    "description": "Create/Verify OAuth DPoP tokens.",
     "license": "MIT",
     "homepage": "https://github.com/danielburger1337/oauth2-dpop-php",
     "authors": [
