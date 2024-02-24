@@ -1,0 +1,34 @@
+name: PHPStan
+
+on:
+    pull_request:
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    phpstan:
+        runs-on: ${{ matrix.operating-system }}
+
+        strategy:
+            matrix:
+                operating-system: [ubuntu-latest]
+                php-versions: ["8.2", "8.3"]
+
+        name: PHPStan with PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-versions }}
+                  extensions: ${{ env.PHP_EXTENSIONS }}
+
+            - name: Install Composer packages
+              run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+            - name: Run PHPSTAN
+              run: $GITHUB_WORKSPACE/vendor/bin/phpstan --error-format=github

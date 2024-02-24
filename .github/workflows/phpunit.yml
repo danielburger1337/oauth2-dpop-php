@@ -1,0 +1,53 @@
+name: PHPUnit
+
+on:
+    pull_request:
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    phpunit:
+        runs-on: ${{ matrix.operating-system }}
+
+        strategy:
+            matrix:
+                operating-system: [ubuntu-latest]
+                php-versions: ["8.2", "8.3"]
+
+        name: PHPUnit with PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
+
+        env:
+            PHP_EXTENSIONS: xdebug
+            PHP_EXTENSIONS_CACHE_KEY: cache-v1
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup Cache environment
+              id: extcache
+              uses: shivammathur/cache-extensions@v1
+              with:
+                  php-version: ${{ matrix.php-versions }}
+                  extensions: ${{ env.PHP_EXTENSIONS }}
+                  key: ${{ env.PHP_EXTENSIONS_CACHE_KEY }}
+
+            - name: Cache PHP extensions
+              uses: actions/cache@v4
+              with:
+                  path: ${{ steps.extcache.outputs.dir }}
+                  key: ${{ steps.extcache.outputs.key }}
+                  restore-keys: ${{ steps.extcache.outputs.key }}
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-versions }}
+                  extensions: ${{ env.PHP_EXTENSIONS }}
+
+            - name: Install Composer packages
+              run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+            - name: Run PHPUnit
+              run: $GITHUB_WORKSPACE/vendor/bin/phpunit --coverage-text
