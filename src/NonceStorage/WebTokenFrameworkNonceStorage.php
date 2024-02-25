@@ -5,7 +5,9 @@ namespace danielburger1337\OAuth2DPoP\NonceStorage;
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
 use Jose\Component\Checker;
 use Jose\Component\Checker\ClaimCheckerManager;
+use Jose\Component\Core\Algorithm;
 use Jose\Component\Core\AlgorithmManager;
+use Jose\Component\Core\JWK;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\Core\Util\JsonConverter;
 use Jose\Component\Signature\Algorithm\None;
@@ -21,13 +23,16 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
 {
     final public const TYPE_PARAMETER = 'dpop+nonce';
 
+    private readonly AlgorithmManager $algorithmManager;
+    private readonly JWKSet $jwkSet;
+
     private readonly JWSBuilder $jwsBuilder;
     private readonly JWSSerializerManager $serializer;
     private readonly \DateInterval $ttl;
 
     public function __construct(
-        private readonly AlgorithmManager $algorithmManager,
-        private readonly JWKSet $jwkSet,
+        AlgorithmManager|Algorithm $algorithm,
+        JWKSet|JWK $jwk,
         private readonly ClockInterface $clock,
         \DateInterval|string $ttl = new \DateInterval('PT15M'),
         private readonly int $allowedTimeDrift = 5,
@@ -38,6 +43,16 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
         } else {
             $this->ttl = $ttl;
         }
+
+        if ($algorithm instanceof Algorithm) {
+            $algorithm = new AlgorithmManager([$algorithm]);
+        }
+        $this->algorithmManager = $algorithm;
+
+        if ($jwk instanceof JWK) {
+            $jwk = new JWKSet([$jwk]);
+        }
+        $this->jwkSet = $jwk;
 
         $this->serializer = new JWSSerializerManager([new CompactSerializer()]);
         $this->jwsBuilder = new JWSBuilder($this->algorithmManager);
