@@ -18,6 +18,17 @@ class UtilTest extends TestCase
 
     private const HTU = 'https://example.com/path';
 
+    /**
+     * @param string[]|null $expected
+     */
+    #[Test]
+    #[DataProvider('parseSupportedAlgorithmsFromHeaderDataProvider')]
+    public function parseSupportedAlgorithmsFromHeader_returnsExpected(string $header, array|null $expected): void
+    {
+        $returnValue = Util::parseSupportedAlgorithmsFromHeader($header);
+        $this->assertEquals($expected, $returnValue);
+    }
+
     #[Test]
     #[DataProvider('createHtuDataProvider')]
     public function createHtu_withUri_returnsHtu(string $attach): void
@@ -101,6 +112,27 @@ class UtilTest extends TestCase
                 return $this->accessToken;
             }
         };
+    }
+
+    /**
+     * @return array<array{0: string, 1: string[]|null}>
+     */
+    public static function parseSupportedAlgorithmsFromHeaderDataProvider(): array
+    {
+        return [
+            ['DPoP algs="ES256"', ['ES256']],
+            ['DPoP algs="ES256 ES256K"', ['ES256', 'ES256K']],
+
+            ['DPoP algs="EdDSA"', ['EdDSA']], // case sensitivity
+
+            ['Bearer,error="invalid_token",DPoP algs="ES256"', ['ES256']],
+            ['Bearer,error="invalid_token",DPoP algs="ES256 RS256"', ['ES256', 'RS256']],
+
+            ['Bearer,error="invalid_token",DPoP algs="ES256', null], // missing "
+            ['DPoP algs="ES256', null], // missing "
+            ['', null],
+            ['Bearer', null],
+        ];
     }
 
     /**
