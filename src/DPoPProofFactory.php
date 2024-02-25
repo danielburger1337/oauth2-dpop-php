@@ -94,29 +94,4 @@ class DPoPProofFactory
         $key = $this->nonceStorageKeyFactory->createKey($request->getMethod(), Util::createHtu($request->getUri()));
         $this->nonceStorage->storeNextNonce($key, $response->getHeaderLine('dpop-nonce'));
     }
-
-    /**
-     * @param string $header The WWW-Authenticate header to parse.
-     *
-     * @return string[]|null
-     */
-    public static function parseSupportedAlgorithmsFromHeader(string $header): ?array
-    {
-        $pos = \strpos(\strtolower($header), 'dpop algs="');
-        if (false === $pos) {
-            return null;
-        }
-
-        // 11 => strlen('dpop algs="')
-        $header = \substr($header, $pos + 11);
-
-        $endPos = \strpos($header, '"');
-        if (false === $endPos) {
-            return null;
-        }
-
-        $header = \substr($header, 0, $endPos);
-
-        return \explode(' ', $header);
-    }
 }

@@ -9,6 +9,33 @@ use Psr\Http\Message\UriInterface;
 final class Util
 {
     /**
+     * Parse the server supported DPoP algorithms from a "WWW-Authenticate" header.
+     *
+     * @param string $header The WWW-Authenticate header to parse.
+     *
+     * @return string[]|null
+     */
+    public static function parseSupportedAlgorithmsFromHeader(string $header): ?array
+    {
+        $pos = \strpos(\strtolower($header), 'dpop algs="');
+        if (false === $pos) {
+            return null;
+        }
+
+        // 11 => strlen('dpop algs="')
+        $header = \substr($header, $pos + 11);
+
+        $endPos = \strpos($header, '"');
+        if (false === $endPos) {
+            return null;
+        }
+
+        $header = \substr($header, 0, $endPos);
+
+        return \explode(' ', $header);
+    }
+
+    /**
      * Create an "htu" claim.
      *
      * @param UriInterface|string $htu The URI to create the "htu" from.
