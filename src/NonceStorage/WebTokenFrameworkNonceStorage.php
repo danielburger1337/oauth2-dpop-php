@@ -2,12 +2,14 @@
 
 namespace danielburger1337\OAuth2DPoP\NonceStorage;
 
+use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
 use Jose\Component\Checker;
 use Jose\Component\Checker\ClaimCheckerManager;
 use Jose\Component\Core\Algorithm;
 use Jose\Component\Core\AlgorithmManager;
-use Jose\Component\Core\JWK;
+use Jose\Component\Core\JWKSet;
 use Jose\Component\Core\Util\JsonConverter;
+use Jose\Component\Signature\Algorithm\None;
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\JWSLoader;
 use Jose\Component\Signature\JWSTokenSupport;
@@ -27,7 +29,7 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
 
     public function __construct(
         private readonly Algorithm $algorithm,
-        private readonly JWK $jwk,
+        private readonly JWKSet $jwkSet,
         private readonly ClockInterface $clock,
         \DateInterval|string $ttl = new \DateInterval('PT15M'),
         private readonly int $allowedTimeDrift = 5,
@@ -60,7 +62,7 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
         $jwsLoader = new JWSLoader($this->serializer, new JWSVerifier($this->algorithmManager), $headerCheckerManager);
 
         try {
-            $jws = $jwsLoader->loadAndVerifyWithKey($nonce, $this->jwk, $signatureIndex);
+            $jws = $jwsLoader->loadAndVerifyWithKeySet($nonce, $this->jwkSet, $signatureIndex);
         } catch (\Throwable) {
             return false;
         }
@@ -112,16 +114,21 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
             'alg' => $this->algorithm->name(),
         ];
 
-        if ($this->jwk->has('kid')) {
-            $protectedHeader['kid'] = $this->jwk->get('kid');
+        $jwk = $this->jwkSet->selectKey('sig', $this->algorithm);
+        if (null === $jwk) {
+            throw new MissingDPoPJwkException();
         }
-        if ($this->jwk->has('crv')) {
-            $protectedHeader['crv'] = $this->jwk->get('crv');
+
+        if ($jwk->has('kid')) {
+            $protectedHeader['kid'] = $jwk->get('kid');
+        }
+        if ($jwk->has('crv')) {
+            $protectedHeader['crv'] = $jwk->get('crv');
         }
 
         $builder = $this->jwsBuilder->create()
             ->withPayload(JsonConverter::encode($payload))
-            ->addSignature($this->jwk, $protectedHeader)
+            ->addSignature($jwk, $protectedHeader)
         ;
 
         return $this->serializer->serialize(CompactSerializer::NAME, $builder->build());
