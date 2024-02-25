@@ -17,7 +17,7 @@ interface JwtHandlerInterface
      *
      * @throws MissingDPoPJwkException If no suitable JWK was found.
      */
-    public function selectJWK(?array $serverSupportedSignatureAlgorithms = null): JwkInterface;
+    public function selectJWK(?string $jkt, ?array $serverSupportedSignatureAlgorithms = null): JwkInterface;
 
     /**
      * Create a DPoP proof.

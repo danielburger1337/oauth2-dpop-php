@@ -3,6 +3,7 @@
 namespace danielburger1337\OAuth2DPoP;
 
 use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
+use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\RequestInterface;
@@ -20,9 +21,9 @@ class DPoPProofFactory
     /**
      * @param string[]|null $serverSupportedSignatureAlgorithms [optional] The DPoP signature algorithms that the server reported as supported.
      */
-    public function createProof(string $htm, string $htu, ?array $serverSupportedSignatureAlgorithms = null): string
+    public function createProof(string $htm, string $htu, ?AccessTokenModel $accessToken = null, ?array $serverSupportedSignatureAlgorithms = null): string
     {
-        $jwk = $this->jwtHandler->selectJWK($serverSupportedSignatureAlgorithms);
+        $jwk = $this->jwtHandler->selectJWK($accessToken?->jkt, $serverSupportedSignatureAlgorithms);
 
         $protectedHeader = [
             'typ' => JwtHandlerInterface::TYPE_HEADER_PARAMETER,

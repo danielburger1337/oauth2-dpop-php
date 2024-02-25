@@ -110,7 +110,7 @@ class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
         return new ParsedDPoPProofModel($jwk->thumbprint('sha256'), $unverifiedClaims, $signature->getProtectedHeader());
     }
 
-    public function selectJWK(?array $serverSupportedSignatureAlgorithms = null): JwkInterface
+    public function selectJWK(?string $jkt, ?array $serverSupportedSignatureAlgorithms = null): JwkInterface
     {
         $serverSupportedSignatureAlgorithms ??= $this->algorithmManager->list();
 
@@ -122,7 +122,9 @@ class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
             $algorithm = $this->algorithmManager->get($algorithmName);
 
             if (null !== ($jwk = $this->jwkSet->selectKey('sig', $algorithm))) {
-                return new WebTokenFrameworkJwk($jwk, $algorithm);
+                if (null === $jkt || $jkt === $jwk->thumbprint('sha256')) {
+                    return new WebTokenFrameworkJwk($jwk, $algorithm);
+                }
             }
         }
 
