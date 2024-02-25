@@ -4,6 +4,7 @@ namespace danielburger1337\OAuth2DPoP\JwtHandler;
 
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
 use Jose\Component\Core\AlgorithmManager;
+use Jose\Component\Core\JWK;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\Core\Util\JsonConverter;
 use Jose\Component\Signature\JWSBuilder;
@@ -13,14 +14,20 @@ use Psr\Clock\ClockInterface;
 
 class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
 {
+    private readonly JWKSet $jwkSet;
     private readonly JWSBuilder $jwsBuilder;
     private readonly JWSSerializerManager $serializer;
 
     public function __construct(
-        private readonly JWKSet $jwkSet,
+        JWKSet|JWK $jwkSet,
         private readonly ClockInterface $clock,
         private readonly AlgorithmManager $algorithmManager,
     ) {
+        if ($jwkSet instanceof JWK) {
+            $jwkSet = new JWKSet([$jwkSet]);
+        }
+        $this->jwkSet = $jwkSet;
+
         $this->jwsBuilder = new JWSBuilder($this->algorithmManager);
         $this->serializer = new JWSSerializerManager([new CompactSerializer()]);
     }
