@@ -34,9 +34,9 @@ class DPoPProofFactory
         return $this->jwtHandler->createProof($jwk, $this->createPayload($htm, $htu, $accessToken), $protectedHeader);
     }
 
-    public function createProofForRequest(RequestInterface $request): RequestInterface
+    public function createProofForRequest(RequestInterface $request, AccessTokenModel|null $accessToken = null, ?array $serverSupportedSignatureAlgorithms = null): RequestInterface
     {
-        $proof = $this->createProof($request->getMethod(), $request->getUri()->__toString());
+        $proof = $this->createProof($request->getMethod(), $request->getUri()->__toString(), $accessToken, $serverSupportedSignatureAlgorithms);
 
         return $request->withHeader('DPoP', $proof);
     }
