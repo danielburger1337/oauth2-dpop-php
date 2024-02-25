@@ -2,7 +2,6 @@
 
 namespace danielburger1337\OAuth2DPoP;
 
-use Base64Url\Base64Url;
 use danielburger1337\OAuth2DPoP\JwtHandler\JwkInterface;
 use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
@@ -57,8 +56,8 @@ class DPoPProofFactory
             'jti' => \bin2hex(\random_bytes(32)),
         ];
 
-        if (null !== $bindTo) {
-            $payload['ath'] = Base64Url::encode(\hash('sha256', $bindTo->accessToken, true));
+        if ($bindTo instanceof AccessTokenModel) {
+            $payload['ath'] = Util::createAccessTokenHash($bindTo);
         }
 
         $key = $this->nonceStorageKeyFactory->createKey($htm, $htu);

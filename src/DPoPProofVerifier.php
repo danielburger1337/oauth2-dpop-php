@@ -2,7 +2,6 @@
 
 namespace danielburger1337\OAuth2DPoP;
 
-use Base64Url\Base64Url;
 use danielburger1337\OAuth2DPoP\Exception\DPoPReplayAttackException;
 use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPNonceException;
 use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
@@ -117,7 +116,7 @@ class DPoPProofVerifier
                 throw new InvalidDPoPProofException('The DPoP proof is missing the required "ath" claim.');
             }
 
-            if (!\hash_equals(Base64Url::encode(\hash('sha256', (string) $accessToken->accessToken, true)), $proof->payload['ath'])) {
+            if (!\hash_equals(Util::createAccessTokenHash($accessToken), $proof->payload['ath'])) {
                 throw new InvalidDPoPProofException('The DPoP proof "ath" claim is invalid.');
             }
         }
