@@ -47,7 +47,7 @@ class DPoPProofFactory
             'jwk' => $jwk->toPublic(),
         ];
 
-        $htu = self::createHtu($htu);
+        $htu = Util::createHtu($htu);
 
         $payload = [
             'htm' => $htm,
@@ -77,7 +77,7 @@ class DPoPProofFactory
 
     public function storeNextNonce(string $nonce, string $htm, UriInterface|string $htu): void
     {
-        $key = $this->nonceStorageKeyFactory->createKey($htm, self::createHtu($htu));
+        $key = $this->nonceStorageKeyFactory->createKey($htm, Util::createHtu($htu));
         $this->nonceStorage->storeNextNonce($key, $nonce);
     }
 
@@ -87,27 +87,8 @@ class DPoPProofFactory
             return;
         }
 
-        $key = $this->nonceStorageKeyFactory->createKey($request->getMethod(), self::createHtu($request->getUri()));
+        $key = $this->nonceStorageKeyFactory->createKey($request->getMethod(), Util::createHtu($request->getUri()));
         $this->nonceStorage->storeNextNonce($key, $response->getHeaderLine('dpop-nonce'));
-    }
-
-    public static function createHtu(UriInterface|string $htu): string
-    {
-        if ($htu instanceof UriInterface) {
-            $htu = (string) $htu;
-        }
-
-        $pos = \strpos($htu, '?');
-        if ($pos !== false) {
-            $htu = \substr($htu, 0, $pos);
-        } else {
-            $pos = \strpos($htu, '#');
-            if ($pos !== false) {
-                $htu = \substr($htu, 0, $pos);
-            }
-        }
-
-        return $htu;
     }
 
     /**
