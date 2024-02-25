@@ -5,6 +5,7 @@ namespace danielburger1337\OAuth2DPoP;
 use Base64Url\Base64Url;
 use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
+use danielburger1337\OAuth2DPoP\Model\DPoPProof;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageKeyFactoryInterface;
 use Psr\Clock\ClockInterface;
@@ -25,7 +26,7 @@ class DPoPProofFactory
     /**
      * @param string[]|null $serverSupportedSignatureAlgorithms [optional] The DPoP signature algorithms that the server reported as supported.
      */
-    public function createProof(string $htm, string $htu, AccessTokenModel|null $accessToken = null, ?array $serverSupportedSignatureAlgorithms = null): string
+    public function createProof(string $htm, UriInterface|string $htu, AccessTokenModel|null $accessToken = null, ?array $serverSupportedSignatureAlgorithms = null): DPoPProof
     {
         $jwk = $this->jwtHandler->selectJWK($accessToken?->jkt, $serverSupportedSignatureAlgorithms);
 
@@ -52,14 +53,14 @@ class DPoPProofFactory
             $payload['nonce'] = $nonce;
         }
 
-        return $this->jwtHandler->createProof($jwk, $payload, $protectedHeader);
+        return new DPoPProof($jwk, $this->jwtHandler->createProof($jwk, $payload, $protectedHeader));
     }
 
     public function createProofForRequest(RequestInterface $request, AccessTokenModel|null $accessToken = null, ?array $serverSupportedSignatureAlgorithms = null): RequestInterface
     {
-        $proof = $this->createProof($request->getMethod(), $request->getUri()->__toString(), $accessToken, $serverSupportedSignatureAlgorithms);
+        $proof = $this->createProof($request->getMethod(), $request->getUri(), $accessToken, $serverSupportedSignatureAlgorithms);
 
-        return $request->withHeader('DPoP', $proof);
+        return $request->withHeader('DPoP', $proof->proof);
     }
 
     public function storeNextNonce(string $nonce, string $htm, UriInterface|string $htu): void
