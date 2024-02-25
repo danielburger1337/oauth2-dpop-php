@@ -3,6 +3,7 @@
 namespace danielburger1337\OAuth2DPoP;
 
 use Base64Url\Base64Url;
+use danielburger1337\OAuth2DPoP\JwtHandler\JwkInterface;
 use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\Model\DPoPProof;
@@ -21,6 +22,16 @@ class DPoPProofFactory
         private readonly JwtHandlerInterface $jwtHandler,
         private readonly NonceStorageInterface $nonceStorage
     ) {
+    }
+
+    /**
+     * Get the JWK that the authorization code should be bound to.
+     *
+     * @throws MissingDPoPJwkException If no suitable JWK is registered.
+     */
+    public function getJwkToBind(): JwkInterface
+    {
+        return $this->jwtHandler->selectJWK(null, null);
     }
 
     /**

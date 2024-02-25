@@ -17,4 +17,9 @@ class WebTokenFrameworkJwk implements JwkInterface
     {
         return $this->jwk->toPublic()->jsonSerialize();
     }
+
+    public function thumbprint(): string
+    {
+        return $this->jwk->thumbprint('sha256');
+    }
 }

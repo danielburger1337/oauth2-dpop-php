@@ -10,4 +10,9 @@ interface JwkInterface
      * @return array<string, mixed>
      */
     public function toPublic(): array;
+
+    /**
+     * The JWK thumbprint (JKT).
+     */
+    public function thumbprint(): string;
 }
