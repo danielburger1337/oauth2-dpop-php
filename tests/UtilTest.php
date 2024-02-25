@@ -4,7 +4,9 @@ namespace danielburger1337\OAuth2DPoP\Tests;
 
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\Util;
+use Nyholm\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -13,6 +15,42 @@ class UtilTest extends TestCase
 {
     private const ACCESS_TOKEN = 'wf92ckbY6AB8KqPKdR4pEm6taHw5T2x1';
     private const EXPECTED_HASH = '75ti-TxjY8HQdW-a7Znaj1IdZmRTOZME4kTBb3KyJ8Y';
+
+    private const HTU = 'https://example.com/path';
+
+    #[Test]
+    #[DataProvider('createHtuDataProvider')]
+    public function createHtu_withUri_returnsHtu(string $attach): void
+    {
+        $returnValue = Util::createHtu(new Uri(self::HTU.$attach));
+
+        $this->assertEquals(self::HTU, $returnValue);
+    }
+
+    #[Test]
+    #[DataProvider('createHtuDataProvider')]
+    public function createHtu_withString_returnsHtu(string $attach): void
+    {
+        $returnValue = Util::createHtu(self::HTU.$attach);
+
+        $this->assertEquals(self::HTU, $returnValue);
+    }
+
+    #[Test]
+    public function createHtu_invalidUrl_removesQuery(): void
+    {
+        $returnValue = Util::createHtu('is this working? yes');
+
+        $this->assertEquals('is this working', $returnValue);
+    }
+
+    #[Test]
+    public function createHtu_invalidUrl_returnsUnchanged(): void
+    {
+        $returnValue = Util::createHtu('not a url');
+
+        $this->assertEquals('not a url', $returnValue);
+    }
 
     #[Test]
     public function createAccessTokenHash_string_returnsExpected(): void
@@ -63,5 +101,18 @@ class UtilTest extends TestCase
                 return $this->accessToken;
             }
         };
+    }
+
+    /**
+     * @return array<string[]>
+     */
+    public static function createHtuDataProvider(): array
+    {
+        return [
+            [''],
+            ['#fragmet'],
+            ['?query=param'],
+            ['?query=param#fragment'],
+        ];
     }
 }
