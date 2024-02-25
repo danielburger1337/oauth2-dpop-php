@@ -172,4 +172,12 @@ class DPoPProofVerifier
 
         return $proof;
     }
+
+    /**
+     * Create the WWW-Authenticate header that include the resource servers supported DPoP JWAs.
+     */
+    public function createWwwAuthenticateChallengeLine(): string
+    {
+        return \sprintf('DPoP algs="%s"', \implode(' ', $this->jwtHandler->getSupportedAlgorithms()));
+    }
 }

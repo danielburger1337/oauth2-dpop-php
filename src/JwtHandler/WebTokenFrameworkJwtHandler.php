@@ -153,4 +153,9 @@ class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
 
         return $this->serializer->serialize(CompactSerializer::NAME, $builder->build());
     }
+
+    public function getSupportedAlgorithms(): array
+    {
+        return $this->algorithmManager->list();
+    }
 }

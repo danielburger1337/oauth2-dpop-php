@@ -36,4 +36,9 @@ interface JwtHandlerInterface
      * @throws InvalidDPoPProofException If the DPoP proof is invalid.
      */
     public function parseProof(string $proof): ParsedDPoPProofModel;
+
+    /**
+     * @return string[]
+     */
+    public function getSupportedAlgorithms(): array;
 }
