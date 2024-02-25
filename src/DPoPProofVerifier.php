@@ -117,8 +117,7 @@ class DPoPProofVerifier
                 throw new InvalidDPoPProofException('The DPoP proof is missing the required "ath" claim.');
             }
 
-            // TODO Base64Url::encode(hash(...))
-            if (!\hash_equals(\hash('sha256', (string) $accessToken->accessToken), $proof->payload['ath'])) {
+            if (!\hash_equals(Base64Url::encode(\hash('sha256', (string) $accessToken->accessToken, true)), $proof->payload['ath'])) {
                 throw new InvalidDPoPProofException('The DPoP proof "ath" claim is invalid.');
             }
         }
