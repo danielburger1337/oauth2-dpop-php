@@ -10,7 +10,6 @@ use Jose\Component\Core\Util\JsonConverter;
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Serializer\CompactSerializer;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
-use Psr\Clock\ClockInterface;
 
 class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
 {
@@ -20,7 +19,6 @@ class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
 
     public function __construct(
         JWKSet|JWK $jwkSet,
-        private readonly ClockInterface $clock,
         private readonly AlgorithmManager $algorithmManager,
     ) {
         if ($jwkSet instanceof JWK) {
