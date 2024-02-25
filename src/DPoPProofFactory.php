@@ -6,13 +6,16 @@ use Base64Url\Base64Url;
 use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
+use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageKeyFactoryInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 
 class DPoPProofFactory
 {
     public function __construct(
-        private readonly string $key,
+        private readonly NonceStorageKeyFactoryInterface $nonceStorageKeyFactory,
         private readonly ClockInterface $clock,
         private readonly JwtHandlerInterface $jwtHandler,
         private readonly NonceStorageInterface $nonceStorage
@@ -31,30 +34,7 @@ class DPoPProofFactory
             'jwk' => $jwk->toPublic(),
         ];
 
-        return $this->jwtHandler->createProof($jwk, $this->createPayload($htm, $htu, $accessToken), $protectedHeader);
-    }
-
-    public function createProofForRequest(RequestInterface $request, AccessTokenModel|null $accessToken = null, ?array $serverSupportedSignatureAlgorithms = null): RequestInterface
-    {
-        $proof = $this->createProof($request->getMethod(), $request->getUri()->__toString(), $accessToken, $serverSupportedSignatureAlgorithms);
-
-        return $request->withHeader('DPoP', $proof);
-    }
-
-    /**
-     * @return array<string, string|int>
-     */
-    protected function createPayload(string $htm, string $htu, AccessTokenModel|null $accessToken): array
-    {
-        $pos = \strpos($htu, '?');
-        if ($pos !== false) {
-            $htu = \substr($htu, 0, $pos);
-        } else {
-            $pos = \strpos($htu, '#');
-            if ($pos !== false) {
-                $htu = \substr($htu, 0, $pos);
-            }
-        }
+        $htu = self::createHtu($htu);
 
         $payload = [
             'htm' => $htm,
@@ -67,11 +47,54 @@ class DPoPProofFactory
             $payload['ath'] = Base64Url::encode(\hash('sha256', $accessToken->accessToken, true));
         }
 
-        if (null !== ($nonce = $this->nonceStorage?->getCurrentNonce($this->key))) {
+        $key = $this->nonceStorageKeyFactory->createKey($htm, $htu);
+        if (null !== ($nonce = $this->nonceStorage->getCurrentNonce($key))) {
             $payload['nonce'] = $nonce;
         }
 
-        return $payload;
+        return $this->jwtHandler->createProof($jwk, $payload, $protectedHeader);
+    }
+
+    public function createProofForRequest(RequestInterface $request, AccessTokenModel|null $accessToken = null, ?array $serverSupportedSignatureAlgorithms = null): RequestInterface
+    {
+        $proof = $this->createProof($request->getMethod(), $request->getUri()->__toString(), $accessToken, $serverSupportedSignatureAlgorithms);
+
+        return $request->withHeader('DPoP', $proof);
+    }
+
+    public function storeNextNonce(string $nonce, string $htm, UriInterface|string $htu): void
+    {
+        $key = $this->nonceStorageKeyFactory->createKey($htm, self::createHtu($htu));
+        $this->nonceStorage->storeNextNonce($key, $nonce);
+    }
+
+    public function storeNextNonceFromResponse(ResponseInterface $response, RequestInterface $request): void
+    {
+        if (!$response->hasHeader('dpop-nonce')) {
+            return;
+        }
+
+        $key = $this->nonceStorageKeyFactory->createKey($request->getMethod(), self::createHtu($request->getUri()));
+        $this->nonceStorage->storeNextNonce($key, $response->getHeaderLine('dpop-nonce'));
+    }
+
+    public static function createHtu(UriInterface|string $htu): string
+    {
+        if ($htu instanceof UriInterface) {
+            $htu = (string) $htu;
+        }
+
+        $pos = \strpos($htu, '?');
+        if ($pos !== false) {
+            $htu = \substr($htu, 0, $pos);
+        } else {
+            $pos = \strpos($htu, '#');
+            if ($pos !== false) {
+                $htu = \substr($htu, 0, $pos);
+            }
+        }
+
+        return $htu;
     }
 
     /**
