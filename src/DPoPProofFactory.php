@@ -37,9 +37,11 @@ class DPoPProofFactory
     /**
      * @param string[]|null $serverSupportedSignatureAlgorithms [optional] The DPoP signature algorithms that the server reported as supported.
      */
-    public function createProof(string $htm, UriInterface|string $htu, AccessTokenModel|null $accessToken = null, ?array $serverSupportedSignatureAlgorithms = null): DPoPProof
+    public function createProof(string $htm, UriInterface|string $htu, AccessTokenModel|string|null $bindTo = null, ?array $serverSupportedSignatureAlgorithms = null): DPoPProof
     {
-        $jwk = $this->jwtHandler->selectJWK($accessToken?->jkt, $serverSupportedSignatureAlgorithms);
+        $jkt = $bindTo instanceof AccessTokenModel ? $bindTo->jkt : $bindTo;
+
+        $jwk = $this->jwtHandler->selectJWK($jkt, $serverSupportedSignatureAlgorithms);
 
         $protectedHeader = [
             'typ' => JwtHandlerInterface::TYPE_HEADER_PARAMETER,
@@ -55,8 +57,8 @@ class DPoPProofFactory
             'jti' => \bin2hex(\random_bytes(32)),
         ];
 
-        if (null !== $accessToken) {
-            $payload['ath'] = Base64Url::encode(\hash('sha256', $accessToken->accessToken, true));
+        if (null !== $bindTo) {
+            $payload['ath'] = Base64Url::encode(\hash('sha256', $bindTo->accessToken, true));
         }
 
         $key = $this->nonceStorageKeyFactory->createKey($htm, $htu);
