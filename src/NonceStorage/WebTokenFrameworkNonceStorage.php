@@ -33,6 +33,10 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
         private readonly int $allowedTimeDrift = 5,
         private readonly \Closure|null $closure = null
     ) {
+        if ($this->algorithm instanceof None) {
+            throw new \InvalidArgumentException('This DPoP nonce storage does not allow the "none" JWA.');
+        }
+
         if (\is_string($ttl)) {
             $this->ttl = new \DateInterval($ttl);
         } else {
