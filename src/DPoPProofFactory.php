@@ -15,7 +15,7 @@ class DPoPProofFactory
         private readonly string $key,
         private readonly ClockInterface $clock,
         private readonly JwtHandlerInterface $jwtHandler,
-        private readonly NonceStorageInterface|null $nonceStorage = null
+        private readonly NonceStorageInterface $nonceStorage
     ) {
     }
 
