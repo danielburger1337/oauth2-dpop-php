@@ -2,6 +2,7 @@
 
 namespace danielburger1337\OAuth2DPoP;
 
+use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
 use danielburger1337\OAuth2DPoP\JwtHandler\JwkInterface;
 use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
@@ -68,6 +69,9 @@ class DPoPProofFactory
         return new DPoPProof($jwk, $this->jwtHandler->createProof($jwk, $payload, $protectedHeader));
     }
 
+    /**
+     * @param string[]|null $serverSupportedSignatureAlgorithms [optional] The DPoP signature algorithms that the server reported as supported.
+     */
     public function createProofForRequest(RequestInterface $request, AccessTokenModel|null $accessToken = null, ?array $serverSupportedSignatureAlgorithms = null): RequestInterface
     {
         $proof = $this->createProof($request->getMethod(), $request->getUri(), $accessToken, $serverSupportedSignatureAlgorithms);
