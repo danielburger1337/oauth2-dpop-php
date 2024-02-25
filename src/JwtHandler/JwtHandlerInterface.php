@@ -2,9 +2,7 @@
 
 namespace danielburger1337\OAuth2DPoP\JwtHandler;
 
-use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
-use danielburger1337\OAuth2DPoP\Model\ParsedDPoPProofModel;
 
 interface JwtHandlerInterface
 {
@@ -27,18 +25,4 @@ interface JwtHandlerInterface
      * @param array<string, mixed> $protectedHeader The DPoP protected header to encode.
      */
     public function createProof(JwkInterface $jwk, array $payload, array $protectedHeader): string;
-
-    /**
-     * Parse a DPoP proof.
-     *
-     * @param string $proof The DPoP proof to parse.
-     *
-     * @throws InvalidDPoPProofException If the DPoP proof is invalid.
-     */
-    public function parseProof(string $proof): ParsedDPoPProofModel;
-
-    /**
-     * @return string[]
-     */
-    public function getSupportedAlgorithms(): array;
 }

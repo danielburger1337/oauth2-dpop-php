@@ -7,6 +7,7 @@ use danielburger1337\OAuth2DPoP\Exception\DPoPReplayAttackException;
 use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPNonceException;
 use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
 use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
+use danielburger1337\OAuth2DPoP\Loader\DPoPTokenLoaderInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\Model\ParsedDPoPProofModel;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
@@ -18,7 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 class DPoPProofVerifier
 {
     /**
-     * @param JwtHandlerInterface                $jwtHandler           The JSON Web Token handler.
      * @param NonceStorageInterface|null         $nonceStorage         [optional] The "nonce" claim storage.
      *                                                                 Pass `null` will disable the nonce requirement.
      * @param ReplayAttackDetectorInterface|null $replayAttackDetector [optional] A service that can detect whether the DPoP proof was already used.
@@ -26,7 +26,7 @@ class DPoPProofVerifier
      */
     public function __construct(
         private readonly ClockInterface $clock,
-        private readonly JwtHandlerInterface $jwtHandler,
+        private readonly DPoPTokenLoaderInterface $tokenLoader,
         private readonly NonceStorageInterface|null $nonceStorage = null,
         private readonly ReplayAttackDetectorInterface|null $replayAttackDetector = null,
         private readonly int $allowedTimeDrift = 5
@@ -69,7 +69,7 @@ class DPoPProofVerifier
             throw new InvalidDPoPProofException('The DPoP proof must be a non empty string.');
         }
 
-        $proof = $this->jwtHandler->parseProof($dpopProof);
+        $proof = $this->tokenLoader->loadProof($dpopProof);
 
         if (
             !\array_key_exists('typ', $proof->protectedHeader)
@@ -177,6 +177,6 @@ class DPoPProofVerifier
      */
     public function createWwwAuthenticateChallengeLine(): string
     {
-        return \sprintf('DPoP algs="%s"', \implode(' ', $this->jwtHandler->getSupportedAlgorithms()));
+        return \sprintf('DPoP algs="%s"', \implode(' ', $this->tokenLoader->getSupportedAlgorithms()));
     }
 }
