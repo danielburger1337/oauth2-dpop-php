@@ -5,7 +5,6 @@ namespace danielburger1337\OAuth2DPoP\NonceStorage;
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
 use Jose\Component\Checker;
 use Jose\Component\Checker\ClaimCheckerManager;
-use Jose\Component\Core\Algorithm;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\Core\Util\JsonConverter;
@@ -22,30 +21,24 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
 {
     final public const TYPE_PARAMETER = 'dpop+nonce';
 
-    private readonly AlgorithmManager $algorithmManager;
     private readonly JWSBuilder $jwsBuilder;
     private readonly JWSSerializerManager $serializer;
     private readonly \DateInterval $ttl;
 
     public function __construct(
-        private readonly Algorithm $algorithm,
+        private readonly AlgorithmManager $algorithmManager,
         private readonly JWKSet $jwkSet,
         private readonly ClockInterface $clock,
         \DateInterval|string $ttl = new \DateInterval('PT15M'),
         private readonly int $allowedTimeDrift = 5,
         private readonly \Closure|null $closure = null
     ) {
-        if ($this->algorithm instanceof None) {
-            throw new \InvalidArgumentException('This DPoP nonce storage does not allow the "none" JWA.');
-        }
-
         if (\is_string($ttl)) {
             $this->ttl = new \DateInterval($ttl);
         } else {
             $this->ttl = $ttl;
         }
 
-        $this->algorithmManager = new AlgorithmManager([$this->algorithm]);
         $this->serializer = new JWSSerializerManager([new CompactSerializer()]);
         $this->jwsBuilder = new JWSBuilder($this->algorithmManager);
     }
@@ -109,15 +102,22 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
             'jti' => \bin2hex(\random_bytes(4)),
         ];
 
-        $protectedHeader = [
-            'typ' => self::TYPE_PARAMETER,
-            'alg' => $this->algorithm->name(),
-        ];
+        $jwk = null;
+        $algorithm = null;
+        foreach ($this->algorithmManager->all() as $algorithm) {
+            if (null !== ($jwk = $this->jwkSet->selectKey('sig', $algorithm))) {
+                break;
+            }
+        }
 
-        $jwk = $this->jwkSet->selectKey('sig', $this->algorithm);
-        if (null === $jwk) {
+        if (null === $jwk || null === $algorithm || $algorithm instanceof None) {
             throw new MissingDPoPJwkException();
         }
+
+        $protectedHeader = [
+            'typ' => self::TYPE_PARAMETER,
+            'alg' => $algorithm->name(),
+        ];
 
         if ($jwk->has('kid')) {
             $protectedHeader['kid'] = $jwk->get('kid');
