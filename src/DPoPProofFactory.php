@@ -25,7 +25,7 @@ class DPoPProofFactory
         $jwk = $this->jwtHandler->selectJWK($serverSupportedSignatureAlgorithms);
 
         $protectedHeader = [
-            'typ' => 'dpop+jwt',
+            'typ' => JwtHandlerInterface::TYPE_HEADER_PARAMETER,
             'jwk' => $jwk->toPublic(),
         ];
 

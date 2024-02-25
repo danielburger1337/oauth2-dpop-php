@@ -71,6 +71,14 @@ class DPoPProofVerifier
 
         $proof = $this->jwtHandler->parseProof($dpopProof);
 
+        if (
+            !\array_key_exists('typ', $proof->protectedHeader)
+            || !\is_string($proof->protectedHeader['typ'])
+            || $proof->protectedHeader['typ'] !== JwtHandlerInterface::TYPE_HEADER_PARAMETER
+        ) {
+            throw new InvalidDPoPProofException('The DPoP proof "typ" header parameter is invalid.');
+        }
+
         $now = $this->clock->now()->getTimestamp();
 
         if (!\array_key_exists('iat', $proof->payload) || !\is_int($proof->payload['iat'])) {

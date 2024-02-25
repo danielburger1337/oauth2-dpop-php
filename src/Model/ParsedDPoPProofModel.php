@@ -6,10 +6,12 @@ final class ParsedDPoPProofModel
 {
     /**
      * @param array<string, mixed> $payload
+     * @param array<string, mixed> $protectedHeader
      */
     public function __construct(
         public readonly string $jwkThumbprint,
-        public readonly array $payload
+        public readonly array $payload,
+        public readonly array $protectedHeader
     ) {
     }
 }

@@ -57,7 +57,6 @@ class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
         }
 
         $headerCheckerManager = new Checker\HeaderCheckerManager([
-            new Checker\IsEqualChecker('typ', self::TYPE_HEADER_PARAMETER),
             new Checker\AlgorithmChecker($this->algorithmManager->list(), true),
         ], [
             new JWSTokenSupport(),
@@ -72,10 +71,6 @@ class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
             }
 
             $signature = $jws->getSignature($signatureIndex);
-
-            if (!$signature->hasProtectedHeaderParameter('typ')) {
-                throw new MissingMandatoryHeaderParameterException('The "typ" header parameter is missing.', ['typ']);
-            }
 
             $algorithmName = $signature->getProtectedHeaderParameter('alg');
             if (!\is_string($algorithmName) || !$this->algorithmManager->has($algorithmName)) {
@@ -112,7 +107,7 @@ class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
             throw new InvalidDPoPProofException('The DPoP proof has an invalid payload.');
         }
 
-        return new ParsedDPoPProofModel($jwk->thumbprint('sha256'), $unverifiedClaims);
+        return new ParsedDPoPProofModel($jwk->thumbprint('sha256'), $unverifiedClaims, $signature->getProtectedHeader());
     }
 
     public function selectJWK(?array $serverSupportedSignatureAlgorithms = null): JwkInterface
