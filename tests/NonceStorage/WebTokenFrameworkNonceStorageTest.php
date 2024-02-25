@@ -6,6 +6,7 @@ use danielburger1337\OAuth2DPoP\NonceStorage\WebTokenFrameworkNonceStorage;
 use Jose\Component\Core\Algorithm;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Core\JWK;
+use Jose\Component\Core\JWKSet;
 use Jose\Component\Core\Util\JsonConverter;
 use Jose\Component\KeyManagement\JWKFactory;
 use Jose\Component\Signature\Algorithm\HS256;
@@ -38,7 +39,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         $this->jwk = JWKFactory::createFromSecret(self::SECRET, ['kid' => 'abc', 'crv' => 'def']);
         $this->algorithm = new HS256();
 
-        $this->nonceStorage = new WebTokenFrameworkNonceStorage($this->algorithm, $this->jwk, $this->clock, self::TTL, self::ALLOWED_TIME_DRIFT);
+        $this->nonceStorage = new WebTokenFrameworkNonceStorage($this->algorithm, new JWKSet([$this->jwk]), $this->clock, self::TTL, self::ALLOWED_TIME_DRIFT);
     }
 
     #[Test]
