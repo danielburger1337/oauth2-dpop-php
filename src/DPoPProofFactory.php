@@ -2,6 +2,7 @@
 
 namespace danielburger1337\OAuth2DPoP;
 
+use Base64Url\Base64Url;
 use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
@@ -21,7 +22,7 @@ class DPoPProofFactory
     /**
      * @param string[]|null $serverSupportedSignatureAlgorithms [optional] The DPoP signature algorithms that the server reported as supported.
      */
-    public function createProof(string $htm, string $htu, ?AccessTokenModel $accessToken = null, ?array $serverSupportedSignatureAlgorithms = null): string
+    public function createProof(string $htm, string $htu, AccessTokenModel|null $accessToken = null, ?array $serverSupportedSignatureAlgorithms = null): string
     {
         $jwk = $this->jwtHandler->selectJWK($accessToken?->jkt, $serverSupportedSignatureAlgorithms);
 
@@ -30,7 +31,7 @@ class DPoPProofFactory
             'jwk' => $jwk->toPublic(),
         ];
 
-        return $this->jwtHandler->createProof($jwk, $this->createPayload($htm, $htu), $protectedHeader);
+        return $this->jwtHandler->createProof($jwk, $this->createPayload($htm, $htu, $accessToken), $protectedHeader);
     }
 
     public function createProofForRequest(RequestInterface $request): RequestInterface
@@ -43,7 +44,7 @@ class DPoPProofFactory
     /**
      * @return array<string, string|int>
      */
-    protected function createPayload(string $htm, string $htu): array
+    protected function createPayload(string $htm, string $htu, AccessTokenModel|null $accessToken): array
     {
         $pos = \strpos($htu, '?');
         if ($pos !== false) {
@@ -61,6 +62,10 @@ class DPoPProofFactory
             'iat' => $this->clock->now()->getTimestamp(),
             'jti' => \bin2hex(\random_bytes(32)),
         ];
+
+        if (null !== $accessToken) {
+            $payload['ath'] = Base64Url::encode(\hash('sha256', $accessToken->accessToken, true));
+        }
 
         if (null !== ($nonce = $this->nonceStorage?->getCurrentNonce($this->key))) {
             $payload['nonce'] = $nonce;
