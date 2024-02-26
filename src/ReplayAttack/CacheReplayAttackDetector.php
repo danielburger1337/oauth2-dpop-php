@@ -7,9 +7,14 @@ use Psr\Cache\CacheItemPoolInterface;
 
 class CacheReplayAttackDetector implements ReplayAttackDetectorInterface
 {
+    /**
+     * @param CacheItemPoolInterface $cache The PSR-6 cache to use as storage.
+     * @param \DateInterval          $ttl   How long the replay information must be stored for.
+     *                                      This should ideally match the lifetime of your DPoP nonces.
+     */
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
-        private readonly \DateInterval $ttl = new \DateInterval('PT15M')
+        private readonly \DateInterval $ttl = new \DateInterval('PT15M'),
     ) {
     }
 
@@ -19,12 +24,16 @@ class CacheReplayAttackDetector implements ReplayAttackDetectorInterface
 
         $item = $this->cache->getItem($key);
 
+        if ($item->isHit()) {
+            return false;
+        }
+
         $item->set(null);
         $item->expiresAfter($this->ttl);
 
         $this->cache->save($item);
 
-        return !$item->isHit();
+        return true;
     }
 
     protected function createKey(DecodedDPoPProof $proof): string
