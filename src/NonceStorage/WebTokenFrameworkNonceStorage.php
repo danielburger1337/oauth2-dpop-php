@@ -18,6 +18,9 @@ use Jose\Component\Signature\Serializer\CompactSerializer;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
 use Psr\Clock\ClockInterface;
 
+/**
+ * Statless nonce storage provider.
+ */
 class WebTokenFrameworkNonceStorage implements NonceVerificationStorageInterface
 {
     final public const TYPE_PARAMETER = 'dpop+nonce';

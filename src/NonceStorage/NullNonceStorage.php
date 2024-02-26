@@ -7,11 +7,6 @@ namespace danielburger1337\OAuth2DPoP\NonceStorage;
  */
 final class NullNonceStorage implements NonceStorageInterface
 {
-    public function createNewNonce(string $key): string
-    {
-        throw new \BadMethodCallException();
-    }
-
     public function getCurrentNonce(string $key): null
     {
         return null;
