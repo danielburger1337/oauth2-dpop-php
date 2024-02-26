@@ -72,11 +72,11 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
 
         try {
             $jws = $jwsLoader->loadAndVerifyWithKeySet($nonce, $this->jwkSet, $signatureIndex);
-        } catch (\Throwable) {
-            return false;
-        }
 
-        if (!\is_int($signatureIndex) || !$jws->getSignature($signatureIndex)->hasProtectedHeaderParameter('typ')) {
+            if (!\is_int($signatureIndex) || !$jws->getSignature($signatureIndex)->hasProtectedHeaderParameter('typ')) {
+                throw new \Exception();
+            }
+        } catch (\Exception) {
             return false;
         }
 
@@ -85,19 +85,18 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
             new Checker\IssuedAtChecker($this->allowedTimeDrift, false, $this->clock),
         ]);
 
-        $payload = $jws->getPayload();
-        if (null === $payload) {
-            return false;
-        }
-
-        $payload = JsonConverter::decode($payload);
-        if (!\is_array($payload)) {
+        try {
+            $payload = JsonConverter::decode($jws->getPayload() ?? '');
+            if (!\is_array($payload)) {
+                throw new \Exception();
+            }
+        } catch (\Exception) {
             return false;
         }
 
         try {
             $verifiedClaims = $claimCheckerManager->check($payload, ['iat', 'exp']);
-        } catch (\Throwable) {
+        } catch (\Exception) {
             return false;
         }
 
@@ -115,6 +114,9 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
         $payload = [
             'iat' => $now->getTimestamp(),
             'exp' => $now->add($this->ttl)->getTimestamp(),
+            // Some signatures are deterministic (always produce the same signature for the same input)
+            // Add a little bit of randomness to prevent multiple nonces to be equal when they were created
+            // at the same time.
             'jti' => \bin2hex(\random_bytes(4)),
         ];
 
