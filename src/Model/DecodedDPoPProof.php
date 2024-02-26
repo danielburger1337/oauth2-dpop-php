@@ -7,6 +7,8 @@ final class DecodedDPoPProof
     /**
      * @param array<string, mixed> $payload
      * @param array<string, mixed> $protectedHeader
+     *
+     * @codeCoverageIgnore
      */
     public function __construct(
         public readonly string $jwkThumbprint,
