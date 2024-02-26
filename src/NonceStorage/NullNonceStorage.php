@@ -2,6 +2,9 @@
 
 namespace danielburger1337\OAuth2DPoP\NonceStorage;
 
+/**
+ * Dummy storage that can be used if it is known that the OP does not use DPoP nonces.
+ */
 final class NullNonceStorage implements NonceStorageInterface
 {
     public function createNewNonce(string $key): string
