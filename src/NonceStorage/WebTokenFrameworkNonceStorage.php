@@ -10,7 +10,6 @@ use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Core\JWK;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\Core\Util\JsonConverter;
-use Jose\Component\Signature\Algorithm\None;
 use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\JWSLoader;
 use Jose\Component\Signature\JWSTokenSupport;
@@ -130,10 +129,6 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
 
         if (null === $jwk || null === $algorithm) {
             throw new MissingDPoPJwkException('Failed to find a suitable JWK/JWA to sign a DPoP-Nonce token.');
-        }
-
-        if ($algorithm instanceof None) {
-            throw new \RuntimeException('The "none" JWA algorithm may not be used to sign a DPoP-Nonce token.');
         }
 
         $protectedHeader = [
