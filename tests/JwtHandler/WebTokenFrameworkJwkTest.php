@@ -3,6 +3,7 @@
 namespace danielburger1337\OAuth2DPoP\Tests\JwtHandler;
 
 use danielburger1337\OAuth2DPoP\JwtHandler\WebTokenFrameworkJwk;
+use Jose\Component\Core\JWK;
 use Jose\Component\KeyManagement\JWKFactory;
 use Jose\Component\Signature\Algorithm\ES256;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -20,6 +21,7 @@ class WebTokenFrameworkJwkTest extends TestCase
     public function thumbprint_privateKey_returnsSha256Thumbprint(): void
     {
         $jwk = JWKFactory::createFromJsonObject(self::JWK);
+        $this->assertInstanceOf(JWK::class, $jwk);
 
         $model = new WebTokenFrameworkJwk($jwk, new ES256());
 
@@ -32,6 +34,7 @@ class WebTokenFrameworkJwkTest extends TestCase
     public function thumbprint_publicKey_returnsSha256Thumbprint(): void
     {
         $jwk = JWKFactory::createFromJsonObject(self::JWK_PUBLIC);
+        $this->assertInstanceOf(JWK::class, $jwk);
 
         $model = new WebTokenFrameworkJwk($jwk, new ES256());
 
@@ -44,6 +47,8 @@ class WebTokenFrameworkJwkTest extends TestCase
     public function toPublic_privateKey_returnsPublicKey(): void
     {
         $jwk = JWKFactory::createFromJsonObject(self::JWK);
+        $this->assertInstanceOf(JWK::class, $jwk);
+
         $model = new WebTokenFrameworkJwk($jwk, new ES256());
 
         $returnValue = $model->toPublic();
@@ -55,6 +60,8 @@ class WebTokenFrameworkJwkTest extends TestCase
     public function toPublic_publicKey_returnsPublicKey(): void
     {
         $jwk = JWKFactory::createFromJsonObject(self::JWK_PUBLIC);
+        $this->assertInstanceOf(JWK::class, $jwk);
+
         $model = new WebTokenFrameworkJwk($jwk, new ES256());
 
         $returnValue = $model->toPublic();
