@@ -75,18 +75,6 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
     }
 
     #[Test]
-    public function loadProof_privateJwkInHeader_throwsException(): void
-    {
-        // {"typ":"dpop+jwt","alg":"ES256","jwk":{...}.{"iat": 1708956826,"ath":"123","nonce":"abc"}
-        $proof = 'eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJkIjoicW00T2MyM1JSMmVBQnB4aHZiU1hLT2NGRmtDQXFYcE5GWV81U2FUZDRScyIsIngiOiJXVUNZNTh1WEZIY2VTNE9ycVlFUzV1UFJTSm8tNWs4UGljS3ZubEZEYlo0IiwieSI6IlVaMjhWd3FfS0FRTVNkdDh6WnBoSzhtWXRPNTFRbkdSNTFiZnJVUEJqOWcifX0.eyJpYXQiOjE3MDg5NTY4MjYsImF0aCI6IjEyMyIsIm5vbmNlIjoiYWJjIn0.mpUwGWjSii80WuIAu9mN6pILfBD7FZv4vBDMU3Bap4agMFbHf27yjA_-Ab5zfsf2-ZgR8es-ZuI1D212z0PjBQ';
-
-        $this->expectException(InvalidDPoPProofException::class);
-        $this->expectExceptionMessage('DPoP proof must not contain a private key in the "jwk" header parameter.');
-
-        $this->loader->loadProof($proof);
-    }
-
-    #[Test]
     public function loadProof_unsupportedAlgorithm_throwsException(): void
     {
         // {"typ":"dpop+jwt","alg":"EdDSA","jwk":{...}.{"iat": 1708956826,"ath":"123","nonce":"abc"}

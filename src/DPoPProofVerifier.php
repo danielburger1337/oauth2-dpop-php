@@ -78,6 +78,13 @@ class DPoPProofVerifier
             throw new InvalidDPoPProofException('The DPoP proof "typ" header parameter is invalid.');
         }
 
+        if (
+            !\is_array($proof->protectedHeader['jwk'] ?? null)
+            || [] !== \array_intersect_key($proof->protectedHeader['jwk'], \array_flip(['p', 'd', 'q', 'dp', 'dq', 'qi']))
+        ) {
+            throw new InvalidDPoPProofException('DPoP proof must not contain a private key in the "jwk" header parameter.');
+        }
+
         $now = $this->clock->now()->getTimestamp();
 
         if (!\array_key_exists('iat', $proof->payload) || !\is_int($proof->payload['iat'])) {

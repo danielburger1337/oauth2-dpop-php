@@ -46,10 +46,6 @@ class WebTokenFrameworkDPoPTokenLoader implements DPoPTokenLoaderInterface
             throw new InvalidDPoPProofException('Failed to get "jwk" from DPoP proof header.', previous: $e);
         }
 
-        if ($jwk->toPublic()->jsonSerialize() !== $jwk->jsonSerialize()) {
-            throw new InvalidDPoPProofException('DPoP proof must not contain a private key in the "jwk" header parameter.');
-        }
-
         $headerCheckerManager = new Checker\HeaderCheckerManager([
             new Checker\AlgorithmChecker($this->algorithmManager->list(), true),
         ], [
