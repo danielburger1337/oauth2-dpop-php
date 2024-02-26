@@ -29,9 +29,17 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
     private readonly JWSBuilder $jwsBuilder;
     private readonly JWSSerializerManager $serializer;
 
+    /**
+     * @param Algorithm|AlgorithmManager                                                    $algorithm        JWA that is used to sign the DPoP-Nonce token.
+     * @param JWK|JWKSet                                                                    $jwk              JWK that is used to sign the DPoP-Nonce token.
+     * @param ClockInterface                                                                $clock            PSR20 clock to use.
+     * @param \DateInterval                                                                 $ttl              [optional] How long a DPoP-Nonce token is valid.
+     * @param int                                                                           $allowedTimeDrift [optional] Allowed time skew offset in seconds.
+     * @param \Closure(array<string, int>, string, WebTokenFrameworkNonceStorage):void|null $closure          [optional] Callable that will be invoked when a DPoP-Nonce token was loaded.
+     */
     public function __construct(
         AlgorithmManager|Algorithm $algorithm,
-        JWKSet|JWK $jwk,
+        JWK|JWKSet $jwk,
         private readonly ClockInterface $clock,
         private readonly \DateInterval $ttl = new \DateInterval('PT15M'),
         private readonly int $allowedTimeDrift = 5,
