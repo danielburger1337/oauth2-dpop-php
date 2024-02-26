@@ -18,7 +18,7 @@ use Jose\Component\Signature\JWSVerifier;
 use Jose\Component\Signature\Serializer\CompactSerializer;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
 
-class WebTokenFrameworkTokenLoader implements DPoPTokenLoaderInterface
+class WebTokenFrameworkDPoPTokenLoader implements DPoPTokenLoaderInterface
 {
     private readonly JWSSerializerManager $serializer;
 

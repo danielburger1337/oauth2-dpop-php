@@ -3,7 +3,7 @@
 namespace danielburger1337\OAuth2DPoP\Tests\Loader;
 
 use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
-use danielburger1337\OAuth2DPoP\Loader\WebTokenFrameworkTokenLoader;
+use danielburger1337\OAuth2DPoP\Loader\WebTokenFrameworkDPoPTokenLoader;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Core\JWK;
 use Jose\Component\Signature\Algorithm\EdDSA;
@@ -17,14 +17,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(WebTokenFrameworkTokenLoader::class)]
-class WebTokenFrameworkTokenLoaderTest extends TestCase
+#[CoversClass(WebTokenFrameworkDPoPTokenLoader::class)]
+class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
 {
-    private WebTokenFrameworkTokenLoader $loader;
+    private WebTokenFrameworkDPoPTokenLoader $loader;
 
     protected function setUp(): void
     {
-        $this->loader = new WebTokenFrameworkTokenLoader(new AlgorithmManager([new ES256(), new HS256(), new None()]));
+        $this->loader = new WebTokenFrameworkDPoPTokenLoader(new AlgorithmManager([new ES256(), new HS256(), new None()]));
     }
 
     #[Test]
@@ -165,7 +165,7 @@ class WebTokenFrameworkTokenLoaderTest extends TestCase
     #[DataProvider('algorithmManagerDataProvider')]
     public function getSupportedAlgorithms_returnsList(AlgorithmManager $algorithmManager, array $expected): void
     {
-        $loader = new WebTokenFrameworkTokenLoader($algorithmManager);
+        $loader = new WebTokenFrameworkDPoPTokenLoader($algorithmManager);
 
         $returnValue = $loader->getSupportedAlgorithms();
 
