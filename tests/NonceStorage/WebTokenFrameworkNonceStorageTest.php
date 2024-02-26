@@ -2,6 +2,7 @@
 
 namespace danielburger1337\OAuth2DPoP\Tests\NonceStorage;
 
+use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
 use danielburger1337\OAuth2DPoP\NonceStorage\WebTokenFrameworkNonceStorage;
 use Jose\Component\Core\Algorithm;
 use Jose\Component\Core\AlgorithmManager;
@@ -9,9 +10,10 @@ use Jose\Component\Core\JWK;
 use Jose\Component\Core\JWKSet;
 use Jose\Component\Core\Util\JsonConverter;
 use Jose\Component\KeyManagement\JWKFactory;
+use Jose\Component\Signature\Algorithm\ES256;
 use Jose\Component\Signature\Algorithm\HS256;
-use Jose\Component\Signature\JWSBuilder;
-use Jose\Component\Signature\Serializer\CompactSerializer;
+use Jose\Component\Signature\Algorithm\RS256;
+use ParagonIE\ConstantTime\Base64UrlSafe;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -35,8 +37,10 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     #[\Override]
     protected function setUp(): void
     {
-        $this->clock = new MockClock();
-        $this->jwk = JWKFactory::createFromSecret(self::SECRET, ['kid' => 'abc', 'crv' => 'def']);
+        // important: do not change time, otherwise expected tokens dont work
+        $this->clock = new MockClock('2024-02-26 16:39:42');
+
+        $this->jwk = JWKFactory::createFromSecret(self::SECRET);
         $this->algorithm = new HS256();
 
         $this->nonceStorage = new WebTokenFrameworkNonceStorage(
@@ -51,6 +55,8 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     #[Test]
     public function isNonceValid_createdNonce_returnsTrue(): void
     {
+        // simple dummy test that the result of "createNewNonce" is accepted as valid
+
         $nonce = $this->nonceStorage->createNewNonce(self::KEY);
 
         $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
@@ -59,24 +65,30 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     }
 
     #[Test]
+    public function isNonceValid_invalidJwt_returnsFalse(): void
+    {
+        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, 'not a jwt');
+
+        $this->assertFalse($returnValue);
+    }
+
+    #[Test]
     public function isNonceValid_validNonce_returnsTrue(): void
     {
-        $nonce = $this->createNonce(
-            $this->clock->now()->getTimestamp(),
-            $this->clock->now()->add(new \DateInterval(self::TTL))->getTimestamp()
-        );
+        // issued now, expires in 5 minutes
+        // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
+        $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.Ilf1Ji1jecVSQlO8uU7TR435fWUvejGrWkXTi1F7bDY';
 
         $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
         $this->assertTrue($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_expiredNonceWithinTimeDrift_returnsFalse(): void
+    public function isNonceValid_expiredNonce_withinTimeDrift_returnsTrue(): void
     {
-        $nonce = $this->createNonce(
-            $this->clock->now()->getTimestamp(),
-            $this->clock->now()->sub(new \DateInterval('PT'.(self::ALLOWED_TIME_DRIFT - 1).'S'))->getTimestamp()
-        );
+        // issued 1 minute ago, expired 3 seconds ago
+        // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965522,"exp":1708965579}
+        $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1MjIsImV4cCI6MTcwODk2NTU3OX0.PS9D1EAz3i9v55q5LcE9Et4GNfhiyNLp42--T8F0vjk';
 
         $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
         $this->assertTrue($returnValue);
@@ -85,10 +97,9 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     #[Test]
     public function isNonceValid_expiredNonce_returnsFalse(): void
     {
-        $nonce = $this->createNonce(
-            $this->clock->now()->getTimestamp(),
-            $this->clock->now()->sub(new \DateInterval('PT'.(self::ALLOWED_TIME_DRIFT + 1).'S'))->getTimestamp()
-        );
+        // issued 1 minute ago, expired 10 seconds ago
+        // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965522,"exp":1708965572}
+        $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1MjIsImV4cCI6MTcwODk2NTU3Mn0.JE8ktw_FRedEEfCOvNibrF20HM8E_x2T24GVHAsX-j4';
 
         $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
         $this->assertFalse($returnValue);
@@ -97,22 +108,107 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     #[Test]
     public function isNonceValid_invalidSignature_returnsFalse(): void
     {
-        $nonce = $this->createNonce(
-            $this->clock->now()->getTimestamp(),
-            $this->clock->now()->getTimestamp(),
-            JWKFactory::createFromSecret(\random_bytes(32))
-        );
+        // issued now, expires in 5 minutes, signed with \strrev(self::SECRET)
+        // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
+        $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.yXFg9Ci5TJ52Wlu0YlRLlGfeoNYzvuLSSc45itTe78E';
 
         $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
         $this->assertFalse($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_invalidJwt_returnsFalse(): void
+    public function isNonceValid_unsupportedAlgorithm_returnsFalse(): void
     {
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, 'not a valid jwt');
+        // issued now, expires in 5 minutes
+        // {"typ":"dpop+none","alg":"ES256"}.{"iat":1708965582,"exp":1708965882}
+        $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiRVMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.QIl-pVKCn3FnNGnu6XBKR5twC8NMX-ZgD7EMUrkQgjqrWkvo6_qtaRHMlzw7hHhYRg0Upo1wnsBP3BouNT4zAA';
 
+        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
         $this->assertFalse($returnValue);
+    }
+
+    #[Test]
+    public function isNonceValid_missingTypHeader_returnsFalse(): void
+    {
+        // issued now, expires in 5 minutes
+        // {"alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
+        $nonce = 'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.ZbeAmXvsc1mXerJhTyvYWB5cLf-svnM4S5vxGjOtGDc';
+
+        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
+        $this->assertFalse($returnValue);
+    }
+
+    #[Test]
+    public function isNonceValid_invalidTypHeader_returnsFalse(): void
+    {
+        // issued now, expires in 5 minutes
+        // {"typ":"nonce+dpop","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
+        $nonce = 'eyJ0eXAiOiJub25jZStkcG9wIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.qLHrXQ6yYZa3HKZKPW5iHur9AY5E2MoIDc5NMtgSC-A';
+
+        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
+        $this->assertFalse($returnValue);
+    }
+
+    #[Test]
+    public function isNonceValid_invalidPayload_returnsFalse(): void
+    {
+        // issued now, expires in 5 minutes
+        // {"typ":"dpop+nonce","alg":"HS256"}.null
+        $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.bnVsbA.O-W8qtpNGkEbIqLd7juSOi01_VKi-89m1GgXQjaSKdQ';
+
+        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
+        $this->assertFalse($returnValue);
+    }
+
+    #[Test]
+    public function isNonceValid_missingIatClaim_returnsFalse(): void
+    {
+        // expires in 5 minutes
+        // {"typ":"dpop+nonce","alg":"HS256"}.{"exp":1708965882}
+        $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJleHAiOjE3MDg5NjU4ODJ9.3oB13vP_eQkaA1JfSF8l0OoN7l_fKVR820YZTYDMGBE';
+
+        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
+        $this->assertFalse($returnValue);
+    }
+
+    #[Test]
+    public function isNonceValid_missingExpClaim_returnsFalse(): void
+    {
+        // issued now
+        // {"typ":"dpop+nonce","alg":"HS256"}.{"iat":1708965582}
+        $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODJ9.1RCMEExWDg6Rw9qp-uJNZpOMyDvxKICAAC4LHt8PTBA';
+
+        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
+        $this->assertFalse($returnValue);
+    }
+
+    #[Test]
+    public function isNonceValid_validNonce_callsClosure(): void
+    {
+        /**
+         * @param array<string, int> $claims
+         */
+        $closure = function (array $claims, string $key, WebTokenFrameworkNonceStorage $storage): void {
+            $this->assertEquals(['iat' => 1708965582, 'exp' => 1708965882], $claims);
+            $this->assertEquals(self::KEY, $key);
+            $this->assertInstanceOf(WebTokenFrameworkNonceStorage::class, $storage);
+        };
+
+        $nonceStorage = new WebTokenFrameworkNonceStorage(
+            $this->algorithm,
+            new JWKSet([$this->jwk]),
+            $this->clock,
+            new \DateInterval(self::TTL),
+            self::ALLOWED_TIME_DRIFT,
+            \Closure::fromCallable($closure)
+        );
+
+        // issued now, expires in 5 minutes
+        // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
+        $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.Ilf1Ji1jecVSQlO8uU7TR435fWUvejGrWkXTi1F7bDY';
+
+        $returnValue = $nonceStorage->isNonceValid(self::KEY, $nonce);
+        $this->assertTrue($returnValue);
     }
 
     #[Test]
@@ -122,7 +218,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         $parts = \explode('.', $nonce);
         $this->assertCount(3, $parts);
 
-        $payload = JsonConverter::decode(\base64_decode($parts[1]));
+        $payload = JsonConverter::decode(Base64UrlSafe::decodeNoPadding($parts[1]));
         $this->assertIsArray($payload);
 
         $this->assertArrayHasKey('exp', $payload);
@@ -150,12 +246,67 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
 
         $this->assertArrayHasKey('typ', $header);
         $this->assertEquals(WebTokenFrameworkNonceStorage::TYPE_PARAMETER, $header['typ']);
+    }
+
+    #[Test]
+    public function createNewNonce_header_hasKidAndCrv(): void
+    {
+        $jwk = JWKFactory::createECKey('P-256', ['kid' => 'abc', 'crv' => 'P-256']);
+
+        $nonceStorage = new WebTokenFrameworkNonceStorage(
+            new ES256(),
+            $jwk,
+            $this->clock,
+            new \DateInterval(self::TTL),
+            self::ALLOWED_TIME_DRIFT
+        );
+
+        $nonce = $nonceStorage->createNewNonce(self::KEY);
+        $parts = \explode('.', $nonce);
+        $this->assertCount(3, $parts);
+
+        $header = JsonConverter::decode(\base64_decode($parts[0]));
+        $this->assertIsArray($header);
 
         $this->assertArrayHasKey('kid', $header);
-        $this->assertEquals($this->jwk->get('kid'), $header['kid']);
+        $this->assertEquals($jwk->get('kid'), $header['kid']);
 
         $this->assertArrayHasKey('crv', $header);
-        $this->assertEquals($this->jwk->get('crv'), $header['crv']);
+        $this->assertEquals($jwk->get('crv'), $header['crv']);
+    }
+
+    #[Test]
+    public function createNewNonce_noMatchingAlgorithm_throwsException(): void
+    {
+        $this->expectException(MissingDPoPJwkException::class);
+        $this->expectExceptionMessage('Failed to find a suitable JWK/JWA to sign a DPoP-Nonce token.');
+
+        $nonceStorage = new WebTokenFrameworkNonceStorage(
+            new AlgorithmManager([new ES256(), new RS256()]),
+            $this->jwk,
+            $this->clock,
+            new \DateInterval(self::TTL),
+            self::ALLOWED_TIME_DRIFT
+        );
+
+        $nonceStorage->createNewNonce(self::KEY);
+    }
+
+    #[Test]
+    public function createNewNonce_noneAlgorithm_throwsException(): void
+    {
+        $this->expectException(MissingDPoPJwkException::class);
+        $this->expectExceptionMessage('Failed to find a suitable JWK/JWA to sign a DPoP-Nonce token.');
+
+        $nonceStorage = new WebTokenFrameworkNonceStorage(
+            new AlgorithmManager([new ES256(), new RS256()]),
+            $this->jwk,
+            $this->clock,
+            new \DateInterval(self::TTL),
+            self::ALLOWED_TIME_DRIFT
+        );
+
+        $nonceStorage->createNewNonce(self::KEY);
     }
 
     #[Test]
@@ -173,21 +324,5 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         $returnValue2 = $this->nonceStorage->getCurrentNonce(self::KEY);
 
         $this->assertNotEquals($returnValue1, $returnValue2);
-    }
-
-    private function createNonce(int $iat, int $exp, ?JWK $jwk = null): string
-    {
-        $header = ['typ' => WebTokenFrameworkNonceStorage::TYPE_PARAMETER, 'alg' => $this->algorithm->name()];
-        $payload = [
-            'iat' => $iat,
-            'exp' => $exp,
-            ];
-
-        $builder = (new JWSBuilder(new AlgorithmManager([$this->algorithm])))
-            ->create()
-            ->withPayload(JsonConverter::encode($payload))
-            ->addSignature($jwk ?? $this->jwk, $header);
-
-        return (new CompactSerializer())->serialize($builder->build());
     }
 }
