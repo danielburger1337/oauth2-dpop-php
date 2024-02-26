@@ -79,7 +79,7 @@ class DPoPProofFactory
         return $request->withHeader('DPoP', $proof->proof);
     }
 
-    public function storeNextNonce(string $nonce, string $htm, UriInterface|string $htu): void
+    public function storeNextNonce(string $nonce, UriInterface|string $htu): void
     {
         $key = $this->nonceStorageKeyFactory->createKey(Util::createHtu($htu));
         $this->nonceStorage->storeNextNonce($key, $nonce);
