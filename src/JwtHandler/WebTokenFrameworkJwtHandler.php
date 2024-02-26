@@ -44,7 +44,7 @@ class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
 
             if (null !== ($jwk = $this->jwkSet->selectKey('sig', $algorithm))) {
                 if (null === $jkt || $jkt === $jwk->thumbprint('sha256')) {
-                    return new WebTokenFrameworkJwk($jwk, $algorithm);
+                    return new WebTokenFrameworkJwk($jwk, $jkt, $algorithm);
                 }
             }
         }

@@ -13,6 +13,7 @@ final class WebTokenFrameworkJwk implements JwkInterface
 {
     public function __construct(
         public readonly JWK $jwk,
+        public readonly string $jkt,
         public readonly Algorithm $algorithm
     ) {
     }
@@ -24,6 +25,6 @@ final class WebTokenFrameworkJwk implements JwkInterface
 
     public function thumbprint(): string
     {
-        return $this->jwk->thumbprint('sha256');
+        return $this->jkt;
     }
 }

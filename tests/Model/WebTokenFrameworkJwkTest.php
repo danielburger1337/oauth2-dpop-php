@@ -23,7 +23,7 @@ class WebTokenFrameworkJwkTest extends TestCase
         $jwk = JWKFactory::createFromJsonObject(self::JWK);
         $this->assertInstanceOf(JWK::class, $jwk);
 
-        $model = new WebTokenFrameworkJwk($jwk, new ES256());
+        $model = new WebTokenFrameworkJwk($jwk, self::JKT, new ES256());
 
         $returnValue = $model->thumbprint();
 
@@ -36,7 +36,7 @@ class WebTokenFrameworkJwkTest extends TestCase
         $jwk = JWKFactory::createFromJsonObject(self::JWK_PUBLIC);
         $this->assertInstanceOf(JWK::class, $jwk);
 
-        $model = new WebTokenFrameworkJwk($jwk, new ES256());
+        $model = new WebTokenFrameworkJwk($jwk, self::JKT, new ES256());
 
         $returnValue = $model->thumbprint();
 
@@ -49,7 +49,7 @@ class WebTokenFrameworkJwkTest extends TestCase
         $jwk = JWKFactory::createFromJsonObject(self::JWK);
         $this->assertInstanceOf(JWK::class, $jwk);
 
-        $model = new WebTokenFrameworkJwk($jwk, new ES256());
+        $model = new WebTokenFrameworkJwk($jwk, self::JKT, new ES256());
 
         $returnValue = $model->toPublic();
 
@@ -62,7 +62,7 @@ class WebTokenFrameworkJwkTest extends TestCase
         $jwk = JWKFactory::createFromJsonObject(self::JWK_PUBLIC);
         $this->assertInstanceOf(JWK::class, $jwk);
 
-        $model = new WebTokenFrameworkJwk($jwk, new ES256());
+        $model = new WebTokenFrameworkJwk($jwk, self::JKT, new ES256());
 
         $returnValue = $model->toPublic();
 
