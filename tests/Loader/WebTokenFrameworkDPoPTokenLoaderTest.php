@@ -111,6 +111,20 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
     }
 
     #[Test]
+    public function loadProof_signedByOtherJwk_throwsException(): void
+    {
+        // the "jwk" in the header is not the one that signed the token
+
+        // {"typ":"dpop+jwt","alg":"ES256","jwk":{...}.{"iat": 1708956826,"ath":"123","nonce":"abc"}
+        $proof = 'eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4Ijoid3BsTVhFNzl1QlZLSkY4Rkl3MVpkbmk1dXdDeXlWUnlVc2dOS0JzQWNiVSIsInkiOiJlSHVPOEMwcUxzanNqNVIxaTlXdnJHS0xvR1hrVEFia21Fa1pSSVg4MDZBIn19.eyJpYXQiOjE3MDg5NTY4MjYsImF0aCI6IjEyMyIsIm5vbmNlIjoiYWJjIn0.JBRhMZ3z0ePYQEOrGf8uTV14u-S0B4FgTYM-i-Up6Hz_RLT384SlQh1a6ZXaTO_EQKBqrgQHPS0GFvV4gz3Y9A';
+
+        $this->expectException(InvalidDPoPProofException::class);
+        $this->expectExceptionMessage('The DPoP proof either has an invalid signature or uses an unsupported algorithm.');
+
+        $this->loader->loadProof($proof);
+    }
+
+    #[Test]
     public function loadProof_missingAlgHeader_throwsException(): void
     {
         // {"typ":"dpop+jwt","jwk":{...}.{"iat": 1708956826,"ath":"123","nonce":"abc"}

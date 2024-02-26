@@ -67,7 +67,10 @@ class WebTokenFrameworkDPoPTokenLoader implements DPoPTokenLoaderInterface
 
             $algorithmName = $signature->getProtectedHeaderParameter('alg');
             if (!\is_string($algorithmName)) {
+                // This code path is unreachable because "loadAndVerifyWithKey" fails without this header
+                // @codeCoverageIgnoreStart
                 throw new InvalidHeaderException('Invalid algorithm', 'alg', $algorithmName);
+                // @codeCoverageIgnoreEnd
             }
 
             $algorithm = $this->algorithmManager->get($algorithmName);
