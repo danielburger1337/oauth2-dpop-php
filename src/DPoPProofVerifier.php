@@ -70,13 +70,6 @@ class DPoPProofVerifier
 
         $proof = $this->tokenLoader->loadProof($dpopProof);
 
-        if (!\array_key_exists('htu', $proof->payload) || !\is_string($proof->payload['htu'])) {
-            throw new InvalidDPoPProofException('The DPoP proof is missing the required "htu" claim.');
-        }
-        if (!\hash_equals(\strtolower($htu), \strtolower($proof->payload['htu']))) {
-            throw new InvalidDPoPProofException('The DPoP proof "htu" claim is invalid.');
-        }
-
         if (!\array_key_exists('htm', $proof->payload) || !\is_string($proof->payload['htm'])) {
             throw new InvalidDPoPProofException('The DPoP proof is missing the required "htm" claim.');
         }
@@ -84,11 +77,26 @@ class DPoPProofVerifier
             throw new InvalidDPoPProofException('The DPoP proof "htm" claim is invalid.');
         }
 
+        if (!\array_key_exists('htu', $proof->payload) || !\is_string($proof->payload['htu'])) {
+            throw new InvalidDPoPProofException('The DPoP proof is missing the required "htu" claim.');
+        }
+        if (!\hash_equals(\strtolower($htu), \strtolower($proof->payload['htu']))) {
+            throw new InvalidDPoPProofException('The DPoP proof "htu" claim is invalid.');
+        }
+
         if (
             !\array_key_exists('typ', $proof->protectedHeader)
             || $proof->protectedHeader['typ'] !== JwtHandlerInterface::TYPE_HEADER_PARAMETER
         ) {
             throw new InvalidDPoPProofException('The DPoP proof "typ" header parameter is invalid.');
+        }
+
+        if (!\array_key_exists('jti', $proof->payload) || !\is_string($proof->payload['jti'])) {
+            throw new InvalidDPoPProofException('The DPoP proof is missing the required "jti" claim.');
+        }
+        $jtiLen = \strlen($proof->payload['jti']);
+        if ($jtiLen < 16 || $jtiLen > 4096) {
+            throw new InvalidDPoPProofException('The DPoP proof is "jti" claim does not match the required format.');
         }
 
         $now = $this->clock->now()->getTimestamp();
@@ -144,28 +152,16 @@ class DPoPProofVerifier
         if (null !== $this->nonceStorage) {
             $thumbprint = $proof->jwk->thumbprint();
 
-            if (!\array_key_exists('nonce', $proof->payload)) {
+            if (!\array_key_exists('nonce', $proof->payload) || !\is_string($proof->payload['nonce'])) {
                 $nonce = $this->nonceStorage->getCurrentOrCreateNewNonce($thumbprint);
 
                 throw new InvalidDPoPNonceException($nonce, 'The DPoP proof is missing the required "nonce" claim.');
-            }
-
-            if (!\is_string($proof->payload['nonce'])) {
-                throw new InvalidDPoPProofException('The DPoP proof has a malformed "nonce" claim.');
             }
 
             $nonce = $this->nonceStorage->createNewNonceIfInvalid($thumbprint, $proof->payload['nonce']);
             if (null !== $nonce) {
                 throw new InvalidDPoPNonceException($nonce, 'The DPoP proof "nonce" claim is invalid.');
             }
-        }
-
-        if (!\array_key_exists('jti', $proof->payload) || !\is_string($proof->payload['jti'])) {
-            throw new InvalidDPoPProofException('The DPoP proof is missing the required "jti" claim.');
-        }
-        $jtiLen = \strlen($proof->payload['jti']);
-        if ($jtiLen < 16 || $jtiLen > 4096) {
-            throw new InvalidDPoPProofException('The DPoP proof is "jti" claim does not match the required format.');
         }
 
         if (false === $this->replayAttackDetector?->consumeProof($proof)) {
