@@ -15,11 +15,21 @@ class CacheNonceStorage implements NonceStorageInterface
     ) {
     }
 
-    public function isNonceValid(string $key, string $nonce): bool
+    public function createNewNonceIfInvalid(string $key, string $nonce): ?string
     {
-        $stored = $this->getCurrentNonce($key);
+        $item = $this->cache->getItem($key);
+        if (!$item->isHit() || !\is_string($stored = $item->get())) {
+            $nonce = $this->generateNonce();
 
-        return \is_string($stored) && \hash_equals($stored, $nonce);
+            $item->set($nonce);
+            $item->expiresAfter($this->ttl);
+
+            $this->cache->save($item);
+
+            return $nonce;
+        }
+
+        return \hash_equals($stored, $nonce) ? null : $stored;
     }
 
     public function getCurrentNonce(string $key): ?string
@@ -45,10 +55,15 @@ class CacheNonceStorage implements NonceStorageInterface
 
     public function createNewNonce(string $key): string
     {
-        $nonce = \bin2hex(\random_bytes(32));
+        $nonce = $this->generateNonce();
 
         $this->storeNextNonce($key, $nonce);
 
         return $nonce;
+    }
+
+    protected function generateNonce(): string
+    {
+        return \bin2hex(\random_bytes(32));
     }
 }

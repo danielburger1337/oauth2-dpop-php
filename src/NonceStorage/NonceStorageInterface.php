@@ -14,12 +14,14 @@ interface NonceStorageInterface
     public function createNewNonce(string $key): string;
 
     /**
-     * Whether the DPoP-Nonce is valid.
+     * Create a new DPoP-Nonce if the given one is invalid.
      *
      * @param string $key   The storage key to use for comparisson.
      * @param string $nonce The nonce to compare.
+     *
+     * @return string|null The newly created nonce or null if the provided nonce is valid.
      */
-    public function isNonceValid(string $key, string $nonce): bool;
+    public function createNewNonceIfInvalid(string $key, string $nonce): string|null;
 
     /**
      * Get the current DPoP-Nonce.

@@ -53,137 +53,140 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     }
 
     #[Test]
-    public function isNonceValid_createdNonce_returnsTrue(): void
+    public function createNewNonceIfInvalid_createdNonce_returnsNull(): void
     {
         // simple dummy test that the result of "createNewNonce" is accepted as valid
 
         $nonce = $this->nonceStorage->createNewNonce(self::KEY);
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
 
-        $this->assertTrue($returnValue);
+        $this->assertNull($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_invalidJwt_returnsFalse(): void
+    public function createNewNonceIfInvalid_invalidJwt_createsNewNonce(): void
     {
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, 'not a jwt');
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, 'not a jwt');
 
-        $this->assertFalse($returnValue);
+        $this->assertIsValidNonce($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_validNonce_returnsTrue(): void
+    public function createNewNonceIfInvalid_validNonce_returnsNull(): void
     {
         // issued now, expires in 5 minutes
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.Ilf1Ji1jecVSQlO8uU7TR435fWUvejGrWkXTi1F7bDY';
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
-        $this->assertTrue($returnValue);
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+
+        $this->assertNull($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_expiredNonce_withinTimeDrift_returnsTrue(): void
+    public function createNewNonceIfInvalid_expiredNonce_withinTimeDrift_returnsTrue(): void
     {
         // issued 1 minute ago, expired 3 seconds ago
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965522,"exp":1708965579}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1MjIsImV4cCI6MTcwODk2NTU3OX0.PS9D1EAz3i9v55q5LcE9Et4GNfhiyNLp42--T8F0vjk';
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
-        $this->assertTrue($returnValue);
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+
+        $this->assertNull($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_expiredNonce_returnsFalse(): void
+    public function createNewNonceIfInvalid_expiredNonce_createsNewNonce(): void
     {
         // issued 1 minute ago, expired 10 seconds ago
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965522,"exp":1708965572}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1MjIsImV4cCI6MTcwODk2NTU3Mn0.JE8ktw_FRedEEfCOvNibrF20HM8E_x2T24GVHAsX-j4';
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
-        $this->assertFalse($returnValue);
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+
+        $this->assertIsValidNonce($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_invalidSignature_returnsFalse(): void
+    public function createNewNonceIfInvalid_invalidSignature_createsNewNonce(): void
     {
         // issued now, expires in 5 minutes, signed with \strrev(self::SECRET)
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.yXFg9Ci5TJ52Wlu0YlRLlGfeoNYzvuLSSc45itTe78E';
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
-        $this->assertFalse($returnValue);
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $this->assertIsValidNonce($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_unsupportedAlgorithm_returnsFalse(): void
+    public function createNewNonceIfInvalid_unsupportedAlgorithm_createsNewNonce(): void
     {
         // issued now, expires in 5 minutes
         // {"typ":"dpop+none","alg":"ES256"}.{"iat":1708965582,"exp":1708965882}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiRVMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.QIl-pVKCn3FnNGnu6XBKR5twC8NMX-ZgD7EMUrkQgjqrWkvo6_qtaRHMlzw7hHhYRg0Upo1wnsBP3BouNT4zAA';
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
-        $this->assertFalse($returnValue);
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $this->assertIsValidNonce($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_missingTypHeader_returnsFalse(): void
+    public function createNewNonceIfInvalid_missingTypHeader_createsNewNonce(): void
     {
         // issued now, expires in 5 minutes
         // {"alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
         $nonce = 'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.ZbeAmXvsc1mXerJhTyvYWB5cLf-svnM4S5vxGjOtGDc';
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
-        $this->assertFalse($returnValue);
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $this->assertIsValidNonce($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_invalidTypHeader_returnsFalse(): void
+    public function createNewNonceIfInvalid_invalidTypHeader_createsNewNonce(): void
     {
         // issued now, expires in 5 minutes
         // {"typ":"nonce+dpop","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
         $nonce = 'eyJ0eXAiOiJub25jZStkcG9wIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.qLHrXQ6yYZa3HKZKPW5iHur9AY5E2MoIDc5NMtgSC-A';
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
-        $this->assertFalse($returnValue);
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $this->assertIsValidNonce($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_invalidPayload_returnsFalse(): void
+    public function createNewNonceIfInvalid_invalidPayload_createsNewNonce(): void
     {
         // issued now, expires in 5 minutes
         // {"typ":"dpop+nonce","alg":"HS256"}.null
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.bnVsbA.O-W8qtpNGkEbIqLd7juSOi01_VKi-89m1GgXQjaSKdQ';
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
-        $this->assertFalse($returnValue);
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $this->assertIsValidNonce($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_missingIatClaim_returnsFalse(): void
+    public function createNewNonceIfInvalid_missingIatClaim_createsNewNonce(): void
     {
         // expires in 5 minutes
         // {"typ":"dpop+nonce","alg":"HS256"}.{"exp":1708965882}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJleHAiOjE3MDg5NjU4ODJ9.3oB13vP_eQkaA1JfSF8l0OoN7l_fKVR820YZTYDMGBE';
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
-        $this->assertFalse($returnValue);
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $this->assertIsValidNonce($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_missingExpClaim_returnsFalse(): void
+    public function createNewNonceIfInvalid_missingExpClaim_createsNewNonce(): void
     {
         // issued now
         // {"typ":"dpop+nonce","alg":"HS256"}.{"iat":1708965582}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODJ9.1RCMEExWDg6Rw9qp-uJNZpOMyDvxKICAAC4LHt8PTBA';
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::KEY, $nonce);
-        $this->assertFalse($returnValue);
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $this->assertIsValidNonce($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_validNonce_callsClosure(): void
+    public function createNewNonceIfInvalid_validNonce_callsClosure(): void
     {
         /**
          * @param array<string, int> $claims
@@ -207,8 +210,8 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.Ilf1Ji1jecVSQlO8uU7TR435fWUvejGrWkXTi1F7bDY';
 
-        $returnValue = $nonceStorage->isNonceValid(self::KEY, $nonce);
-        $this->assertTrue($returnValue);
+        $returnValue = $nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $this->assertNull($returnValue);
     }
 
     #[Test]
@@ -324,5 +327,11 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         $returnValue2 = $this->nonceStorage->getCurrentNonce(self::KEY);
 
         $this->assertNotEquals($returnValue1, $returnValue2);
+    }
+
+    private function assertIsValidNonce(string|null $nonce, string|null $key = null): void
+    {
+        $this->assertIsString($nonce);
+        $this->assertNull($this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce));
     }
 }

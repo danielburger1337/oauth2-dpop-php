@@ -12,12 +12,12 @@ final class NullNonceStorage implements NonceStorageInterface
         throw new \BadMethodCallException();
     }
 
-    public function isNonceValid(string $key, string $nonce): bool
+    public function createNewNonceIfInvalid(string $key, string $nonce): null
     {
-        return false;
+        return null;
     }
 
-    public function getCurrentNonce(string $key): ?string
+    public function getCurrentNonce(string $key): null
     {
         return null;
     }

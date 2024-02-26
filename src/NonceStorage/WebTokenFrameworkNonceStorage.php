@@ -34,7 +34,8 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
      * @param ClockInterface                                                                $clock            PSR20 clock to use.
      * @param \DateInterval                                                                 $ttl              [optional] How long a DPoP-Nonce token is valid.
      * @param int                                                                           $allowedTimeDrift [optional] Allowed time skew offset in seconds.
-     * @param \Closure(array<string, int>, string, WebTokenFrameworkNonceStorage):void|null $closure          [optional] Callable that will be invoked when a DPoP-Nonce token was loaded.
+     * @param \Closure(array<string, int>, string, WebTokenFrameworkNonceStorage):void|null $closure          [optional] Callable that will be invoked when a valid DPoP-Nonce token was loaded.
+     *                                                                                                        This callable may be used to send the client a new DPoP-Nonce.
      */
     public function __construct(
         AlgorithmManager|Algorithm $algorithm,
@@ -58,7 +59,7 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
         $this->jwsBuilder = new JWSBuilder($this->algorithmManager);
     }
 
-    public function isNonceValid(string $key, string $nonce): bool
+    public function createNewNonceIfInvalid(string $key, string $nonce): ?string
     {
         $headerCheckerManager = new Checker\HeaderCheckerManager([
             new Checker\IsEqualChecker('typ', self::TYPE_PARAMETER),
@@ -75,35 +76,28 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
             if (!\is_int($signatureIndex) || !$jws->getSignature($signatureIndex)->hasProtectedHeaderParameter('typ')) {
                 throw new \Exception();
             }
-        } catch (\Exception) {
-            return false;
-        }
 
-        $claimCheckerManager = new ClaimCheckerManager([
-            new Checker\ExpirationTimeChecker($this->allowedTimeDrift, false, $this->clock),
-            new Checker\IssuedAtChecker($this->allowedTimeDrift, false, $this->clock),
-        ]);
+            $claimCheckerManager = new ClaimCheckerManager([
+                new Checker\ExpirationTimeChecker($this->allowedTimeDrift, false, $this->clock),
+                new Checker\IssuedAtChecker($this->allowedTimeDrift, false, $this->clock),
+            ]);
 
-        try {
             $payload = JsonConverter::decode($jws->getPayload() ?? '');
             if (!\is_array($payload)) {
                 throw new \Exception();
             }
-        } catch (\Exception) {
-            return false;
-        }
 
-        try {
             $verifiedClaims = $claimCheckerManager->check($payload, ['iat', 'exp']);
         } catch (\Exception) {
-            return false;
+            return $this->createNewNonce($key);
         }
 
         if (null !== $this->closure) {
+            // @see https://datatracker.ietf.org/doc/html/rfc9449#section-8.2
             \call_user_func($this->closure, $verifiedClaims, $key, $this);
         }
 
-        return true;
+        return null;
     }
 
     public function createNewNonce(string $key): string

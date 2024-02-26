@@ -145,9 +145,12 @@ class DPoPProofVerifier
                 throw new InvalidDPoPNonceException($nonce, 'The DPoP proof is missing the required "nonce" claim.');
             }
 
-            if (!\is_string($proof->payload['nonce']) || !$this->nonceStorage->isNonceValid($thumbprint, $proof->payload['nonce'])) {
-                $nonce = $this->nonceStorage->createNewNonce($thumbprint);
+            if (!\is_string($proof->payload['nonce'])) {
+                throw new InvalidDPoPProofException('The DPoP proof has a malformed "nonce" claim.');
+            }
 
+            $nonce = $this->nonceStorage->createNewNonceIfInvalid($thumbprint, $proof->payload['nonce']);
+            if (null !== $nonce) {
                 throw new InvalidDPoPNonceException($nonce, 'The DPoP proof "nonce" claim is invalid.');
             }
         }

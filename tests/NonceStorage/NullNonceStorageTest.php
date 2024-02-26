@@ -29,11 +29,11 @@ class NullNonceStorageTest extends TestCase
 
     #[Test]
     #[DataProvider('dataProvider')]
-    public function isNonceValid_returnsFalse(string $key): void
+    public function createNewNonceIfInvalid_returnsNull(string $key): void
     {
-        $returnValue = $this->nonceStorage->isNonceValid($key, 'nonce');
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid($key, 'nonce');
 
-        $this->assertFalse($returnValue);
+        $this->assertNull($returnValue);
     }
 
     #[Test]

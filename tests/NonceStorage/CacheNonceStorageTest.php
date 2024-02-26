@@ -30,7 +30,7 @@ class CacheNonceStorageTest extends TestCase
     }
 
     #[Test]
-    public function isNonceValid_validNonce_returnsTrue(): void
+    public function createNewNonceIfInvalid_validNonce_returnsNull(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects($this->once())
@@ -46,12 +46,15 @@ class CacheNonceStorageTest extends TestCase
             ->with(self::CACHE_KEY)
             ->willReturn($item);
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::CACHE_KEY, self::STORED_NONCE);
-        $this->assertTrue($returnValue);
+        $this->cache->expects($this->never())
+            ->method('save');
+
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::CACHE_KEY, self::STORED_NONCE);
+        $this->assertNull($returnValue);
     }
 
     #[Test]
-    public function isNonceValid_invalidNonce_returnsFalse(): void
+    public function createNewNonceIfInvalid_invalidNonce_hasStoredNonce_returnsStoredNonce(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects($this->once())
@@ -67,12 +70,15 @@ class CacheNonceStorageTest extends TestCase
             ->with(self::CACHE_KEY)
             ->willReturn($item);
 
-        $returnValue = $this->nonceStorage->isNonceValid(self::CACHE_KEY, 'invalid nonce');
-        $this->assertFalse($returnValue);
+        $this->cache->expects($this->never())
+            ->method('save');
+
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::CACHE_KEY, 'invalid nonce');
+        $this->assertEquals(self::STORED_NONCE, $returnValue);
     }
 
     #[Test]
-    public function isNonceValid_cacheMiss_returnsFalse(): void
+    public function createNewNonceIfInvalid_cacheMiss_createsNewNonce(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects($this->once())
@@ -82,13 +88,60 @@ class CacheNonceStorageTest extends TestCase
         $item->expects($this->never())
             ->method('get');
 
+        $item->expects($this->once())
+            ->method('set')
+            ->with($this->isType('string'));
+
+        $item->expects($this->once())
+            ->method('expiresAfter')
+            ->with(new \DateInterval(self::CACHE_TTL));
+
         $this->cache->expects($this->once())
             ->method('getItem')
-            ->with('key')
+            ->with(self::CACHE_KEY)
             ->willReturn($item);
 
-        $returnValue = $this->nonceStorage->isNonceValid('key', 'nonce');
-        $this->assertFalse($returnValue);
+        $this->cache->expects($this->once())
+            ->method('save')
+            ->with($item);
+
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::CACHE_KEY, 'nonce');
+        $this->assertIsString($returnValue);
+        $this->assertNotEquals('nonce', $returnValue);
+    }
+
+    #[Test]
+    public function createNewNonceIfInvalid_notStringCacheValue_createsNewNonce(): void
+    {
+        $item = $this->createMock(CacheItemInterface::class);
+        $item->expects($this->once())
+            ->method('isHit')
+            ->willReturn(true);
+
+        $item->expects($this->once())
+            ->method('get')
+            ->willReturn(1); // not a string
+
+        $item->expects($this->once())
+            ->method('set')
+            ->with($this->isType('string'));
+
+        $item->expects($this->once())
+            ->method('expiresAfter')
+            ->with(new \DateInterval(self::CACHE_TTL));
+
+        $this->cache->expects($this->once())
+            ->method('getItem')
+            ->with(self::CACHE_KEY)
+            ->willReturn($item);
+
+        $this->cache->expects($this->once())
+            ->method('save')
+            ->with($item);
+
+        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::CACHE_KEY, 'nonce');
+        $this->assertIsString($returnValue);
+        $this->assertNotEquals('nonce', $returnValue);
     }
 
     #[Test]
