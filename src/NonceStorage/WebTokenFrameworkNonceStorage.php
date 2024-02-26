@@ -28,22 +28,15 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
 
     private readonly JWSBuilder $jwsBuilder;
     private readonly JWSSerializerManager $serializer;
-    private readonly \DateInterval $ttl;
 
     public function __construct(
         AlgorithmManager|Algorithm $algorithm,
         JWKSet|JWK $jwk,
         private readonly ClockInterface $clock,
-        \DateInterval|string $ttl = new \DateInterval('PT15M'),
+        private readonly \DateInterval $ttl = new \DateInterval('PT15M'),
         private readonly int $allowedTimeDrift = 5,
         private readonly \Closure|null $closure = null
     ) {
-        if (\is_string($ttl)) {
-            $this->ttl = new \DateInterval($ttl);
-        } else {
-            $this->ttl = $ttl;
-        }
-
         if ($algorithm instanceof Algorithm) {
             $algorithm = new AlgorithmManager([$algorithm]);
         }

@@ -26,7 +26,7 @@ class CacheNonceStorageTest extends TestCase
     {
         $this->cache = $this->createMock(CacheItemPoolInterface::class);
 
-        $this->nonceStorage = new CacheNonceStorage($this->cache, self::CACHE_TTL);
+        $this->nonceStorage = new CacheNonceStorage($this->cache, new \DateInterval(self::CACHE_TTL));
     }
 
     #[Test]

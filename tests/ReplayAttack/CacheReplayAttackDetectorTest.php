@@ -25,7 +25,7 @@ class CacheReplayAttackDetectorTest extends TestCase
     {
         $this->cache = $this->createMock(CacheItemPoolInterface::class);
 
-        $this->replayAttackDetector = new CacheReplayAttackDetector($this->cache, self::CACHE_TTL);
+        $this->replayAttackDetector = new CacheReplayAttackDetector($this->cache, new \DateInterval(self::CACHE_TTL));
     }
 
     #[Test]

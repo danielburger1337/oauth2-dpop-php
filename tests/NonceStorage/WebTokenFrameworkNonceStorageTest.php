@@ -39,7 +39,13 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         $this->jwk = JWKFactory::createFromSecret(self::SECRET, ['kid' => 'abc', 'crv' => 'def']);
         $this->algorithm = new HS256();
 
-        $this->nonceStorage = new WebTokenFrameworkNonceStorage($this->algorithm, new JWKSet([$this->jwk]), $this->clock, self::TTL, self::ALLOWED_TIME_DRIFT);
+        $this->nonceStorage = new WebTokenFrameworkNonceStorage(
+            $this->algorithm,
+            new JWKSet([$this->jwk]),
+            $this->clock,
+            new \DateInterval(self::TTL),
+            self::ALLOWED_TIME_DRIFT
+        );
     }
 
     #[Test]
