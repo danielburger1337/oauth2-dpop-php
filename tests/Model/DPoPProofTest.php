@@ -2,7 +2,6 @@
 
 namespace danielburger1337\OAuth2DPoP\Model;
 
-use danielburger1337\OAuth2DPoP\JwtHandler\JwkInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;

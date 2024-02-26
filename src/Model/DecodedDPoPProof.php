@@ -2,8 +2,6 @@
 
 namespace danielburger1337\OAuth2DPoP\Model;
 
-use danielburger1337\OAuth2DPoP\JwtHandler\JwkInterface;
-
 final class DecodedDPoPProof
 {
     /**

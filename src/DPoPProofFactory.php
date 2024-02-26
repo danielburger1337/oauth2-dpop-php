@@ -3,10 +3,10 @@
 namespace danielburger1337\OAuth2DPoP;
 
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
-use danielburger1337\OAuth2DPoP\JwtHandler\JwkInterface;
 use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\Model\DPoPProof;
+use danielburger1337\OAuth2DPoP\Model\JwkInterface;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageKeyFactoryInterface;
 use Psr\Clock\ClockInterface;

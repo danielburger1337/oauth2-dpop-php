@@ -2,7 +2,6 @@
 
 namespace danielburger1337\OAuth2DPoP\Model;
 
-use danielburger1337\OAuth2DPoP\JwtHandler\JwkInterface;
 use Jose\Component\Core\Algorithm;
 use Jose\Component\Core\JWK;
 

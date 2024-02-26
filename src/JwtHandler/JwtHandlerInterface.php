@@ -3,6 +3,7 @@
 namespace danielburger1337\OAuth2DPoP\JwtHandler;
 
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
+use danielburger1337\OAuth2DPoP\Model\JwkInterface;
 
 interface JwtHandlerInterface
 {

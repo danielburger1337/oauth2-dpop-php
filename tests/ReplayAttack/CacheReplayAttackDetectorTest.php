@@ -2,8 +2,8 @@
 
 namespace danielburger1337\OAuth2DPoP\Tests\ReplayAttack;
 
-use danielburger1337\OAuth2DPoP\JwtHandler\JwkInterface;
 use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
+use danielburger1337\OAuth2DPoP\Model\JwkInterface;
 use danielburger1337\OAuth2DPoP\ReplayAttack\CacheReplayAttackDetector;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
