@@ -8,16 +8,16 @@ use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
 interface DPoPTokenLoaderInterface
 {
     /**
-     * Parse a DPoP proof.
+     * Load a DPoP proof token.
      *
-     * @param string $proof The DPoP proof to parse.
+     * @param string $proof The DPoP proof to load.
      *
      * @throws InvalidDPoPProofException If the DPoP proof is invalid.
      */
     public function loadProof(string $proof): DecodedDPoPProof;
 
     /**
-     * The JWAs that are able to be parsed and verify.
+     * The JWAs that are able to be loaded and verified.
      *
      * @return string[]
      */
