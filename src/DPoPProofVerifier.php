@@ -70,19 +70,25 @@ class DPoPProofVerifier
 
         $proof = $this->tokenLoader->loadProof($dpopProof);
 
-        if (
-            !\array_key_exists('typ', $proof->protectedHeader)
-            || !\is_string($proof->protectedHeader['typ'])
-            || $proof->protectedHeader['typ'] !== JwtHandlerInterface::TYPE_HEADER_PARAMETER
-        ) {
-            throw new InvalidDPoPProofException('The DPoP proof "typ" header parameter is invalid.');
+        if (!\array_key_exists('htu', $proof->payload) || !\is_string($proof->payload['htu'])) {
+            throw new InvalidDPoPProofException('The DPoP proof is missing the required "htu" claim.');
+        }
+        if (!\hash_equals(\strtolower($htu), \strtolower($proof->payload['htu']))) {
+            throw new InvalidDPoPProofException('The DPoP proof "htu" claim is invalid.');
+        }
+
+        if (!\array_key_exists('htm', $proof->payload) || !\is_string($proof->payload['htm'])) {
+            throw new InvalidDPoPProofException('The DPoP proof is missing the required "htm" claim.');
+        }
+        if (!\hash_equals(\strtolower($htm), \strtolower($proof->payload['htm']))) {
+            throw new InvalidDPoPProofException('The DPoP proof "htm" claim is invalid.');
         }
 
         if (
-            !\is_array($proof->protectedHeader['jwk'] ?? null)
-            || [] !== \array_intersect_key($proof->protectedHeader['jwk'], \array_flip(['p', 'd', 'q', 'dp', 'dq', 'qi']))
+            !\array_key_exists('typ', $proof->protectedHeader)
+            || $proof->protectedHeader['typ'] !== JwtHandlerInterface::TYPE_HEADER_PARAMETER
         ) {
-            throw new InvalidDPoPProofException('DPoP proof must not contain a private key in the "jwk" header parameter.');
+            throw new InvalidDPoPProofException('The DPoP proof "typ" header parameter is invalid.');
         }
 
         $now = $this->clock->now()->getTimestamp();
@@ -110,36 +116,29 @@ class DPoPProofVerifier
             }
 
             if ($now < $proof->payload['nbf'] - $this->allowedTimeDrift) {
-                throw new InvalidDPoPProofException('The DPoP proof is not valid valid.');
+                throw new InvalidDPoPProofException('The DPoP proof is not yet valid.');
             }
         }
 
-        if (null !== $accessToken) {
-            if ($proof->jwk->thumbprint() !== $accessToken->jkt) {
-                throw new InvalidDPoPProofException('The DPoP proof was signed by a different JWK than was used to issue the access token.');
-            }
+        if (
+            !\is_array($proof->protectedHeader['jwk'] ?? null) // this SHOULD be impossible
+            || 0 !== \count(\array_intersect_key($proof->protectedHeader['jwk'], \array_flip(['p', 'd', 'q', 'dp', 'dq', 'qi'])))
+        ) {
+            throw new InvalidDPoPProofException('DPoP proof must not contain a private key in the "jwk" header parameter.');
+        }
 
+        if (null !== $accessToken) {
             if (!\array_key_exists('ath', $proof->payload) || !\is_string($proof->payload['ath'])) {
                 throw new InvalidDPoPProofException('The DPoP proof is missing the required "ath" claim.');
+            }
+
+            if ($proof->jwk->thumbprint() !== $accessToken->jkt) {
+                throw new InvalidDPoPProofException('The DPoP proof was signed by a different JWK than was used to issue the access token.');
             }
 
             if (!\hash_equals(Util::createAccessTokenHash($accessToken), $proof->payload['ath'])) {
                 throw new InvalidDPoPProofException('The DPoP proof "ath" claim is invalid.');
             }
-        }
-
-        if (!\array_key_exists('htu', $proof->payload) || !\is_string($proof->payload['htu'])) {
-            throw new InvalidDPoPProofException('The DPoP proof is missing the required "htu" claim.');
-        }
-        if (!\hash_equals(\strtolower($htu), \strtolower($proof->payload['htu']))) {
-            throw new InvalidDPoPProofException('The DPoP proof "htu" claim is invalid.');
-        }
-
-        if (!\array_key_exists('htm', $proof->payload) || !\is_string($proof->payload['htm'])) {
-            throw new InvalidDPoPProofException('The DPoP proof is missing the required "htm" claim.');
-        }
-        if (!\hash_equals(\strtolower($htm), \strtolower($proof->payload['htm']))) {
-            throw new InvalidDPoPProofException('The DPoP proof "htm" claim is invalid.');
         }
 
         if (null !== $this->nonceStorage) {
