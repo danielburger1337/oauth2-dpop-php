@@ -18,7 +18,7 @@ use Jose\Component\Signature\Serializer\CompactSerializer;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
 use Psr\Clock\ClockInterface;
 
-class WebTokenFrameworkNonceStorage implements NonceStorageInterface
+class WebTokenFrameworkNonceStorage implements NonceVerificationStorageInterface
 {
     final public const TYPE_PARAMETER = 'dpop+nonce';
 
@@ -89,7 +89,7 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
 
             $verifiedClaims = $claimCheckerManager->check($payload, ['iat', 'exp']);
         } catch (\Exception) {
-            return $this->createNewNonce($key);
+            return $this->getCurrentOrCreateNewNonce($key);
         }
 
         if (null !== $this->closure) {
@@ -100,7 +100,7 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
         return null;
     }
 
-    public function createNewNonce(string $key): string
+    public function getCurrentOrCreateNewNonce(string $key): string
     {
         $now = $this->clock->now();
 
@@ -143,15 +143,5 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
         ;
 
         return $this->serializer->serialize(CompactSerializer::NAME, $builder->build());
-    }
-
-    public function storeNextNonce(string $key, string $nonce): void
-    {
-        // noop
-    }
-
-    public function getCurrentNonce(string $key): ?string
-    {
-        return $this->createNewNonce($key);
     }
 }

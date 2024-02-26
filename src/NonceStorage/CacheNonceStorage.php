@@ -4,7 +4,7 @@ namespace danielburger1337\OAuth2DPoP\NonceStorage;
 
 use Psr\Cache\CacheItemPoolInterface;
 
-class CacheNonceStorage implements NonceStorageInterface
+class CacheNonceStorage implements NonceStorageInterface, NonceVerificationStorageInterface
 {
     /**
      * @codeCoverageIgnore
@@ -15,7 +15,24 @@ class CacheNonceStorage implements NonceStorageInterface
     ) {
     }
 
-    public function createNewNonceIfInvalid(string $key, string $nonce): ?string
+    public function getCurrentOrCreateNewNonce(string $key): string
+    {
+        $item = $this->cache->getItem($key);
+        if (!$item->isHit() || !\is_string($stored = $item->get())) {
+            $nonce = $this->generateNonce();
+
+            $item->set($nonce);
+            $item->expiresAfter($this->ttl);
+
+            $this->cache->save($item);
+
+            return $nonce;
+        }
+
+        return $stored;
+    }
+
+    public function createNewNonceIfInvalid(string $key, string $nonce): string|null
     {
         $item = $this->cache->getItem($key);
         if (!$item->isHit() || !\is_string($stored = $item->get())) {
@@ -32,7 +49,7 @@ class CacheNonceStorage implements NonceStorageInterface
         return \hash_equals($stored, $nonce) ? null : $stored;
     }
 
-    public function getCurrentNonce(string $key): ?string
+    public function getCurrentNonce(string $key): string|null
     {
         $item = $this->cache->getItem($key);
         if (!$item->isHit()) {
@@ -51,15 +68,6 @@ class CacheNonceStorage implements NonceStorageInterface
         $item->expiresAfter($this->ttl);
 
         $this->cache->save($item);
-    }
-
-    public function createNewNonce(string $key): string
-    {
-        $nonce = $this->generateNonce();
-
-        $this->storeNextNonce($key, $nonce);
-
-        return $nonce;
     }
 
     protected function generateNonce(): string

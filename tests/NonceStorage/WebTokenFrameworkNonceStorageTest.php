@@ -55,9 +55,9 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     #[Test]
     public function createNewNonceIfInvalid_createdNonce_returnsNull(): void
     {
-        // simple dummy test that the result of "createNewNonce" is accepted as valid
+        // simple dummy test that the result of "getCurrentOrCreateNewNonce" is accepted as valid
 
-        $nonce = $this->nonceStorage->createNewNonce(self::KEY);
+        $nonce = $this->nonceStorage->getCurrentOrCreateNewNonce(self::KEY);
 
         $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
 
@@ -217,7 +217,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     #[Test]
     public function createNewNonce_payload_hasExpectedClaims(): void
     {
-        $nonce = $this->nonceStorage->createNewNonce(self::KEY);
+        $nonce = $this->nonceStorage->getCurrentOrCreateNewNonce(self::KEY);
         $parts = \explode('.', $nonce);
         $this->assertCount(3, $parts);
 
@@ -237,7 +237,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     #[Test]
     public function createNewNonce_header_hasExpectedParameters(): void
     {
-        $nonce = $this->nonceStorage->createNewNonce(self::KEY);
+        $nonce = $this->nonceStorage->getCurrentOrCreateNewNonce(self::KEY);
         $parts = \explode('.', $nonce);
         $this->assertCount(3, $parts);
 
@@ -252,7 +252,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonce_header_hasKidAndCrv(): void
+    public function getCurrentOrCreateNewNonce_header_hasKidAndCrv(): void
     {
         $jwk = JWKFactory::createECKey('P-256', ['kid' => 'abc', 'crv' => 'P-256']);
 
@@ -264,7 +264,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
             self::ALLOWED_TIME_DRIFT
         );
 
-        $nonce = $nonceStorage->createNewNonce(self::KEY);
+        $nonce = $nonceStorage->getCurrentOrCreateNewNonce(self::KEY);
         $parts = \explode('.', $nonce);
         $this->assertCount(3, $parts);
 
@@ -279,7 +279,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonce_noMatchingAlgorithm_throwsException(): void
+    public function getCurrentOrCreateNewNonce_noMatchingAlgorithm_throwsException(): void
     {
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a suitable JWK/JWA to sign a DPoP-Nonce token.');
@@ -292,11 +292,11 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
             self::ALLOWED_TIME_DRIFT
         );
 
-        $nonceStorage->createNewNonce(self::KEY);
+        $nonceStorage->getCurrentOrCreateNewNonce(self::KEY);
     }
 
     #[Test]
-    public function createNewNonce_noneAlgorithm_throwsException(): void
+    public function getCurrentOrCreateNewNonce_noneAlgorithm_throwsException(): void
     {
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a suitable JWK/JWA to sign a DPoP-Nonce token.');
@@ -309,24 +309,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
             self::ALLOWED_TIME_DRIFT
         );
 
-        $nonceStorage->createNewNonce(self::KEY);
-    }
-
-    #[Test]
-    public function storeNextNonce_doesNothing(): void
-    {
-        $this->expectNotToPerformAssertions();
-
-        $this->nonceStorage->storeNextNonce(self::KEY, 'def');
-    }
-
-    #[Test]
-    public function getCurrentNonce_createsNewNonce(): void
-    {
-        $returnValue1 = $this->nonceStorage->getCurrentNonce(self::KEY);
-        $returnValue2 = $this->nonceStorage->getCurrentNonce(self::KEY);
-
-        $this->assertNotEquals($returnValue1, $returnValue2);
+        $nonceStorage->getCurrentOrCreateNewNonce(self::KEY);
     }
 
     private function assertIsValidNonce(string|null $nonce, string|null $key = null): void

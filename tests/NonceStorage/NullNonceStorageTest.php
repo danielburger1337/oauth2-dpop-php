@@ -20,24 +20,6 @@ class NullNonceStorageTest extends TestCase
 
     #[Test]
     #[DataProvider('dataProvider')]
-    public function createNewNonce_throwsException(string $key): void
-    {
-        $this->expectException(\BadMethodCallException::class);
-
-        $this->nonceStorage->createNewNonce($key);
-    }
-
-    #[Test]
-    #[DataProvider('dataProvider')]
-    public function createNewNonceIfInvalid_returnsNull(string $key): void
-    {
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid($key, 'nonce');
-
-        $this->assertNull($returnValue);
-    }
-
-    #[Test]
-    #[DataProvider('dataProvider')]
     public function getCurrentNonce_returnsNull(string $key): void
     {
         $returnValue = $this->nonceStorage->getCurrentNonce($key);

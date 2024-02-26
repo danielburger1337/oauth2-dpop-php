@@ -9,7 +9,7 @@ use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
 use danielburger1337\OAuth2DPoP\Loader\DPoPTokenLoaderInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
-use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
+use danielburger1337\OAuth2DPoP\NonceStorage\NonceVerificationStorageInterface;
 use danielburger1337\OAuth2DPoP\ReplayAttack\ReplayAttackDetectorInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -18,15 +18,15 @@ use Symfony\Component\HttpFoundation\Request;
 class DPoPProofVerifier
 {
     /**
-     * @param NonceStorageInterface|null         $nonceStorage         [optional] The "nonce" claim storage.
-     *                                                                 Pass `null` will disable the nonce requirement.
-     * @param ReplayAttackDetectorInterface|null $replayAttackDetector [optional] A service that can detect whether the DPoP proof was already used.
-     *                                                                 Pass `null` will disables replay attack detection.
+     * @param NonceVerificationStorageInterface|null $nonceStorage         [optional] The "nonce" claim storage.
+     *                                                                     `null` will disable the nonce requirement.
+     * @param ReplayAttackDetectorInterface|null     $replayAttackDetector [optional] A service that can detect whether the DPoP proof was already used.
+     *                                                                     `null` will disable replay attack detection.
      */
     public function __construct(
         private readonly ClockInterface $clock,
         private readonly DPoPTokenLoaderInterface $tokenLoader,
-        private readonly NonceStorageInterface|null $nonceStorage = null,
+        private readonly NonceVerificationStorageInterface|null $nonceStorage = null,
         private readonly ReplayAttackDetectorInterface|null $replayAttackDetector = null,
         private readonly int $allowedTimeDrift = 5
     ) {
@@ -139,8 +139,7 @@ class DPoPProofVerifier
             $thumbprint = $proof->jwk->thumbprint();
 
             if (!\array_key_exists('nonce', $proof->payload)) {
-                $nonce = $this->nonceStorage->getCurrentNonce($thumbprint);
-                $nonce ??= $this->nonceStorage->createNewNonce($thumbprint);
+                $nonce = $this->nonceStorage->getCurrentOrCreateNewNonce($thumbprint);
 
                 throw new InvalidDPoPNonceException($nonce, 'The DPoP proof is missing the required "nonce" claim.');
             }
