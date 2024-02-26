@@ -22,6 +22,9 @@ class WebTokenFrameworkTokenLoader implements DPoPTokenLoaderInterface
 {
     private readonly JWSSerializerManager $serializer;
 
+    /**
+     * @param AlgorithmManager $algorithmManager An algorithm manager that contains all the JWA algorithms that are supported.
+     */
     public function __construct(
         private readonly AlgorithmManager $algorithmManager
     ) {
@@ -75,15 +78,11 @@ class WebTokenFrameworkTokenLoader implements DPoPTokenLoaderInterface
             }
         } catch (\Exception $e) {
             if ($e instanceof InvalidHeaderException) {
-                $header = \htmlspecialchars($e->getHeader());
-
-                throw new InvalidDPoPProofException("The DPoP proof \"{$header}\" header parameter is invalid.", previous: $e);
+                throw new InvalidDPoPProofException("The DPoP proof \"{$e->getHeader()}\" header parameter is invalid.", previous: $e);
             }
 
             if ($e instanceof MissingMandatoryHeaderParameterException) {
-                $list = \array_map(static fn (string $param): string => \htmlspecialchars($param), $e->getParameters());
-
-                throw new InvalidDPoPProofException('The DPoP proof is missing the following mandatory header parameters: '.\implode(', ', $list), previous: $e);
+                throw new InvalidDPoPProofException('The DPoP proof is missing the following mandatory header parameters: '.\implode(', ', $e->getParameters()), previous: $e);
             }
 
             throw new InvalidDPoPProofException('The DPoP proof has an invalid signature.', previous: $e);
