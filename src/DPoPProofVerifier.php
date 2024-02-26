@@ -162,7 +162,7 @@ class DPoPProofVerifier
             $key = \hash('xxh128', $proof->jwkThumbprint.$proof->payload['jti']);
 
             if ($this->replayAttackDetector->isReplay($key)) {
-                throw new DPoPReplayAttackException();
+                throw new DPoPReplayAttackException($proof->payload['jti']);
             }
 
             $this->replayAttackDetector->storeUsage($key);
