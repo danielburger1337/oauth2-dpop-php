@@ -2,10 +2,12 @@
 
 namespace danielburger1337\OAuth2DPoP\Exception;
 
+use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
+
 class DPoPReplayAttackException extends DPoPException
 {
     public function __construct(
-        public readonly string $key,
+        public readonly DecodedDPoPProof $proof,
         string $message = 'The given DPoP proof was already presented.',
         int $code = 0,
         \Throwable|null $previous = null

@@ -2,6 +2,7 @@
 
 namespace danielburger1337\OAuth2DPoP\ReplayAttack;
 
+use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
 use Psr\Cache\CacheItemPoolInterface;
 
 class CacheReplayAttackDetector implements ReplayAttackDetectorInterface
@@ -12,17 +13,22 @@ class CacheReplayAttackDetector implements ReplayAttackDetectorInterface
     ) {
     }
 
-    public function isReplay(string $key): bool
+    public function consumeProof(DecodedDPoPProof $proof): bool
     {
-        return $this->cache->getItem($key)->isHit();
-    }
+        $key = $this->createKey($proof);
 
-    public function storeUsage(string $key): void
-    {
         $item = $this->cache->getItem($key);
+
         $item->set(null);
         $item->expiresAfter($this->ttl);
 
         $this->cache->save($item);
+
+        return !$item->isHit();
+    }
+
+    protected function createKey(DecodedDPoPProof $proof): string
+    {
+        return \hash('xxh128', $proof->jwkThumbprint.$proof->payload['jti']);
     }
 }

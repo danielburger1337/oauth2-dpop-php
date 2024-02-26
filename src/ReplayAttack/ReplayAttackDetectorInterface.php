@@ -2,15 +2,16 @@
 
 namespace danielburger1337\OAuth2DPoP\ReplayAttack;
 
+use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
+
 interface ReplayAttackDetectorInterface
 {
     /**
-     * Whether the DPoP proof was already used.
+     * Consume a DPoP proof token.
+     *
+     * @param DecodedDPoPProof $proof The DPoP proof token to consume.
+     *
+     * @return bool Returns `true` if the proof was accepted, `false` otherwise.
      */
-    public function isReplay(string $key): bool;
-
-    /**
-     * Store the usage of the DPoP proof.
-     */
-    public function storeUsage(string $key): void;
+    public function consumeProof(DecodedDPoPProof $proof): bool;
 }

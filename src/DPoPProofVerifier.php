@@ -11,8 +11,6 @@ use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
 use danielburger1337\OAuth2DPoP\ReplayAttack\ReplayAttackDetectorInterface;
-use danielburger1337\OAuth2DPoP\ReplayAttack\ReplayAttackKeyFactory;
-use danielburger1337\OAuth2DPoP\ReplayAttack\ReplayAttackKeyFactoryInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,7 +27,6 @@ class DPoPProofVerifier
         private readonly ClockInterface $clock,
         private readonly DPoPTokenLoaderInterface $tokenLoader,
         private readonly NonceStorageInterface|null $nonceStorage = null,
-        private readonly ReplayAttackKeyFactoryInterface $replayAttackKeyFactory = new ReplayAttackKeyFactory(),
         private readonly ReplayAttackDetectorInterface|null $replayAttackDetector = null,
         private readonly int $allowedTimeDrift = 5
     ) {
@@ -161,14 +158,8 @@ class DPoPProofVerifier
             throw new InvalidDPoPProofException('The DPoP proof is "jti" claim does not match the required format.');
         }
 
-        if (null !== $this->replayAttackDetector) {
-            $key = $this->replayAttackKeyFactory->createKey($proof);
-
-            if ($this->replayAttackDetector->isReplay($key)) {
-                throw new DPoPReplayAttackException($key);
-            }
-
-            $this->replayAttackDetector->storeUsage($key);
+        if (false === $this->replayAttackDetector?->consumeProof($proof)) {
+            throw new DPoPReplayAttackException($proof);
         }
 
         return $proof;
