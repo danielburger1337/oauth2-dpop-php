@@ -169,8 +169,8 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     #[Test]
     public function getCurrentNonce_createsNewNonce(): void
     {
-        $returnValue1 = $this->nonceStorage->createNewNonce(self::KEY);
-        $returnValue2 = $this->nonceStorage->createNewNonce(self::KEY);
+        $returnValue1 = $this->nonceStorage->getCurrentNonce(self::KEY);
+        $returnValue2 = $this->nonceStorage->getCurrentNonce(self::KEY);
 
         $this->assertNotEquals($returnValue1, $returnValue2);
     }
