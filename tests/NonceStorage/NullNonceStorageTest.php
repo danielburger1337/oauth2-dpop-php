@@ -40,7 +40,7 @@ class NullNonceStorageTest extends TestCase
     #[DataProvider('dataProvider')]
     public function getCurrentNonce_returnsNull(string $key): void
     {
-        $returnValue = $this->nonceStorage->getCurrentNonce($key, 'nonce');
+        $returnValue = $this->nonceStorage->getCurrentNonce($key);
 
         $this->assertNull($returnValue);
     }
