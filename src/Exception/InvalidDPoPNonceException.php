@@ -4,6 +4,9 @@ namespace danielburger1337\OAuth2DPoP\Exception;
 
 class InvalidDPoPNonceException extends InvalidDPoPProofException
 {
+    /**
+     * @codeCoverageIgnore
+     */
     public function __construct(
         #[\SensitiveParameter]
         public readonly string $newNonce,

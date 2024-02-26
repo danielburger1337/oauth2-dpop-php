@@ -6,6 +6,9 @@ use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
 
 class DPoPReplayAttackException extends DPoPException
 {
+    /**
+     * @codeCoverageIgnore
+     */
     public function __construct(
         public readonly DecodedDPoPProof $proof,
         string $message = 'The given DPoP proof was already presented.',
