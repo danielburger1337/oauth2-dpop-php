@@ -48,7 +48,17 @@ class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
             }
         }
 
-        throw new MissingDPoPJwkException();
+        if (null !== $jkt) {
+            throw new MissingDPoPJwkException(\sprintf(
+                'Failed to find a JWK with the "%s" JKT.',
+                $jkt
+            ));
+        }
+
+        throw new MissingDPoPJwkException(\sprintf(
+            'Failed to find a JWK for the supported DPoP algorithms "%s".',
+            \implode(',', $serverSupportedSignatureAlgorithms)
+        ));
     }
 
     public function createProof(JwkInterface $jwk, array $payload, array $protectedHeader): string

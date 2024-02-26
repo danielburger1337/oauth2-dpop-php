@@ -118,8 +118,12 @@ class WebTokenFrameworkNonceStorage implements NonceStorageInterface
             }
         }
 
-        if (null === $jwk || null === $algorithm || $algorithm instanceof None) {
-            throw new MissingDPoPJwkException();
+        if (null === $jwk || null === $algorithm) {
+            throw new MissingDPoPJwkException('Failed to find a suitable JWK/JWA to sign a DPoP-Nonce token.');
+        }
+
+        if ($algorithm instanceof None) {
+            throw new \RuntimeException('The "none" JWA algorithm may not be used to sign a DPoP-Nonce token.');
         }
 
         $protectedHeader = [

@@ -58,7 +58,7 @@ class WebTokenFrameworkTokenLoader implements DPoPTokenLoaderInterface
         try {
             $jws = $jwsLoader->loadAndVerifyWithKey($proof, $jwk, $signatureIndex);
             if (null === $signatureIndex) {
-                throw new \Exception('');
+                throw new \Exception('Failed to get signature index from DPoP proof.');
             }
 
             $signature = $jws->getSignature($signatureIndex);
@@ -92,7 +92,7 @@ class WebTokenFrameworkTokenLoader implements DPoPTokenLoaderInterface
         try {
             $unverifiedClaims = JsonConverter::decode($jws->getPayload() ?? '');
             if (!\is_array($unverifiedClaims)) {
-                throw new \Exception();
+                throw new \Exception('DPoP proof payload could not be decoded to an array.');
             }
         } catch (\Exception $e) {
             throw new InvalidDPoPProofException('The DPoP proof has an invalid payload.');
