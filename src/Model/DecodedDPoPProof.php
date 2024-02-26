@@ -2,7 +2,7 @@
 
 namespace danielburger1337\OAuth2DPoP\Model;
 
-final class ParsedDPoPProofModel
+final class DecodedDPoPProof
 {
     /**
      * @param array<string, mixed> $payload

@@ -3,7 +3,7 @@
 namespace danielburger1337\OAuth2DPoP\Loader;
 
 use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
-use danielburger1337\OAuth2DPoP\Model\ParsedDPoPProofModel;
+use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
 use Jose\Component\Checker;
 use Jose\Component\Checker\InvalidHeaderException;
 use Jose\Component\Checker\MissingMandatoryHeaderParameterException;
@@ -28,7 +28,7 @@ class WebTokenFrameworkTokenLoader implements DPoPTokenLoaderInterface
         $this->serializer = new JWSSerializerManager([new CompactSerializer()]);
     }
 
-    public function loadProof(string $proof): ParsedDPoPProofModel
+    public function loadProof(string $proof): DecodedDPoPProof
     {
         try {
             $jws = $this->serializer->unserialize($proof);
@@ -98,7 +98,7 @@ class WebTokenFrameworkTokenLoader implements DPoPTokenLoaderInterface
             throw new InvalidDPoPProofException('The DPoP proof has an invalid payload.');
         }
 
-        return new ParsedDPoPProofModel($jwk->thumbprint('sha256'), $unverifiedClaims, $signature->getProtectedHeader());
+        return new DecodedDPoPProof($jwk->thumbprint('sha256'), $unverifiedClaims, $signature->getProtectedHeader());
     }
 
     public function getSupportedAlgorithms(): array

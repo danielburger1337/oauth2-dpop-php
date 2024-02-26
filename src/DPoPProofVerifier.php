@@ -8,7 +8,7 @@ use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
 use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
 use danielburger1337\OAuth2DPoP\Loader\DPoPTokenLoaderInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
-use danielburger1337\OAuth2DPoP\Model\ParsedDPoPProofModel;
+use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
 use danielburger1337\OAuth2DPoP\ReplayAttack\ReplayAttackDetectorInterface;
 use Psr\Clock\ClockInterface;
@@ -32,7 +32,7 @@ class DPoPProofVerifier
     ) {
     }
 
-    public function verifyFromRequest(ServerRequestInterface|Request $request, AccessTokenModel|null $accessToken = null): ParsedDPoPProofModel
+    public function verifyFromRequest(ServerRequestInterface|Request $request, AccessTokenModel|null $accessToken = null): DecodedDPoPProof
     {
         if ($request instanceof Request) {
             /** @var string[] */
@@ -61,7 +61,7 @@ class DPoPProofVerifier
      * @throws InvalidDPoPNonceException If the DPoP nonce is invalid.
      * @throws \InvalidArgumentException If access token is not of type "DPoP"
      */
-    public function verifyFromRequestParts(string $dpopProof, string $htm, string $htu, AccessTokenModel|null $accessToken = null): ParsedDPoPProofModel
+    public function verifyFromRequestParts(string $dpopProof, string $htm, string $htu, AccessTokenModel|null $accessToken = null): DecodedDPoPProof
     {
         $dpopProof = \trim($dpopProof);
         if ('' === $dpopProof) {
