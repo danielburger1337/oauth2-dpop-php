@@ -36,7 +36,7 @@ class WebTokenFrameworkTokenLoader implements DPoPTokenLoaderInterface
         try {
             $jws = $this->serializer->unserialize($proof);
         } catch (\InvalidArgumentException $e) {
-            throw new InvalidDPoPProofException('Failed to parse DPoP proof.', previous: $e);
+            throw new InvalidDPoPProofException('The presented DPoP proof is not in a supported JWT format.', previous: $e);
         }
 
         try {
@@ -47,7 +47,7 @@ class WebTokenFrameworkTokenLoader implements DPoPTokenLoaderInterface
         }
 
         if ($jwk->toPublic()->jsonSerialize() !== $jwk->jsonSerialize()) {
-            throw new InvalidDPoPProofException('DPoP-Proof may not contain a private key in the "jwk" header parameter.');
+            throw new InvalidDPoPProofException('DPoP proof must not contain a private key in the "jwk" header parameter.');
         }
 
         $headerCheckerManager = new Checker\HeaderCheckerManager([
@@ -67,17 +67,13 @@ class WebTokenFrameworkTokenLoader implements DPoPTokenLoaderInterface
             $signature = $jws->getSignature($signatureIndex);
 
             $algorithmName = $signature->getProtectedHeaderParameter('alg');
-            if (!\is_string($algorithmName) || !$this->algorithmManager->has($algorithmName)) {
+            if (!\is_string($algorithmName)) {
                 throw new InvalidHeaderException('Invalid algorithm', 'alg', $algorithmName);
             }
 
             $algorithm = $this->algorithmManager->get($algorithmName);
-            // @see https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-16.html#section-4.2
-            if ($algorithm instanceof MacAlgorithm || $algorithm instanceof None) {
-                throw new InvalidHeaderException('MUST NOT be none or an identifier for a symmetric algorithm (MAC)', 'alg', $algorithmName);
-            }
         } catch (\Exception $e) {
-            if ($e instanceof InvalidHeaderException) {
+            if ($e instanceof InvalidHeaderException && $e->getHeader()) {
                 throw new InvalidDPoPProofException("The DPoP proof \"{$e->getHeader()}\" header parameter is invalid.", previous: $e);
             }
 
@@ -85,7 +81,15 @@ class WebTokenFrameworkTokenLoader implements DPoPTokenLoaderInterface
                 throw new InvalidDPoPProofException('The DPoP proof is missing the following mandatory header parameters: '.\implode(', ', $e->getParameters()), previous: $e);
             }
 
-            throw new InvalidDPoPProofException('The DPoP proof has an invalid signature.', previous: $e);
+            throw new InvalidDPoPProofException('The DPoP proof either has an invalid signature or uses an unsupported algorithm.', previous: $e);
+        }
+
+        // @see https://www.ietf.org/archive/id/draft-ietf-oauth-dpop-16.html#section-4.2
+        if ($algorithm instanceof MacAlgorithm) {
+            throw new InvalidDPoPProofException('The DPoP proof must not use a symmetric signature algorithm (MAC).');
+        }
+        if ($algorithm instanceof None) {
+            throw new InvalidDPoPProofException('The DPoP proof must not use the "none" signature algorithm.');
         }
 
         try {
@@ -94,7 +98,7 @@ class WebTokenFrameworkTokenLoader implements DPoPTokenLoaderInterface
                 throw new \Exception('DPoP proof payload could not be decoded to an array.');
             }
         } catch (\Exception $e) {
-            throw new InvalidDPoPProofException('The DPoP proof has an invalid payload.');
+            throw new InvalidDPoPProofException('The DPoP proof has an invalid payload.', previous: $e);
         }
 
         return new DecodedDPoPProof($jwk->thumbprint('sha256'), $unverifiedClaims, $signature->getProtectedHeader());
