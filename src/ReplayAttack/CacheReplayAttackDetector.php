@@ -38,6 +38,6 @@ class CacheReplayAttackDetector implements ReplayAttackDetectorInterface
 
     protected function createKey(DecodedDPoPProof $proof): string
     {
-        return \hash('xxh128', $proof->jwkThumbprint.$proof->payload['jti']);
+        return \hash('xxh128', $proof->jwk->thumbprint().$proof->payload['jti']);
     }
 }

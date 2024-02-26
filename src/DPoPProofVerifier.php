@@ -108,7 +108,7 @@ class DPoPProofVerifier
         }
 
         if (null !== $accessToken) {
-            if ($proof->jwkThumbprint !== $accessToken->jkt) {
+            if ($proof->jwk->thumbprint() !== $accessToken->jkt) {
                 throw new InvalidDPoPProofException('The DPoP proof was signed by a different JWK than was used to issue the access token.');
             }
 
@@ -136,15 +136,17 @@ class DPoPProofVerifier
         }
 
         if (null !== $this->nonceStorage) {
+            $thumbprint = $proof->jwk->thumbprint();
+
             if (!\array_key_exists('nonce', $proof->payload)) {
-                $nonce = $this->nonceStorage->getCurrentNonce($proof->jwkThumbprint);
-                $nonce ??= $this->nonceStorage->createNewNonce($proof->jwkThumbprint);
+                $nonce = $this->nonceStorage->getCurrentNonce($thumbprint);
+                $nonce ??= $this->nonceStorage->createNewNonce($thumbprint);
 
                 throw new InvalidDPoPNonceException($nonce, 'The DPoP proof is missing the required "nonce" claim.');
             }
 
-            if (!\is_string($proof->payload['nonce']) || !$this->nonceStorage->isNonceValid($proof->jwkThumbprint, $proof->payload['nonce'])) {
-                $nonce = $this->nonceStorage->createNewNonce($proof->jwkThumbprint);
+            if (!\is_string($proof->payload['nonce']) || !$this->nonceStorage->isNonceValid($thumbprint, $proof->payload['nonce'])) {
+                $nonce = $this->nonceStorage->createNewNonce($thumbprint);
 
                 throw new InvalidDPoPNonceException($nonce, 'The DPoP proof "nonce" claim is invalid.');
             }

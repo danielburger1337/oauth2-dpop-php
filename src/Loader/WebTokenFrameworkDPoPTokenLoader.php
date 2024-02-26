@@ -4,6 +4,7 @@ namespace danielburger1337\OAuth2DPoP\Loader;
 
 use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
 use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
+use danielburger1337\OAuth2DPoP\Model\DecodedWebTokenFrameworkJwk;
 use Jose\Component\Checker;
 use Jose\Component\Checker\InvalidHeaderException;
 use Jose\Component\Core\AlgorithmManager;
@@ -95,7 +96,9 @@ class WebTokenFrameworkDPoPTokenLoader implements DPoPTokenLoaderInterface
             throw new InvalidDPoPProofException('The DPoP proof has an invalid payload.', previous: $e);
         }
 
-        return new DecodedDPoPProof($jwk->thumbprint('sha256'), $unverifiedClaims, $signature->getProtectedHeader());
+        $jwk = new DecodedWebTokenFrameworkJwk($jwk, $jwk->thumbprint('sha256'));
+
+        return new DecodedDPoPProof($jwk, $unverifiedClaims, $signature->getProtectedHeader());
     }
 
     public function getSupportedAlgorithms(): array

@@ -35,7 +35,7 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
 
         $returnValue = $this->loader->loadProof($proof);
 
-        $this->assertEquals('MIzAqZn7LRtWcKtGvHX65PBMo9rYaiKzhJTZLZxU0Hk', $returnValue->jwkThumbprint);
+        $this->assertEquals('MIzAqZn7LRtWcKtGvHX65PBMo9rYaiKzhJTZLZxU0Hk', $returnValue->jwk->thumbprint());
         $this->assertEquals([
             'iat' => 1708956826,
             'ath' => '123',
