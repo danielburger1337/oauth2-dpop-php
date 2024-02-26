@@ -13,6 +13,7 @@ use danielburger1337\OAuth2DPoP\NonceStorage\NonceVerificationStorageInterface;
 use danielburger1337\OAuth2DPoP\ReplayAttack\ReplayAttackDetectorInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class DPoPProofVerifier
@@ -37,17 +38,15 @@ class DPoPProofVerifier
         if ($request instanceof Request) {
             /** @var string[] */
             $headers = $request->headers->all('dpop');
-            $htu = $request->getSchemeAndHttpHost().$request->getBaseUrl().$request->getPathInfo();
         } else {
             $headers = $request->getHeaders()['dpop'] ?? [];
-            $htu = $request->getUri()->withQuery('')->withFragment('')->__toString();
         }
 
         if (\count($headers) !== 1) {
             throw new InvalidDPoPProofException('The request must contain exactly one "DPoP" header.');
         }
 
-        return $this->verifyFromRequestParts($headers[\array_key_first($headers)], $request->getMethod(), $htu, $accessToken);
+        return $this->verifyFromRequestParts($headers[\array_key_first($headers)], $request->getMethod(), $request->getUri(), $accessToken);
     }
 
     /**
@@ -61,7 +60,7 @@ class DPoPProofVerifier
      * @throws InvalidDPoPNonceException If the DPoP nonce is invalid.
      * @throws \InvalidArgumentException If access token is not of type "DPoP"
      */
-    public function verifyFromRequestParts(string $dpopProof, string $htm, string $htu, AccessTokenModel|null $accessToken = null): DecodedDPoPProof
+    public function verifyFromRequestParts(string $dpopProof, string $htm, UriInterface|string $htu, AccessTokenModel|null $accessToken = null): DecodedDPoPProof
     {
         $dpopProof = \trim($dpopProof);
         if ('' === $dpopProof) {
@@ -80,7 +79,7 @@ class DPoPProofVerifier
         if (!\array_key_exists('htu', $proof->payload) || !\is_string($proof->payload['htu'])) {
             throw new InvalidDPoPProofException('The DPoP proof is missing the required "htu" claim.');
         }
-        if (!\hash_equals(\strtolower($htu), \strtolower($proof->payload['htu']))) {
+        if (!\hash_equals(\strtolower(Util::createHtu($htu)), \strtolower($proof->payload['htu']))) {
             throw new InvalidDPoPProofException('The DPoP proof "htu" claim is invalid.');
         }
 
