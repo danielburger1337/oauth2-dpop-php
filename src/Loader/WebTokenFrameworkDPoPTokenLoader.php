@@ -6,7 +6,6 @@ use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
 use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
 use Jose\Component\Checker;
 use Jose\Component\Checker\InvalidHeaderException;
-use Jose\Component\Checker\MissingMandatoryHeaderParameterException;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Core\JWK;
 use Jose\Component\Core\Util\JsonConverter;
@@ -73,14 +72,6 @@ class WebTokenFrameworkDPoPTokenLoader implements DPoPTokenLoaderInterface
 
             $algorithm = $this->algorithmManager->get($algorithmName);
         } catch (\Exception $e) {
-            if ($e instanceof InvalidHeaderException && $e->getHeader()) {
-                throw new InvalidDPoPProofException("The DPoP proof \"{$e->getHeader()}\" header parameter is invalid.", previous: $e);
-            }
-
-            if ($e instanceof MissingMandatoryHeaderParameterException) {
-                throw new InvalidDPoPProofException('The DPoP proof is missing the following mandatory header parameters: '.\implode(', ', $e->getParameters()), previous: $e);
-            }
-
             throw new InvalidDPoPProofException('The DPoP proof either has an invalid signature or uses an unsupported algorithm.', previous: $e);
         }
 
