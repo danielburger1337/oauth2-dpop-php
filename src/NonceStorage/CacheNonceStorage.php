@@ -6,6 +6,9 @@ use Psr\Cache\CacheItemPoolInterface;
 
 class CacheNonceStorage implements NonceStorageInterface
 {
+    /**
+     * @codeCoverageIgnore
+     */
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
         private readonly \DateInterval $ttl = new \DateInterval('PT15M')
