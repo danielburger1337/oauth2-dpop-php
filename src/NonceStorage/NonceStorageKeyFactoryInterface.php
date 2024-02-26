@@ -7,5 +7,5 @@ interface NonceStorageKeyFactoryInterface
     /**
      * Create the key under which to store the nonce provided by the upstream server.
      */
-    public function createKey(string $htm, string $htu): string;
+    public function createKey(string $htu): string;
 }

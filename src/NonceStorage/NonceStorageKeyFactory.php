@@ -9,7 +9,7 @@ class NonceStorageKeyFactory implements NonceStorageKeyFactoryInterface
     ) {
     }
 
-    public function createKey(string $htm, string $htu): string
+    public function createKey(string $htu): string
     {
         $parts = \parse_url($htu);
 
