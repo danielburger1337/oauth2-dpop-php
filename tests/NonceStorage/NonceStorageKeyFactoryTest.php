@@ -33,7 +33,7 @@ class NonceStorageKeyFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createKey_postUrl_returnsExpected(): void
+    public function createKey_withUrl_returnsExpected(): void
     {
         $returnValue = $this->nonceStorageKeyFactory->createKey(self::URL);
 
@@ -52,23 +52,26 @@ class NonceStorageKeyFactoryTest extends TestCase
     public function createKey_invalidUrl_throwsException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The htu has an invalid scheme or host.');
 
         $this->nonceStorageKeyFactory->createKey('not an url');
+    }
+
+    #[Test]
+    public function createKey_malformedUrl_throwsException(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The htu is not a valid URL.');
+
+        $this->nonceStorageKeyFactory->createKey('https://#path?query');
     }
 
     #[Test]
     public function createKey_urlWithoutScheme_throwsException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The htu has an invalid scheme or host.');
 
         $this->nonceStorageKeyFactory->createKey('www.example.com/path');
-    }
-
-    #[Test]
-    public function createKey_urlWithoutHost_throwsException(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        $this->nonceStorageKeyFactory->createKey('mobile-app:///path');
     }
 }
