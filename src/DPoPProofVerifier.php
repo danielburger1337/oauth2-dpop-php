@@ -39,7 +39,7 @@ class DPoPProofVerifier
             /** @var string[] */
             $headers = $request->headers->all('dpop');
         } else {
-            $headers = $request->getHeaders()['dpop'] ?? [];
+            $headers = $request->getHeader('dpop');
         }
 
         if (\count($headers) !== 1) {
