@@ -61,7 +61,7 @@ class DPoPProofFactory
             $payload['ath'] = Util::createAccessTokenHash($bindTo);
         }
 
-        $key = $this->nonceStorageKeyFactory->createKey($htm, $htu);
+        $key = $this->nonceStorageKeyFactory->createKey($htu);
         if (null !== ($nonce = $this->nonceStorage->getCurrentNonce($key))) {
             $payload['nonce'] = $nonce;
         }
@@ -81,7 +81,7 @@ class DPoPProofFactory
 
     public function storeNextNonce(string $nonce, string $htm, UriInterface|string $htu): void
     {
-        $key = $this->nonceStorageKeyFactory->createKey($htm, Util::createHtu($htu));
+        $key = $this->nonceStorageKeyFactory->createKey(Util::createHtu($htu));
         $this->nonceStorage->storeNextNonce($key, $nonce);
     }
 
@@ -91,7 +91,7 @@ class DPoPProofFactory
             return;
         }
 
-        $key = $this->nonceStorageKeyFactory->createKey($request->getMethod(), Util::createHtu($request->getUri()));
+        $key = $this->nonceStorageKeyFactory->createKey(Util::createHtu($request->getUri()));
         $this->nonceStorage->storeNextNonce($key, $response->getHeaderLine('dpop-nonce'));
     }
 }
