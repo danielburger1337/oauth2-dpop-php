@@ -507,14 +507,9 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createProofFromRequest_proofIsAddedAsHeader(): void
+    public function createProofFromRequest_returnsProof(): void
     {
         $request = $this->createMock(RequestInterface::class);
-        $request->expects($this->once())
-            ->method('withHeader')
-            ->with('DPoP', 'dpop.proof')
-            ->willReturnSelf();
-
         $request->expects($this->once())
             ->method('getMethod')
             ->willReturn(self::HTM);
@@ -554,7 +549,8 @@ class DPoPProofFactoryTest extends TestCase
 
         $returnValue = $this->factory->createProofFromRequest($request, ['ES256']);
 
-        $this->assertEquals($request, $returnValue);
+        $this->assertEquals($jwk, $returnValue->jwk);
+        $this->assertEquals('dpop.proof', $returnValue->proof);
     }
 
     /**

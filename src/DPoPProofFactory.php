@@ -98,15 +98,11 @@ class DPoPProofFactory
      *                                                                         If the argument is of type `string`, it is assumed that a JKT
      *                                                                         is given and the DPoP proof will be signed with a JWK that matches that JKT.
      *
-     * @return RequestInterface The PSR-7 request with the "DPoP" header attached.
-     *
      * @throws MissingDPoPJwkException If no suitable JWK is registered.
      */
-    public function createProofFromRequest(RequestInterface $request, array $serverSupportedSignatureAlgorithms, AccessTokenModel|string|null $bindTo = null): RequestInterface
+    public function createProofFromRequest(RequestInterface $request, array $serverSupportedSignatureAlgorithms, AccessTokenModel|string|null $bindTo = null): DPoPProof
     {
-        $proof = $this->createProof($request->getMethod(), $request->getUri(), $serverSupportedSignatureAlgorithms, $bindTo);
-
-        return $request->withHeader('DPoP', $proof->proof);
+        return $this->createProof($request->getMethod(), $request->getUri(), $serverSupportedSignatureAlgorithms, $bindTo);
     }
 
     /**
