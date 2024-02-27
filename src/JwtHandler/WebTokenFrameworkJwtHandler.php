@@ -37,11 +37,11 @@ class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
         $serverSupportedSignatureAlgorithms ??= $this->algorithmManager->list();
 
         foreach ($serverSupportedSignatureAlgorithms as $algorithmName) {
-            if (!$this->algorithmManager->has($algorithmName)) {
+            try {
+                $algorithm = $this->algorithmManager->get($algorithmName);
+            } catch (\InvalidArgumentException) {
                 continue;
             }
-
-            $algorithm = $this->algorithmManager->get($algorithmName);
 
             if (null !== ($jwk = $this->jwkSet->selectKey('sig', $algorithm))) {
                 $thumbprint = $jwk->thumbprint('sha256');
