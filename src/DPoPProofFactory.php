@@ -96,11 +96,11 @@ class DPoPProofFactory
 
     public function storeNextNonceFromResponse(ResponseInterface $response, RequestInterface $request): void
     {
-        if (!$response->hasHeader('dpop-nonce')) {
+        $nonce = $response->getHeaderLine('dpop-nonce');
+        if ('' === $nonce) {
             return;
         }
 
-        $key = $this->nonceStorageKeyFactory->createKey(Util::createHtu($request->getUri()));
-        $this->nonceStorage->storeNextNonce($key, $response->getHeaderLine('dpop-nonce'));
+        $this->storeNextNonce($nonce, $request->getUri());
     }
 }
