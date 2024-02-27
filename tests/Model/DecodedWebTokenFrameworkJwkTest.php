@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests\JwtHandler;
+namespace danielburger1337\OAuth2DPoP\Tests\Encoder;
 
 use danielburger1337\OAuth2DPoP\Model\DecodedWebTokenFrameworkJwk;
 use Jose\Component\Core\JWK;

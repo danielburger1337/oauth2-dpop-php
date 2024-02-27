@@ -2,10 +2,10 @@
 
 namespace danielburger1337\OAuth2DPoP;
 
+use danielburger1337\OAuth2DPoP\Encoder\DPoPTokenEncoderInterface;
 use danielburger1337\OAuth2DPoP\Exception\DPoPReplayAttackException;
 use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPNonceException;
 use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
-use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
 use danielburger1337\OAuth2DPoP\Loader\DPoPTokenLoaderInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
@@ -99,7 +99,7 @@ class DPoPProofVerifier
 
         if (
             !\array_key_exists('typ', $proof->protectedHeader)
-            || $proof->protectedHeader['typ'] !== JwtHandlerInterface::TYPE_HEADER_PARAMETER
+            || $proof->protectedHeader['typ'] !== DPoPTokenEncoderInterface::TYPE_HEADER_PARAMETER
         ) {
             throw new InvalidDPoPProofException('The DPoP proof "typ" header parameter is invalid.');
         }

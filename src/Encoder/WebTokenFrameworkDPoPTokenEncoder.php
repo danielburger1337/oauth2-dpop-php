@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\JwtHandler;
+namespace danielburger1337\OAuth2DPoP\Encoder;
 
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
 use danielburger1337\OAuth2DPoP\Model\JwkInterface;
@@ -13,7 +13,7 @@ use Jose\Component\Signature\JWSBuilder;
 use Jose\Component\Signature\Serializer\CompactSerializer;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
 
-class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
+class WebTokenFrameworkDPoPTokenEncoder implements DPoPTokenEncoderInterface
 {
     private readonly JWKSet $jwkSet;
     private readonly JWSBuilder $jwsBuilder;

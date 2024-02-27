@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\JwtHandler;
+namespace danielburger1337\OAuth2DPoP\Encoder;
 
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
 use danielburger1337\OAuth2DPoP\Model\JwkInterface;
 
-interface JwtHandlerInterface
+interface DPoPTokenEncoderInterface
 {
     final public const TYPE_HEADER_PARAMETER = 'dpop+jwt';
 

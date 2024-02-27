@@ -3,8 +3,8 @@
 namespace danielburger1337\OAuth2DPoP\Tests;
 
 use danielburger1337\OAuth2DPoP\DPoPProofFactory;
+use danielburger1337\OAuth2DPoP\Encoder\DPoPTokenEncoderInterface;
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
-use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\Model\JwkInterface;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
@@ -30,14 +30,14 @@ class DPoPProofFactoryTest extends TestCase
     private DPoPProofFactory $factory;
 
     private MockClock $clock;
-    private JwtHandlerInterface&MockObject $jwtHandler;
+    private DPoPTokenEncoderInterface&MockObject $jwtHandler;
     private NonceStorageInterface&MockObject $nonceStorage;
     private NonceStorageKeyFactoryInterface&MockObject $nonceStorageKeyFactory;
 
     protected function setUp(): void
     {
         $this->clock = new MockClock();
-        $this->jwtHandler = $this->createMock(JwtHandlerInterface::class);
+        $this->jwtHandler = $this->createMock(DPoPTokenEncoderInterface::class);
         $this->nonceStorage = $this->createMock(NonceStorageInterface::class);
         $this->nonceStorageKeyFactory = $this->createMock(NonceStorageKeyFactoryInterface::class);
 

@@ -2,8 +2,8 @@
 
 namespace danielburger1337\OAuth2DPoP;
 
+use danielburger1337\OAuth2DPoP\Encoder\DPoPTokenEncoderInterface;
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
-use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\Model\DPoPProof;
 use danielburger1337\OAuth2DPoP\Model\JwkInterface;
@@ -18,7 +18,7 @@ class DPoPProofFactory
 {
     /**
      * @param ClockInterface                  $clock                  The PSR-20 clock to use.
-     * @param JwtHandlerInterface             $jwtHandler             The JWT handler to use.
+     * @param DPoPTokenEncoderInterface       $jwtHandler             The JWT handler to use.
      * @param NonceStorageInterface           $nonceStorage           Service that stores the upstream servers "DPoP-Nonce" header.
      *                                                                `NullNonceStorage` can be used if it is known that the upstream server does not use the "DPoP-Nonce" header.
      * @param NonceStorageKeyFactoryInterface $nonceStorageKeyFactory Server that creates the nonce storage key.
@@ -26,7 +26,7 @@ class DPoPProofFactory
      */
     public function __construct(
         private readonly ClockInterface $clock,
-        private readonly JwtHandlerInterface $jwtHandler,
+        private readonly DPoPTokenEncoderInterface $jwtHandler,
         private readonly NonceStorageInterface $nonceStorage,
         private readonly NonceStorageKeyFactoryInterface $nonceStorageKeyFactory,
         private readonly int $jtiByteLength = 32
@@ -64,7 +64,7 @@ class DPoPProofFactory
         $jwk = $this->jwtHandler->selectJWK($serverSupportedSignatureAlgorithms, $jkt);
 
         $protectedHeader = [
-            'typ' => JwtHandlerInterface::TYPE_HEADER_PARAMETER,
+            'typ' => DPoPTokenEncoderInterface::TYPE_HEADER_PARAMETER,
             'jwk' => $jwk->toPublic(),
         ];
 

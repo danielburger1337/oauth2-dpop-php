@@ -2,8 +2,8 @@
 
 namespace danielburger1337\OAuth2DPoP;
 
+use danielburger1337\OAuth2DPoP\Encoder\WebTokenFrameworkDPoPTokenEncoder;
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
-use danielburger1337\OAuth2DPoP\JwtHandler\WebTokenFrameworkJwtHandler;
 use danielburger1337\OAuth2DPoP\Model\JwkInterface;
 use danielburger1337\OAuth2DPoP\Model\WebTokenFrameworkJwk;
 use Jose\Component\Checker\AlgorithmChecker;
@@ -25,8 +25,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(WebTokenFrameworkJwtHandler::class)]
-class WebTokenFrameworkJwtHandlerTest extends TestCase
+#[CoversClass(WebTokenFrameworkDPoPTokenEncoder::class)]
+class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
 {
     private const JKT = 'YhSb0W8aR6ZnO1gKJOWF2arpHk8QgwmUqvU2jgo_wkw';
     private const JWK_PUBLIC = [
@@ -41,7 +41,7 @@ class WebTokenFrameworkJwtHandlerTest extends TestCase
     private JWKSet $jwkSet;
     private AlgorithmManager $algorithmManager;
 
-    private WebTokenFrameworkJwtHandler $jwtHandler;
+    private WebTokenFrameworkDPoPTokenEncoder $jwtHandler;
 
     protected function setUp(): void
     {
@@ -60,7 +60,7 @@ class WebTokenFrameworkJwtHandlerTest extends TestCase
 
         $this->algorithmManager = new AlgorithmManager([new ES256(), new RS256()]);
 
-        $this->jwtHandler = new WebTokenFrameworkJwtHandler($this->jwkSet, $this->algorithmManager);
+        $this->jwtHandler = new WebTokenFrameworkDPoPTokenEncoder($this->jwkSet, $this->algorithmManager);
     }
 
     #[Test]
@@ -68,7 +68,7 @@ class WebTokenFrameworkJwtHandlerTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
 
-        new WebTokenFrameworkJwtHandler($this->jwk, $this->algorithmManager);
+        new WebTokenFrameworkDPoPTokenEncoder($this->jwk, $this->algorithmManager);
     }
 
     #[Test]
@@ -116,7 +116,7 @@ class WebTokenFrameworkJwtHandlerTest extends TestCase
     {
         $jwkSet = $this->jwkSet->with(JWKFactory::createECKey('P-256'));
 
-        $handler = new WebTokenFrameworkJwtHandler($jwkSet, $this->algorithmManager);
+        $handler = new WebTokenFrameworkDPoPTokenEncoder($jwkSet, $this->algorithmManager);
 
         $returnValue = $handler->selectJWK(['ES256'], self::JKT);
 
