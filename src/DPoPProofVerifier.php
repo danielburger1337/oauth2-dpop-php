@@ -58,6 +58,7 @@ class DPoPProofVerifier
      *
      * @throws InvalidDPoPProofException If the DPoP proof is invalid.
      * @throws InvalidDPoPNonceException If the DPoP nonce is invalid.
+     * @throws DPoPReplayAttackException If the DPoP proof has already been used.
      * @throws \InvalidArgumentException If access token is not of type "DPoP"
      */
     public function verifyFromRequestParts(string $dpopProof, string $htm, UriInterface|string $htu, AccessTokenModel|null $accessToken = null): DecodedDPoPProof
