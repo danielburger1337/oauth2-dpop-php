@@ -13,6 +13,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 use Symfony\Component\Clock\MockClock;
 
 #[CoversClass(DPoPProofFactory::class)]
@@ -97,6 +100,102 @@ class DPoPProofFactoryTest extends TestCase
             ->with('storageKey', 'nonce');
 
         $this->factory->storeNextNonce('nonce', 'https://example.com/path?query=1#fragment');
+    }
+
+    #[Test]
+    public function storeNextNonceFromResponse_emptyHeader_doesNothing(): void
+    {
+        $request = $this->createMock(RequestInterface::class);
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->expects($this->once())
+            ->method('getHeader')
+            ->with('dpop-nonce')
+            ->willReturn([]);
+
+        $this->nonceStorage->expects($this->never())
+            ->method($this->anything());
+
+        $this->factory->storeNextNonceFromResponse($response, $request);
+    }
+
+    #[Test]
+    public function storeNextNonceFromResponse_multipleHeader_throwsException(): void
+    {
+        $request = $this->createMock(RequestInterface::class);
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->expects($this->once())
+            ->method('getHeader')
+            ->with('dpop-nonce')
+            ->willReturn(['1', '2']);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('The PSR-7 response contains multiple "DPoP-Nonce" headers.');
+
+        $this->factory->storeNextNonceFromResponse($response, $request);
+    }
+
+    #[Test]
+    public function storeNextNonceFromResponse_includesNonce_storesNonce(): void
+    {
+        $uri = $this->createMock(UriInterface::class);
+        $uri->expects($this->atLeastOnce())
+            ->method('__toString')
+            ->willReturn('https://example.com/path');
+
+        $request = $this->createMock(RequestInterface::class);
+        $request->expects($this->atLeastOnce())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->expects($this->once())
+            ->method('getHeader')
+            ->with('dpop-nonce')
+            ->willReturn(['nonceValue']);
+
+        $this->nonceStorageKeyFactory->expects($this->once())
+            ->method('createKey')
+            ->with('https://example.com/path')
+            ->willReturn('storageKey');
+
+        $this->nonceStorage->expects($this->once())
+            ->method('storeNextNonce')
+            ->with('storageKey', 'nonceValue');
+
+        $this->factory->storeNextNonceFromResponse($response, $request);
+    }
+
+    #[Test]
+    public function storeNextNonceFromResponse_includesNonceAndQueryParameter_storesNonce(): void
+    {
+        $uri = $this->createMock(UriInterface::class);
+        $uri->expects($this->atLeastOnce())
+            ->method('__toString')
+            ->willReturn('https://example.com/path?query=1#fragment');
+
+        $request = $this->createMock(RequestInterface::class);
+        $request->expects($this->atLeastOnce())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $response = $this->createMock(ResponseInterface::class);
+        $response->expects($this->once())
+            ->method('getHeader')
+            ->with('dpop-nonce')
+            ->willReturn(['nonceValue']);
+
+        $this->nonceStorageKeyFactory->expects($this->once())
+            ->method('createKey')
+            ->with('https://example.com/path')
+            ->willReturn('storageKey');
+
+        $this->nonceStorage->expects($this->once())
+            ->method('storeNextNonce')
+            ->with('storageKey', 'nonceValue');
+
+        $this->factory->storeNextNonceFromResponse($response, $request);
     }
 
     /**
