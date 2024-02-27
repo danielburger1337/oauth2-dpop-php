@@ -477,9 +477,6 @@ class DPoPProofFactoryTest extends TestCase
     public function createProof_hti_isTransformed(): void
     {
         $jwk = $this->createMock(JwkInterface::class);
-        $jwk->expects($this->atLeastOnce())
-            ->method('toPublic')
-            ->willReturn(['kid' => 'keyId', 'crv' => 'P-256']);
 
         $this->jwtHandler->expects($this->once())
             ->method('selectJWK')
@@ -507,6 +504,57 @@ class DPoPProofFactoryTest extends TestCase
 
         $this->assertEquals($jwk, $returnValue->jwk);
         $this->assertEquals('dpop.proof', $returnValue->proof);
+    }
+
+    #[Test]
+    public function createProofFromRequest_proofIsAddedAsHeader(): void
+    {
+        $request = $this->createMock(RequestInterface::class);
+        $request->expects($this->once())
+            ->method('withHeader')
+            ->with('DPoP', 'dpop.proof')
+            ->willReturnSelf();
+
+        $request->expects($this->once())
+            ->method('getMethod')
+            ->willReturn(self::HTM);
+
+        $uri = $this->createMock(UriInterface::class);
+        $uri->expects($this->once())
+            ->method('__toString')
+            ->willReturn(self::HTU.'?query=1#fragment');
+
+        $request->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $jwk = $this->createMock(JwkInterface::class);
+
+        $this->jwtHandler->expects($this->once())
+            ->method('selectJWK')
+            ->with(['ES256'], null)
+            ->willReturn($jwk);
+
+        $this->nonceStorageKeyFactory->expects($this->once())
+            ->method('createKey')
+            ->with(self::HTU)
+            ->willReturn('key');
+
+        $this->jwtHandler->expects($this->once())
+            ->method('createProof')
+            ->with($jwk, $this->callback(function (mixed $value): bool {
+                $this->assertIsArray($value);
+
+                $this->assertArrayHasKey('htu', $value);
+                $this->assertEquals(self::HTU, $value['htu']);
+
+                return true;
+            }))
+            ->willReturn('dpop.proof');
+
+        $returnValue = $this->factory->createProofFromRequest($request, ['ES256']);
+
+        $this->assertEquals($request, $returnValue);
     }
 
     /**
