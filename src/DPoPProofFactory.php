@@ -45,6 +45,8 @@ class DPoPProofFactory
      * @param AccessTokenModel|string|null $bindTo                             [optional] The access token the DPoP proof must be bound to.
      *                                                                         If the argument is of type `string`, it is assumed that a JKT
      *                                                                         is given and the DPoP proof will be signed with a JWK that matches that JKT.
+     *
+     * @throws MissingDPoPJwkException If no suitable JWK is registered.
      */
     public function createProof(string $htm, UriInterface|string $htu, array $serverSupportedSignatureAlgorithms, AccessTokenModel|string|null $bindTo = null): DPoPProof
     {
@@ -79,21 +81,43 @@ class DPoPProofFactory
     }
 
     /**
-     * @param string[] $serverSupportedSignatureAlgorithms The DPoP signature algorithms that the upstream server reported as supported.
+     * Create a DPoP proof token.
+     *
+     * @param RequestInterface             $request                            The request to create the DPoP proof from.
+     * @param string[]                     $serverSupportedSignatureAlgorithms The DPoP signature algorithms that the upstream server reported as supported.
+     * @param AccessTokenModel|string|null $bindTo                             [optional] The access token the DPoP proof must be bound to.
+     *                                                                         If the argument is of type `string`, it is assumed that a JKT
+     *                                                                         is given and the DPoP proof will be signed with a JWK that matches that JKT.
+     *
+     * @return RequestInterface The PSR-7 request with the "DPoP" header attached.
+     *
+     * @throws MissingDPoPJwkException If no suitable JWK is registered.
      */
-    public function createProofForRequest(RequestInterface $request, array $serverSupportedSignatureAlgorithms, AccessTokenModel|null $accessToken = null): RequestInterface
+    public function createProofFromRequest(RequestInterface $request, array $serverSupportedSignatureAlgorithms, AccessTokenModel|null $bindTo = null): RequestInterface
     {
-        $proof = $this->createProof($request->getMethod(), $request->getUri(), $serverSupportedSignatureAlgorithms, $accessToken);
+        $proof = $this->createProof($request->getMethod(), $request->getUri(), $serverSupportedSignatureAlgorithms, $bindTo);
 
         return $request->withHeader('DPoP', $proof->proof);
     }
 
+    /**
+     * Store the "DPoP-Nonce" received by the upstream server.
+     *
+     * @param string              $nonce The "DPoP-Nonce" header value.
+     * @param UriInterface|string $htu   The http URI of the request that responded with the "DPoP-Nonce" header.
+     */
     public function storeNextNonce(string $nonce, UriInterface|string $htu): void
     {
         $key = $this->nonceStorageKeyFactory->createKey(Util::createHtu($htu));
         $this->nonceStorage->storeNextNonce($key, $nonce);
     }
 
+    /**
+     * Store the "DPoP-Nonce" header (if it exists) from a PSR-7 response.
+     *
+     * @param ResponseInterface $response The PSR-7 response.
+     * @param RequestInterface  $request  The PSR-7 request.
+     */
     public function storeNextNonceFromResponse(ResponseInterface $response, RequestInterface $request): void
     {
         $nonce = $response->getHeaderLine('dpop-nonce');
