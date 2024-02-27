@@ -19,7 +19,7 @@ jobs:
         name: PHPUnit with PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
 
         env:
-            PHP_EXTENSIONS: xdebug
+            PHP_EXTENSIONS: xdebug,gmp,bcmath
             PHP_EXTENSIONS_CACHE_KEY: cache-v1
 
         steps:
