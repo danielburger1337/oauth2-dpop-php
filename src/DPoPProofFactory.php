@@ -22,7 +22,7 @@ class DPoPProofFactory
      * @param NonceStorageInterface           $nonceStorage           Service that stores the upstream servers "DPoP-Nonce" header.
      *                                                                `NullNonceStorage` can be used if it is known that the upstream server does not use the "DPoP-Nonce" header.
      * @param NonceStorageKeyFactoryInterface $nonceStorageKeyFactory Server that creates the nonce storage key.
-     * @param int                             $jtiByteLength          [optional] The byte length of the generated "jti" claim.
+     * @param int<1, max>                     $jtiByteLength          [optional] The byte length of the generated "jti" claim.
      */
     public function __construct(
         private readonly ClockInterface $clock,
@@ -102,7 +102,7 @@ class DPoPProofFactory
      *
      * @throws MissingDPoPJwkException If no suitable JWK is registered.
      */
-    public function createProofFromRequest(RequestInterface $request, array $serverSupportedSignatureAlgorithms, AccessTokenModel|null $bindTo = null): RequestInterface
+    public function createProofFromRequest(RequestInterface $request, array $serverSupportedSignatureAlgorithms, AccessTokenModel|string|null $bindTo = null): RequestInterface
     {
         $proof = $this->createProof($request->getMethod(), $request->getUri(), $serverSupportedSignatureAlgorithms, $bindTo);
 
