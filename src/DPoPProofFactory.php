@@ -18,7 +18,7 @@ class DPoPProofFactory
 {
     /**
      * @param ClockInterface                  $clock                  The PSR-20 clock to use.
-     * @param DPoPTokenEncoderInterface       $jwtHandler             The JWT handler to use.
+     * @param DPoPTokenEncoderInterface       $encoder                The JWT encoder to use.
      * @param NonceStorageInterface           $nonceStorage           Service that stores the upstream servers "DPoP-Nonce" header.
      *                                                                `NullNonceStorage` can be used if it is known that the upstream server does not use the "DPoP-Nonce" header.
      * @param NonceStorageKeyFactoryInterface $nonceStorageKeyFactory Server that creates the nonce storage key.
@@ -26,7 +26,7 @@ class DPoPProofFactory
      */
     public function __construct(
         private readonly ClockInterface $clock,
-        private readonly DPoPTokenEncoderInterface $jwtHandler,
+        private readonly DPoPTokenEncoderInterface $encoder,
         private readonly NonceStorageInterface $nonceStorage,
         private readonly NonceStorageKeyFactoryInterface $nonceStorageKeyFactory,
         private readonly int $jtiByteLength = 32
