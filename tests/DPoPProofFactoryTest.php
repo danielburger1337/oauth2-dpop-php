@@ -69,6 +69,36 @@ class DPoPProofFactoryTest extends TestCase
         $this->factory->getJwkToBind(['EdDSA']);
     }
 
+    #[Test]
+    public function storeNextNonce_htu_isNotModified(): void
+    {
+        $this->nonceStorageKeyFactory->expects($this->once())
+            ->method('createKey')
+            ->with('https://sub.example.com/path')
+            ->willReturn('storageKey');
+
+        $this->nonceStorage->expects($this->once())
+            ->method('storeNextNonce')
+            ->with('storageKey', 'nonce');
+
+        $this->factory->storeNextNonce('nonce', 'https://sub.example.com/path');
+    }
+
+    #[Test]
+    public function storeNextNonce_htu_isTransformed(): void
+    {
+        $this->nonceStorageKeyFactory->expects($this->once())
+            ->method('createKey')
+            ->with('https://example.com/path')
+            ->willReturn('storageKey');
+
+        $this->nonceStorage->expects($this->once())
+            ->method('storeNextNonce')
+            ->with('storageKey', 'nonce');
+
+        $this->factory->storeNextNonce('nonce', 'https://example.com/path?query=1#fragment');
+    }
+
     /**
      * @return array<array{0: string[]}>
      */
