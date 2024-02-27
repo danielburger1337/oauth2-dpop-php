@@ -57,7 +57,9 @@ class WebTokenFrameworkDPoPTokenLoader implements DPoPTokenLoaderInterface
         try {
             $jws = $jwsLoader->loadAndVerifyWithKey($proof, $jwk, $signatureIndex);
             if (null === $signatureIndex) {
+                // @codeCoverageIgnoreStart
                 throw new \Exception('Failed to get signature index from DPoP proof.');
+                // @codeCoverageIgnoreEnd
             }
 
             $signature = $jws->getSignature($signatureIndex);
