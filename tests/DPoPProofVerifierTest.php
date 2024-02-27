@@ -41,6 +41,7 @@ class DPoPProofVerifierTest extends TestCase
 
     protected function setUp(): void
     {
+        // @phpstan-ignore-next-line
         $this->jwk = JWKFactory::createFromValues([
             'kty' => 'EC',
             'crv' => 'P-256',
@@ -75,7 +76,7 @@ class DPoPProofVerifierTest extends TestCase
     public function verifyFromRequest_httpFoundation_passesThroughWithAccessToken(): void
     {
         $jwk = $this->createJwkMock();
-        $accessToken = new AccessTokenModel('abc', $jwk->thumbprint('sha256'));
+        $accessToken = new AccessTokenModel('abc', $jwk->thumbprint());
 
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0';
@@ -136,7 +137,7 @@ class DPoPProofVerifierTest extends TestCase
     public function verifyFromRequest_psr7_passesThroughWithAccessToken(): void
     {
         $jwk = $this->createJwkMock();
-        $accessToken = new AccessTokenModel('abc', $jwk->thumbprint('sha256'));
+        $accessToken = new AccessTokenModel('abc', $jwk->thumbprint());
 
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0';
@@ -799,7 +800,7 @@ class DPoPProofVerifierTest extends TestCase
         $nonceStorage = $this->createMock(NonceVerificationStorageInterface::class);
         $nonceStorage->expects($this->once())
             ->method('getCurrentOrCreateNewNonce')
-            ->with($jwk->thumbprint('sha256'))
+            ->with($jwk->thumbprint())
             ->willReturn('abc123');
 
         $this->tokenLoader->expects($this->once())
@@ -833,7 +834,7 @@ class DPoPProofVerifierTest extends TestCase
         $nonceStorage = $this->createMock(NonceVerificationStorageInterface::class);
         $nonceStorage->expects($this->once())
             ->method('getCurrentOrCreateNewNonce')
-            ->with($jwk->thumbprint('sha256'))
+            ->with($jwk->thumbprint())
             ->willReturn('abc123');
 
         $this->tokenLoader->expects($this->once())
@@ -870,7 +871,7 @@ class DPoPProofVerifierTest extends TestCase
 
         $nonceStorage->expects($this->once())
             ->method('createNewNonceIfInvalid')
-            ->with($jwk->thumbprint('sha256'), 'thisNonce123')
+            ->with($jwk->thumbprint(), 'thisNonce123')
             ->willReturn(null);
 
         $this->tokenLoader->expects($this->once())
@@ -900,7 +901,7 @@ class DPoPProofVerifierTest extends TestCase
 
         $nonceStorage->expects($this->once())
             ->method('createNewNonceIfInvalid')
-            ->with($jwk->thumbprint('sha256'), 'thisNonce123')
+            ->with($jwk->thumbprint(), 'thisNonce123')
             ->willReturn('newNonce321');
 
         $this->tokenLoader->expects($this->once())
@@ -1004,9 +1005,12 @@ class DPoPProofVerifierTest extends TestCase
      */
     private function createDecodedPayload(): array
     {
-        return ['iat' => $this->clock->now()->getTimestamp(), 'htm' => 'GET', 'htu' => 'https://example.com/path', 'jti' => 'abcdefghijklmnopqrstuvwxyz'];
-
-        return new DecodedDPoPProof($this->createJwkMock(), ['iat' => $this->clock->now()->getTimestamp(), 'htm' => 'GET', 'htu' => 'https://example.com/path', 'jti' => 'abcdefghijklmnopqrstuvwxyz'], ['jwk' => $this->jwk->toPublic()->jsonSerialize(), 'alg' => 'ES256']);
+        return [
+            'iat' => $this->clock->now()->getTimestamp(),
+            'htm' => self::HTM,
+            'htu' => self::HTU,
+            'jti' => 'abcdefghijklmnopqrstuvwxyz',
+        ];
     }
 
     /**
