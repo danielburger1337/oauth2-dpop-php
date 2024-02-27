@@ -126,14 +126,22 @@ class DPoPProofFactory
      *
      * @param ResponseInterface $response The PSR-7 response.
      * @param RequestInterface  $request  The PSR-7 request.
+     *
+     * @throws \InvalidArgumentException If the response contains multiple "DPoP-Nonce" headers.
      */
     public function storeNextNonceFromResponse(ResponseInterface $response, RequestInterface $request): void
     {
-        $nonce = $response->getHeaderLine('dpop-nonce');
-        if ('' === $nonce) {
+        $nonce = $response->getHeader('dpop-nonce');
+
+        $count = \count($nonce);
+        if (0 === $count) {
             return;
         }
 
-        $this->storeNextNonce($nonce, $request->getUri());
+        if (1 !== $count) {
+            throw new \InvalidArgumentException('The PSR-7 response contains multiple "DPoP-Nonce" headers.');
+        }
+
+        $this->storeNextNonce($nonce[\array_key_first($nonce)], $request->getUri());
     }
 }
