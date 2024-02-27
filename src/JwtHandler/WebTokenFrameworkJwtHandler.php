@@ -51,8 +51,9 @@ class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
 
         if (null !== $jkt) {
             throw new MissingDPoPJwkException(\sprintf(
-                'Failed to find a JWK with the "%s" JKT.',
-                $jkt
+                'Failed to find a JWK with the "%s" JKT that supports the "%s" DPoP algorithms.',
+                $jkt,
+                \implode(',', $serverSupportedSignatureAlgorithms)
             ));
         }
 
