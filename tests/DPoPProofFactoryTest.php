@@ -5,6 +5,7 @@ namespace danielburger1337\OAuth2DPoP\Tests;
 use danielburger1337\OAuth2DPoP\DPoPProofFactory;
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
 use danielburger1337\OAuth2DPoP\JwtHandler\JwtHandlerInterface;
+use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\Model\JwkInterface;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
 use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageKeyFactoryInterface;
@@ -21,6 +22,9 @@ use Symfony\Component\Clock\MockClock;
 #[CoversClass(DPoPProofFactory::class)]
 class DPoPProofFactoryTest extends TestCase
 {
+    private const HTM = 'GET';
+    private const HTU = 'https://example.com/path';
+
     private const JTI_LENGTH = 8;
 
     private DPoPProofFactory $factory;
@@ -196,6 +200,313 @@ class DPoPProofFactoryTest extends TestCase
             ->with('storageKey', 'nonceValue');
 
         $this->factory->storeNextNonceFromResponse($response, $request);
+    }
+
+    #[Test]
+    public function createProof_boundToAccessToken_unsupportedJkt_throwsException(): void
+    {
+        $accessToken = new AccessTokenModel('abc', 'def');
+
+        $e = $this->createStub(MissingDPoPJwkException::class);
+
+        $this->jwtHandler->expects($this->once())
+            ->method('selectJWK')
+            ->with(['ES256'], 'def')
+            ->willThrowException($e);
+
+        $this->expectExceptionObject($e);
+
+        $this->factory->createProof(self::HTM, self::HTU, ['ES256'], $accessToken);
+    }
+
+    #[Test]
+    public function createProof_boundToUnsupportedJkt_throwsException(): void
+    {
+        $e = $this->createStub(MissingDPoPJwkException::class);
+
+        $this->jwtHandler->expects($this->once())
+            ->method('selectJWK')
+            ->with(['ES256K'], 'jkt')
+            ->willThrowException($e);
+
+        $this->expectExceptionObject($e);
+
+        $this->factory->createProof(self::HTM, self::HTU, ['ES256K'], 'jkt');
+    }
+
+    #[Test]
+    public function createProof_unsupportedAlgorithms_throwsException(): void
+    {
+        $e = $this->createStub(MissingDPoPJwkException::class);
+
+        $this->jwtHandler->expects($this->once())
+            ->method('selectJWK')
+            ->with(['EdDSA'], null)
+            ->willThrowException($e);
+
+        $this->expectExceptionObject($e);
+
+        $this->factory->createProof(self::HTM, self::HTU, ['EdDSA']);
+    }
+
+    #[Test]
+    public function createProof_boundToNothing_checkPayload(): void
+    {
+        $jwk = $this->createMock(JwkInterface::class);
+        $jwk->expects($this->atLeastOnce())
+            ->method('toPublic')
+            ->willReturn(['kid' => 'kid', 'crv' => 'P-128']);
+
+        $this->jwtHandler->expects($this->once())
+            ->method('selectJWK')
+            ->with(['ES256'], null)
+            ->willReturn($jwk);
+
+        $this->jwtHandler->expects($this->once())
+            ->method('createProof')
+            ->with($jwk, $this->callback(function (mixed $value): bool {
+                $this->assertIsArray($value);
+
+                $this->assertArrayHasKey('htm', $value);
+                $this->assertEquals(self::HTM, $value['htm']);
+
+                $this->assertArrayHasKey('htu', $value);
+                $this->assertEquals(self::HTU, $value['htu']);
+
+                $this->assertArrayHasKey('iat', $value);
+                $this->assertEquals($this->clock->now()->getTimestamp(), $value['iat']);
+
+                $this->assertArrayHasKey('jti', $value);
+                $this->assertTrue(\strlen($value['jti']) === (self::JTI_LENGTH * 2));
+
+                $this->assertArrayNotHasKey('ath', $value);
+
+                return true;
+            }), $this->callback(function (mixed $value): bool {
+                $this->assertIsArray($value);
+
+                $this->assertArrayHasKey('typ', $value);
+                $this->assertEquals('dpop+jwt', $value['typ']);
+
+                $this->assertArrayHasKey('jwk', $value);
+                $this->assertEquals(['kid' => 'kid', 'crv' => 'P-128'], $value['jwk']);
+
+                return true;
+            }))
+            ->willReturn('dpop.proof');
+
+        $returnValue = $this->factory->createProof(self::HTM, self::HTU, ['ES256']);
+
+        $this->assertEquals($jwk, $returnValue->jwk);
+        $this->assertEquals('dpop.proof', $returnValue->proof);
+    }
+
+    #[Test]
+    public function createProof_boundToJkt_checkPayload(): void
+    {
+        $jwk = $this->createMock(JwkInterface::class);
+        $jwk->expects($this->atLeastOnce())
+            ->method('toPublic')
+            ->willReturn(['kid' => 'keyId', 'crv' => 'P-256']);
+
+        $this->jwtHandler->expects($this->once())
+            ->method('selectJWK')
+            ->with(['ES256'], 'acbjkt')
+            ->willReturn($jwk);
+
+        $this->jwtHandler->expects($this->once())
+            ->method('createProof')
+            ->with($jwk, $this->callback(function (mixed $value): bool {
+                $this->assertIsArray($value);
+
+                $this->assertArrayHasKey('htm', $value);
+                $this->assertEquals(self::HTM, $value['htm']);
+
+                $this->assertArrayHasKey('htu', $value);
+                $this->assertEquals(self::HTU, $value['htu']);
+
+                $this->assertArrayHasKey('iat', $value);
+                $this->assertEquals($this->clock->now()->getTimestamp(), $value['iat']);
+
+                $this->assertArrayHasKey('jti', $value);
+                $this->assertTrue(\strlen($value['jti']) === (self::JTI_LENGTH * 2));
+
+                $this->assertArrayNotHasKey('ath', $value);
+
+                return true;
+            }), $this->callback(function (mixed $value): bool {
+                $this->assertIsArray($value);
+
+                $this->assertArrayHasKey('typ', $value);
+                $this->assertEquals('dpop+jwt', $value['typ']);
+
+                $this->assertArrayHasKey('jwk', $value);
+                $this->assertEquals(['kid' => 'keyId', 'crv' => 'P-256'], $value['jwk']);
+
+                return true;
+            }))
+            ->willReturn('dpop.proof');
+
+        $returnValue = $this->factory->createProof(self::HTM, self::HTU, ['ES256'], 'acbjkt');
+
+        $this->assertEquals($jwk, $returnValue->jwk);
+        $this->assertEquals('dpop.proof', $returnValue->proof);
+    }
+
+    #[Test]
+    public function createProof_boundToAccessToken_addsAthToPayload(): void
+    {
+        $accessToken = new AccessTokenModel('123456', 'def');
+
+        $jwk = $this->createMock(JwkInterface::class);
+        $jwk->expects($this->atLeastOnce())
+            ->method('toPublic')
+            ->willReturn(['kid' => 'keyId', 'crv' => 'P-256']);
+
+        $this->jwtHandler->expects($this->once())
+            ->method('selectJWK')
+            ->with(['ES256'], 'def')
+            ->willReturn($jwk);
+
+        $this->jwtHandler->expects($this->once())
+            ->method('createProof')
+            ->with($jwk, $this->callback(function (mixed $value): bool {
+                $this->assertIsArray($value);
+
+                $this->assertArrayHasKey('htm', $value);
+                $this->assertEquals(self::HTM, $value['htm']);
+
+                $this->assertArrayHasKey('htu', $value);
+                $this->assertEquals(self::HTU, $value['htu']);
+
+                $this->assertArrayHasKey('iat', $value);
+                $this->assertEquals($this->clock->now()->getTimestamp(), $value['iat']);
+
+                $this->assertArrayHasKey('jti', $value);
+                $this->assertTrue(\strlen($value['jti']) === (self::JTI_LENGTH * 2));
+
+                $this->assertArrayHasKey('ath', $value);
+                $this->assertEquals('jZae727K08KaOmKSgOaGzww_XVqGr_PKEgIMkjrcbJI', $value['ath']);
+
+                return true;
+            }), $this->callback(function (mixed $value): bool {
+                $this->assertIsArray($value);
+
+                $this->assertArrayHasKey('typ', $value);
+                $this->assertEquals('dpop+jwt', $value['typ']);
+
+                $this->assertArrayHasKey('jwk', $value);
+                $this->assertEquals(['kid' => 'keyId', 'crv' => 'P-256'], $value['jwk']);
+
+                return true;
+            }))
+            ->willReturn('dpop.proof');
+
+        $returnValue = $this->factory->createProof(self::HTM, self::HTU, ['ES256'], $accessToken);
+
+        $this->assertEquals($jwk, $returnValue->jwk);
+        $this->assertEquals('dpop.proof', $returnValue->proof);
+    }
+
+    #[Test]
+    public function createProof_hasStoredNonce_addsNonceToPayload(): void
+    {
+        $jwk = $this->createMock(JwkInterface::class);
+        $jwk->expects($this->atLeastOnce())
+            ->method('toPublic')
+            ->willReturn(['kid' => 'keyId', 'crv' => 'P-256']);
+
+        $this->jwtHandler->expects($this->once())
+            ->method('selectJWK')
+            ->with(['ES256'], null)
+            ->willReturn($jwk);
+
+        $this->nonceStorageKeyFactory->expects($this->once())
+            ->method('createKey')
+            ->with(self::HTU)
+            ->willReturn('key');
+
+        $this->nonceStorage->expects($this->once())
+            ->method('getCurrentNonce')
+            ->with('key')
+            ->willReturn('storedNonce');
+
+        $this->jwtHandler->expects($this->once())
+            ->method('createProof')
+            ->with($jwk, $this->callback(function (mixed $value): bool {
+                $this->assertIsArray($value);
+
+                $this->assertArrayHasKey('htm', $value);
+                $this->assertEquals(self::HTM, $value['htm']);
+
+                $this->assertArrayHasKey('htu', $value);
+                $this->assertEquals(self::HTU, $value['htu']);
+
+                $this->assertArrayHasKey('iat', $value);
+                $this->assertEquals($this->clock->now()->getTimestamp(), $value['iat']);
+
+                $this->assertArrayHasKey('jti', $value);
+                $this->assertTrue(\strlen($value['jti']) === (self::JTI_LENGTH * 2));
+
+                $this->assertArrayHasKey('nonce', $value);
+                $this->assertEquals('storedNonce', $value['nonce']);
+
+                $this->assertArrayNotHasKey('ath', $value);
+
+                return true;
+            }), $this->callback(function (mixed $value): bool {
+                $this->assertIsArray($value);
+
+                $this->assertArrayHasKey('typ', $value);
+                $this->assertEquals('dpop+jwt', $value['typ']);
+
+                $this->assertArrayHasKey('jwk', $value);
+                $this->assertEquals(['kid' => 'keyId', 'crv' => 'P-256'], $value['jwk']);
+
+                return true;
+            }))
+            ->willReturn('dpop.proof');
+
+        $returnValue = $this->factory->createProof(self::HTM, self::HTU, ['ES256']);
+
+        $this->assertEquals($jwk, $returnValue->jwk);
+        $this->assertEquals('dpop.proof', $returnValue->proof);
+    }
+
+    #[Test]
+    public function createProof_hti_isTransformed(): void
+    {
+        $jwk = $this->createMock(JwkInterface::class);
+        $jwk->expects($this->atLeastOnce())
+            ->method('toPublic')
+            ->willReturn(['kid' => 'keyId', 'crv' => 'P-256']);
+
+        $this->jwtHandler->expects($this->once())
+            ->method('selectJWK')
+            ->with(['ES256'], null)
+            ->willReturn($jwk);
+
+        $this->nonceStorageKeyFactory->expects($this->once())
+            ->method('createKey')
+            ->with(self::HTU)
+            ->willReturn('key');
+
+        $this->jwtHandler->expects($this->once())
+            ->method('createProof')
+            ->with($jwk, $this->callback(function (mixed $value): bool {
+                $this->assertIsArray($value);
+
+                $this->assertArrayHasKey('htu', $value);
+                $this->assertEquals(self::HTU, $value['htu']);
+
+                return true;
+            }))
+            ->willReturn('dpop.proof');
+
+        $returnValue = $this->factory->createProof(self::HTM, self::HTU.'?query=a#fragment', ['ES256']);
+
+        $this->assertEquals($jwk, $returnValue->jwk);
+        $this->assertEquals('dpop.proof', $returnValue->proof);
     }
 
     /**
