@@ -27,21 +27,30 @@ class DPoPProofFactory
     /**
      * Get the JWK that the authorization code should be bound to.
      *
+     * @param string[] $serverSupportedSignatureAlgorithms The DPoP signature algorithms that the upstream server reported as supported.
+     *
      * @throws MissingDPoPJwkException If no suitable JWK is registered.
      */
-    public function getJwkToBind(): JwkInterface
+    public function getJwkToBind(array $serverSupportedSignatureAlgorithms): JwkInterface
     {
-        return $this->jwtHandler->selectJWK(null, null);
+        return $this->jwtHandler->selectJWK($serverSupportedSignatureAlgorithms);
     }
 
     /**
-     * @param string[]|null $serverSupportedSignatureAlgorithms [optional] The DPoP signature algorithms that the server reported as supported.
+     * Create a DPoP proof token.
+     *
+     * @param string                       $htm                                The http method of the request.
+     * @param UriInterface|string          $htu                                The http URI of the request.
+     * @param string[]                     $serverSupportedSignatureAlgorithms The DPoP signature algorithms that the upstream server reported as supported.
+     * @param AccessTokenModel|string|null $bindTo                             [optional] The access token the DPoP proof must be bound to.
+     *                                                                         If the argument is of type `string`, it is assumed that a JKT
+     *                                                                         is given and the DPoP proof will be signed with a JWK that matches that JKT.
      */
-    public function createProof(string $htm, UriInterface|string $htu, AccessTokenModel|string|null $bindTo = null, ?array $serverSupportedSignatureAlgorithms = null): DPoPProof
+    public function createProof(string $htm, UriInterface|string $htu, array $serverSupportedSignatureAlgorithms, AccessTokenModel|string|null $bindTo = null): DPoPProof
     {
         $jkt = $bindTo instanceof AccessTokenModel ? $bindTo->jkt : $bindTo;
 
-        $jwk = $this->jwtHandler->selectJWK($jkt, $serverSupportedSignatureAlgorithms);
+        $jwk = $this->jwtHandler->selectJWK($serverSupportedSignatureAlgorithms, $jkt);
 
         $protectedHeader = [
             'typ' => JwtHandlerInterface::TYPE_HEADER_PARAMETER,
@@ -70,11 +79,11 @@ class DPoPProofFactory
     }
 
     /**
-     * @param string[]|null $serverSupportedSignatureAlgorithms [optional] The DPoP signature algorithms that the server reported as supported.
+     * @param string[] $serverSupportedSignatureAlgorithms The DPoP signature algorithms that the upstream server reported as supported.
      */
-    public function createProofForRequest(RequestInterface $request, AccessTokenModel|null $accessToken = null, ?array $serverSupportedSignatureAlgorithms = null): RequestInterface
+    public function createProofForRequest(RequestInterface $request, array $serverSupportedSignatureAlgorithms, AccessTokenModel|null $accessToken = null): RequestInterface
     {
-        $proof = $this->createProof($request->getMethod(), $request->getUri(), $accessToken, $serverSupportedSignatureAlgorithms);
+        $proof = $this->createProof($request->getMethod(), $request->getUri(), $serverSupportedSignatureAlgorithms, $accessToken);
 
         return $request->withHeader('DPoP', $proof->proof);
     }

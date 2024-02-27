@@ -32,10 +32,8 @@ class WebTokenFrameworkJwtHandler implements JwtHandlerInterface
         $this->serializer = new JWSSerializerManager([new CompactSerializer()]);
     }
 
-    public function selectJWK(?string $jkt, ?array $serverSupportedSignatureAlgorithms = null): JwkInterface
+    public function selectJWK(array $serverSupportedSignatureAlgorithms, string|null $jkt = null): JwkInterface
     {
-        $serverSupportedSignatureAlgorithms ??= $this->algorithmManager->list();
-
         foreach ($serverSupportedSignatureAlgorithms as $algorithmName) {
             try {
                 $algorithm = $this->algorithmManager->get($algorithmName);

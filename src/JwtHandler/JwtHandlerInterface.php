@@ -12,11 +12,12 @@ interface JwtHandlerInterface
     /**
      * Select the JWK used to sign DPoP proof.
      *
-     * @param string[]|null $serverSupportedSignatureAlgorithms
+     * @param string[]    $serverSupportedSignatureAlgorithms The DPoP signature algorithms that the upstream server reported as supported.
+     * @param string|null $jkt                                [optional] The JKT of the JWK that must be returned.
      *
      * @throws MissingDPoPJwkException If no suitable JWK was found.
      */
-    public function selectJWK(?string $jkt, ?array $serverSupportedSignatureAlgorithms = null): JwkInterface;
+    public function selectJWK(array $serverSupportedSignatureAlgorithms, string|null $jkt = null): JwkInterface;
 
     /**
      * Create a DPoP proof.
