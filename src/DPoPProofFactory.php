@@ -16,11 +16,20 @@ use Psr\Http\Message\UriInterface;
 
 class DPoPProofFactory
 {
+    /**
+     * @param ClockInterface                  $clock                  The PSR-20 clock to use.
+     * @param JwtHandlerInterface             $jwtHandler             The JWT handler to use.
+     * @param NonceStorageInterface           $nonceStorage           Service that stores the upstream servers "DPoP-Nonce" header.
+     *                                                                `NullNonceStorage` can be used if it is known that the upstream server does not use the "DPoP-Nonce" header.
+     * @param NonceStorageKeyFactoryInterface $nonceStorageKeyFactory Server that creates the nonce storage key.
+     * @param int                             $jtiByteLength          [optional] The byte length of the generated "jti" claim.
+     */
     public function __construct(
-        private readonly NonceStorageKeyFactoryInterface $nonceStorageKeyFactory,
         private readonly ClockInterface $clock,
         private readonly JwtHandlerInterface $jwtHandler,
-        private readonly NonceStorageInterface $nonceStorage
+        private readonly NonceStorageInterface $nonceStorage,
+        private readonly NonceStorageKeyFactoryInterface $nonceStorageKeyFactory,
+        private readonly int $jtiByteLength = 32
     ) {
     }
 
@@ -65,7 +74,7 @@ class DPoPProofFactory
             'htm' => $htm,
             'htu' => $htu,
             'iat' => $this->clock->now()->getTimestamp(),
-            'jti' => \bin2hex(\random_bytes(32)),
+            'jti' => \bin2hex(\random_bytes($this->jtiByteLength)),
         ];
 
         if ($bindTo instanceof AccessTokenModel) {
