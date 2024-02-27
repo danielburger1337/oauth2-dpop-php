@@ -2,14 +2,11 @@
 
 namespace danielburger1337\OAuth2DPoP\NonceStorage;
 
+use danielburger1337\OAuth2DPoP\Model\JwkInterface;
+
 class NonceStorageKeyFactory implements NonceStorageKeyFactoryInterface
 {
-    public function __construct(
-        private readonly string $prefix = ''
-    ) {
-    }
-
-    public function createKey(string $htu): string
+    public function createKey(JwkInterface $jwk, string $htu): string
     {
         $parts = \parse_url($htu);
 
@@ -21,6 +18,6 @@ class NonceStorageKeyFactory implements NonceStorageKeyFactoryInterface
             throw new \InvalidArgumentException('The htu has an invalid scheme or host.');
         }
 
-        return \hash('xxh3', $this->prefix.\strtolower($parts['scheme'].$parts['host']));
+        return \hash('xxh3', $jwk->thumbprint().\strtolower($parts['scheme'].$parts['host']));
     }
 }

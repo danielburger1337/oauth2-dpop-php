@@ -79,36 +79,42 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function storeNextNonce_htu_isNotModified(): void
     {
+        $jwk = $this->createStub(JwkInterface::class);
+
         $this->nonceStorageKeyFactory->expects($this->once())
             ->method('createKey')
-            ->with('https://sub.example.com/path')
+            ->with($jwk, 'https://sub.example.com/path')
             ->willReturn('storageKey');
 
         $this->nonceStorage->expects($this->once())
             ->method('storeNextNonce')
             ->with('storageKey', 'nonce');
 
-        $this->factory->storeNextNonce('nonce', 'https://sub.example.com/path');
+        $this->factory->storeNextNonce('nonce', $jwk, 'https://sub.example.com/path');
     }
 
     #[Test]
     public function storeNextNonce_htu_isTransformed(): void
     {
+        $jwk = $this->createStub(JwkInterface::class);
+
         $this->nonceStorageKeyFactory->expects($this->once())
             ->method('createKey')
-            ->with('https://example.com/path')
+            ->with($jwk, 'https://example.com/path')
             ->willReturn('storageKey');
 
         $this->nonceStorage->expects($this->once())
             ->method('storeNextNonce')
             ->with('storageKey', 'nonce');
 
-        $this->factory->storeNextNonce('nonce', 'https://example.com/path?query=1#fragment');
+        $this->factory->storeNextNonce('nonce', $jwk, 'https://example.com/path?query=1#fragment');
     }
 
     #[Test]
     public function storeNextNonceFromResponse_emptyHeader_doesNothing(): void
     {
+        $jwk = $this->createStub(JwkInterface::class);
+
         $request = $this->createMock(RequestInterface::class);
 
         $response = $this->createMock(ResponseInterface::class);
@@ -120,12 +126,14 @@ class DPoPProofFactoryTest extends TestCase
         $this->nonceStorage->expects($this->never())
             ->method($this->anything());
 
-        $this->factory->storeNextNonceFromResponse($response, $request);
+        $this->factory->storeNextNonceFromResponse($response, $request, $jwk);
     }
 
     #[Test]
     public function storeNextNonceFromResponse_multipleHeader_throwsException(): void
     {
+        $jwk = $this->createStub(JwkInterface::class);
+
         $request = $this->createMock(RequestInterface::class);
 
         $response = $this->createMock(ResponseInterface::class);
@@ -137,12 +145,14 @@ class DPoPProofFactoryTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('The PSR-7 response contains multiple "DPoP-Nonce" headers.');
 
-        $this->factory->storeNextNonceFromResponse($response, $request);
+        $this->factory->storeNextNonceFromResponse($response, $request, $jwk);
     }
 
     #[Test]
     public function storeNextNonceFromResponse_includesNonce_storesNonce(): void
     {
+        $jwk = $this->createStub(JwkInterface::class);
+
         $uri = $this->createMock(UriInterface::class);
         $uri->expects($this->atLeastOnce())
             ->method('__toString')
@@ -161,19 +171,21 @@ class DPoPProofFactoryTest extends TestCase
 
         $this->nonceStorageKeyFactory->expects($this->once())
             ->method('createKey')
-            ->with('https://example.com/path')
+            ->with($jwk, 'https://example.com/path')
             ->willReturn('storageKey');
 
         $this->nonceStorage->expects($this->once())
             ->method('storeNextNonce')
             ->with('storageKey', 'nonceValue');
 
-        $this->factory->storeNextNonceFromResponse($response, $request);
+        $this->factory->storeNextNonceFromResponse($response, $request, $jwk);
     }
 
     #[Test]
     public function storeNextNonceFromResponse_includesNonceAndQueryParameter_storesNonce(): void
     {
+        $jwk = $this->createStub(JwkInterface::class);
+
         $uri = $this->createMock(UriInterface::class);
         $uri->expects($this->atLeastOnce())
             ->method('__toString')
@@ -192,14 +204,14 @@ class DPoPProofFactoryTest extends TestCase
 
         $this->nonceStorageKeyFactory->expects($this->once())
             ->method('createKey')
-            ->with('https://example.com/path')
+            ->with($jwk, 'https://example.com/path')
             ->willReturn('storageKey');
 
         $this->nonceStorage->expects($this->once())
             ->method('storeNextNonce')
             ->with('storageKey', 'nonceValue');
 
-        $this->factory->storeNextNonceFromResponse($response, $request);
+        $this->factory->storeNextNonceFromResponse($response, $request, $jwk);
     }
 
     #[Test]
@@ -423,7 +435,7 @@ class DPoPProofFactoryTest extends TestCase
 
         $this->nonceStorageKeyFactory->expects($this->once())
             ->method('createKey')
-            ->with(self::HTU)
+            ->with($jwk, self::HTU)
             ->willReturn('key');
 
         $this->nonceStorage->expects($this->once())
@@ -485,7 +497,7 @@ class DPoPProofFactoryTest extends TestCase
 
         $this->nonceStorageKeyFactory->expects($this->once())
             ->method('createKey')
-            ->with(self::HTU)
+            ->with($jwk, self::HTU)
             ->willReturn('key');
 
         $this->encoder->expects($this->once())
@@ -532,7 +544,7 @@ class DPoPProofFactoryTest extends TestCase
 
         $this->nonceStorageKeyFactory->expects($this->once())
             ->method('createKey')
-            ->with(self::HTU)
+            ->with($jwk, self::HTU)
             ->willReturn('key');
 
         $this->encoder->expects($this->once())

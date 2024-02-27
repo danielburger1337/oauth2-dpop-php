@@ -81,7 +81,7 @@ class DPoPProofFactory
             $payload['ath'] = Util::createAccessTokenHash($bindTo);
         }
 
-        $key = $this->nonceStorageKeyFactory->createKey($htu);
+        $key = $this->nonceStorageKeyFactory->createKey($jwk, $htu);
         if (null !== ($nonce = $this->nonceStorage->getCurrentNonce($key))) {
             $payload['nonce'] = $nonce;
         }
@@ -109,11 +109,12 @@ class DPoPProofFactory
      * Store the "DPoP-Nonce" received by the upstream server.
      *
      * @param string              $nonce The "DPoP-Nonce" header value.
+     * @param JwkInterface        $jwk   The JWK that was used in the request that received the "DPoP-Nonce" in the response.
      * @param UriInterface|string $htu   The http URI of the request that responded with the "DPoP-Nonce" header.
      */
-    public function storeNextNonce(string $nonce, UriInterface|string $htu): void
+    public function storeNextNonce(string $nonce, JwkInterface $jwk, UriInterface|string $htu): void
     {
-        $key = $this->nonceStorageKeyFactory->createKey(Util::createHtu($htu));
+        $key = $this->nonceStorageKeyFactory->createKey($jwk, Util::createHtu($htu));
         $this->nonceStorage->storeNextNonce($key, $nonce);
     }
 
@@ -122,10 +123,11 @@ class DPoPProofFactory
      *
      * @param ResponseInterface $response The PSR-7 response.
      * @param RequestInterface  $request  The PSR-7 request.
+     * @param JwkInterface      $jwk      The JWK that that received the "DPoP-Nonce" in the response.
      *
      * @throws \InvalidArgumentException If the response contains multiple "DPoP-Nonce" headers.
      */
-    public function storeNextNonceFromResponse(ResponseInterface $response, RequestInterface $request): void
+    public function storeNextNonceFromResponse(ResponseInterface $response, RequestInterface $request, JwkInterface $jwk): void
     {
         $nonce = $response->getHeader('dpop-nonce');
 
@@ -138,6 +140,6 @@ class DPoPProofFactory
             throw new \InvalidArgumentException('The PSR-7 response contains multiple "DPoP-Nonce" headers.');
         }
 
-        $this->storeNextNonce($nonce[\array_key_first($nonce)], $request->getUri());
+        $this->storeNextNonce($nonce[\array_key_first($nonce)], $jwk, $request->getUri());
     }
 }
