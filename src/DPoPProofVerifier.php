@@ -166,7 +166,7 @@ class DPoPProofVerifier
             $thumbprint = $proof->jwk->thumbprint();
 
             if (!\array_key_exists('nonce', $proof->payload) || !\is_string($proof->payload['nonce'])) {
-                $nonce = $this->nonceStorage->getCurrentOrCreateNewNonce($thumbprint);
+                $nonce = $this->nonceStorage->createNewNonce($thumbprint);
 
                 throw new InvalidDPoPNonceException($nonce, 'The DPoP proof is missing the required "nonce" claim.');
             }

@@ -62,48 +62,7 @@ class WebTokenFrameworkNonceStorage implements NonceVerificationStorageInterface
         $this->jwsBuilder = new JWSBuilder($this->algorithmManager);
     }
 
-    public function createNewNonceIfInvalid(string $key, string $nonce): ?string
-    {
-        $headerCheckerManager = new Checker\HeaderCheckerManager([
-            new Checker\IsEqualChecker('typ', self::TYPE_PARAMETER),
-            new Checker\AlgorithmChecker($this->algorithmManager->list(), true),
-        ], [
-            new JWSTokenSupport(),
-        ]);
-
-        $jwsLoader = new JWSLoader($this->serializer, new JWSVerifier($this->algorithmManager), $headerCheckerManager);
-
-        try {
-            $jws = $jwsLoader->loadAndVerifyWithKeySet($nonce, $this->jwkSet, $signatureIndex);
-
-            if (!\is_int($signatureIndex) || !$jws->getSignature($signatureIndex)->hasProtectedHeaderParameter('typ')) {
-                throw new \Exception();
-            }
-
-            $claimCheckerManager = new ClaimCheckerManager([
-                new Checker\ExpirationTimeChecker($this->allowedTimeDrift, false, $this->clock),
-                new Checker\IssuedAtChecker($this->allowedTimeDrift, false, $this->clock),
-            ]);
-
-            $payload = JsonConverter::decode($jws->getPayload() ?? '');
-            if (!\is_array($payload)) {
-                throw new \Exception();
-            }
-
-            $verifiedClaims = $claimCheckerManager->check($payload, ['iat', 'exp']);
-        } catch (\Exception) {
-            return $this->getCurrentOrCreateNewNonce($key);
-        }
-
-        if (null !== $this->closure) {
-            // @see https://datatracker.ietf.org/doc/html/rfc9449#section-8.2
-            \call_user_func($this->closure, $verifiedClaims, $key, $this);
-        }
-
-        return null;
-    }
-
-    public function getCurrentOrCreateNewNonce(string $key): string
+    public function createNewNonce(string $thumbprint): string
     {
         $now = $this->clock->now();
 
@@ -114,6 +73,7 @@ class WebTokenFrameworkNonceStorage implements NonceVerificationStorageInterface
             // Add a little bit of randomness to prevent multiple nonces to be equal when they were created
             // at the same time.
             'jti' => \bin2hex(\random_bytes(4)),
+            'jkt' => $thumbprint,
         ];
 
         $jwk = null;
@@ -146,5 +106,47 @@ class WebTokenFrameworkNonceStorage implements NonceVerificationStorageInterface
         ;
 
         return $this->serializer->serialize(CompactSerializer::NAME, $builder->build());
+    }
+
+    public function createNewNonceIfInvalid(string $thumbprint, string $nonce): ?string
+    {
+        $headerCheckerManager = new Checker\HeaderCheckerManager([
+            new Checker\IsEqualChecker('typ', self::TYPE_PARAMETER),
+            new Checker\AlgorithmChecker($this->algorithmManager->list(), true),
+        ], [
+            new JWSTokenSupport(),
+        ]);
+
+        $jwsLoader = new JWSLoader($this->serializer, new JWSVerifier($this->algorithmManager), $headerCheckerManager);
+
+        try {
+            $jws = $jwsLoader->loadAndVerifyWithKeySet($nonce, $this->jwkSet, $signatureIndex);
+
+            if (!\is_int($signatureIndex) || !$jws->getSignature($signatureIndex)->hasProtectedHeaderParameter('typ')) {
+                throw new \Exception();
+            }
+
+            $claimCheckerManager = new ClaimCheckerManager([
+                new Checker\ExpirationTimeChecker($this->allowedTimeDrift, false, $this->clock),
+                new Checker\IssuedAtChecker($this->allowedTimeDrift, false, $this->clock),
+                new Checker\IsEqualChecker('jkt', $thumbprint),
+            ]);
+
+            $payload = JsonConverter::decode($jws->getPayload() ?? '');
+            if (!\is_array($payload)) {
+                throw new \Exception();
+            }
+
+            $verifiedClaims = $claimCheckerManager->check($payload, ['iat', 'exp']);
+        } catch (\Exception) {
+            return $this->createNewNonce($thumbprint);
+        }
+
+        if (null !== $this->closure) {
+            // @see https://datatracker.ietf.org/doc/html/rfc9449#section-8.2
+            \call_user_func($this->closure, $verifiedClaims, $thumbprint, $this);
+        }
+
+        return null;
     }
 }

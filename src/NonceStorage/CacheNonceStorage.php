@@ -3,6 +3,7 @@
 namespace danielburger1337\OAuth2DPoP\NonceStorage;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Cache\InvalidArgumentException;
 
 class CacheNonceStorage implements NonceStorageInterface, NonceVerificationStorageInterface
 {
@@ -15,38 +16,32 @@ class CacheNonceStorage implements NonceStorageInterface, NonceVerificationStora
     ) {
     }
 
-    public function getCurrentOrCreateNewNonce(string $key): string
+    public function createNewNonce(string $thumbprint): string
     {
-        $item = $this->cache->getItem($key);
-        if (!$item->isHit() || !\is_string($stored = $item->get())) {
-            $nonce = $this->generateNonce();
+        $nonce = $this->generateNonce();
 
-            $item->set($nonce);
-            $item->expiresAfter($this->ttl);
+        $item = $this->cache->getItem($nonce);
 
-            $this->cache->save($item);
+        $item->set($nonce);
+        $item->expiresAfter($this->ttl);
 
-            return $nonce;
-        }
+        $this->cache->save($item);
 
-        return $stored;
+        return $nonce;
     }
 
-    public function createNewNonceIfInvalid(string $key, string $nonce): string|null
+    public function createNewNonceIfInvalid(string $thumbprint, string $nonce): string|null
     {
-        $item = $this->cache->getItem($key);
-        if (!$item->isHit() || !\is_string($stored = $item->get())) {
-            $nonce = $this->generateNonce();
+        try {
+            $item = $this->cache->getItem($nonce);
 
-            $item->set($nonce);
-            $item->expiresAfter($this->ttl);
-
-            $this->cache->save($item);
-
-            return $nonce;
+            if ($item->isHit()) {
+                return null;
+            }
+        } catch (InvalidArgumentException) {  // @codeCoverageIgnore
         }
 
-        return \hash_equals($stored, $nonce) ? null : $stored;
+        return $this->createNewNonce($thumbprint);
     }
 
     public function getCurrentNonce(string $key): string|null

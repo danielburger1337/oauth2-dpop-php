@@ -7,19 +7,19 @@ interface NonceVerificationStorageInterface
     /**
      * Get the current DPoP-Nonce or create a new one.
      *
-     * @param string $key The storage key to use for comparison.
+     * @param string $thumbprint The JKT that requires a new nonce.
      *
-     * @return string The current or the newly created nonce.
+     * @return string The created nonce.
      */
-    public function getCurrentOrCreateNewNonce(string $key): string;
+    public function createNewNonce(string $thumbprint): string;
 
     /**
      * Create a new DPoP-Nonce if the given one is invalid.
      *
-     * @param string $key   The storage key to use for comparison.
-     * @param string $nonce The nonce to compare.
+     * @param string $thumbprint The JKT that presented the nonce.
+     * @param string $nonce      The nonce to compare.
      *
-     * @return string|null The newly created nonce or `null` if the provided nonce is valid.
+     * @return string|null The nonce or `null` if the provided nonce is valid.
      */
-    public function createNewNonceIfInvalid(string $key, string $nonce): string|null;
+    public function createNewNonceIfInvalid(string $thumbprint, string $nonce): string|null;
 }

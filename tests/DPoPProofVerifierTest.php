@@ -799,7 +799,7 @@ class DPoPProofVerifierTest extends TestCase
 
         $nonceStorage = $this->createMock(NonceVerificationStorageInterface::class);
         $nonceStorage->expects($this->once())
-            ->method('getCurrentOrCreateNewNonce')
+            ->method('createNewNonce')
             ->with($jwk->thumbprint())
             ->willReturn('abc123');
 
@@ -833,7 +833,7 @@ class DPoPProofVerifierTest extends TestCase
 
         $nonceStorage = $this->createMock(NonceVerificationStorageInterface::class);
         $nonceStorage->expects($this->once())
-            ->method('getCurrentOrCreateNewNonce')
+            ->method('createNewNonce')
             ->with($jwk->thumbprint())
             ->willReturn('abc123');
 
@@ -867,7 +867,7 @@ class DPoPProofVerifierTest extends TestCase
 
         $nonceStorage = $this->createMock(NonceVerificationStorageInterface::class);
         $nonceStorage->expects($this->never())
-            ->method('getCurrentOrCreateNewNonce');
+            ->method('createNewNonce');
 
         $nonceStorage->expects($this->once())
             ->method('createNewNonceIfInvalid')
@@ -897,7 +897,7 @@ class DPoPProofVerifierTest extends TestCase
 
         $nonceStorage = $this->createMock(NonceVerificationStorageInterface::class);
         $nonceStorage->expects($this->never())
-            ->method('getCurrentOrCreateNewNonce');
+            ->method('createNewNonce');
 
         $nonceStorage->expects($this->once())
             ->method('createNewNonceIfInvalid')
