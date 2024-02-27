@@ -19,10 +19,13 @@ use Symfony\Component\HttpFoundation\Request;
 class DPoPProofVerifier
 {
     /**
+     * @param ClockInterface                         $clock                The PSR-20 clock to use.
+     * @param DPoPTokenLoaderInterface               $tokenLoader          The DPoP token loader to use.
      * @param NonceVerificationStorageInterface|null $nonceStorage         [optional] The "nonce" claim storage.
      *                                                                     `null` will disable the nonce requirement.
      * @param ReplayAttackDetectorInterface|null     $replayAttackDetector [optional] A service that can detect whether the DPoP proof was already used.
      *                                                                     `null` will disable replay attack detection.
+     * @param int                                    $allowedTimeDrift     [optional] Allowed time drift in seconds.
      */
     public function __construct(
         private readonly ClockInterface $clock,
@@ -33,6 +36,16 @@ class DPoPProofVerifier
     ) {
     }
 
+    /**
+     * Verify a DPoP proof from a request.
+     *
+     * @param ServerRequestInterface|Request $request     The PSR-7/Http-Foundation request to verify.
+     * @param AccessTokenModel|null          $accessToken [optional] The access token the DPoP proof must be bound to.
+     *
+     * @throws InvalidDPoPProofException If the DPoP proof is invalid.
+     * @throws InvalidDPoPNonceException If the DPoP nonce is invalid.
+     * @throws DPoPReplayAttackException If the DPoP proof has already been used.
+     */
     public function verifyFromRequest(ServerRequestInterface|Request $request, AccessTokenModel|null $accessToken = null): DecodedDPoPProof
     {
         if ($request instanceof Request) {
@@ -52,14 +65,14 @@ class DPoPProofVerifier
     /**
      * Verify a DPoP proof.
      *
-     * @param string $dpopProof The "DPoP" header value.
-     * @param string $htm       The expected "htm" claim.
-     * @param string $htu       The expected "htu" claim.
+     * @param string                $dpopProof   The "DPoP" header value.
+     * @param string                $htm         The expected http method of the request.
+     * @param UriInterface|string   $htu         The expected http URI of the request.
+     * @param AccessTokenModel|null $accessToken [optional] The access token the DPoP proof must be bound to.
      *
      * @throws InvalidDPoPProofException If the DPoP proof is invalid.
      * @throws InvalidDPoPNonceException If the DPoP nonce is invalid.
      * @throws DPoPReplayAttackException If the DPoP proof has already been used.
-     * @throws \InvalidArgumentException If access token is not of type "DPoP"
      */
     public function verifyFromRequestParts(string $dpopProof, string $htm, UriInterface|string $htu, AccessTokenModel|null $accessToken = null): DecodedDPoPProof
     {
