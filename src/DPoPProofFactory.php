@@ -42,7 +42,7 @@ class DPoPProofFactory
      */
     public function getJwkToBind(array $serverSupportedSignatureAlgorithms): JwkInterface
     {
-        return $this->jwtHandler->selectJWK($serverSupportedSignatureAlgorithms);
+        return $this->encoder->selectJWK($serverSupportedSignatureAlgorithms);
     }
 
     /**
@@ -61,7 +61,7 @@ class DPoPProofFactory
     {
         $jkt = $bindTo instanceof AccessTokenModel ? $bindTo->jkt : $bindTo;
 
-        $jwk = $this->jwtHandler->selectJWK($serverSupportedSignatureAlgorithms, $jkt);
+        $jwk = $this->encoder->selectJWK($serverSupportedSignatureAlgorithms, $jkt);
 
         $protectedHeader = [
             'typ' => DPoPTokenEncoderInterface::TYPE_HEADER_PARAMETER,
@@ -86,7 +86,7 @@ class DPoPProofFactory
             $payload['nonce'] = $nonce;
         }
 
-        return new DPoPProof($jwk, $this->jwtHandler->createProof($jwk, $payload, $protectedHeader));
+        return new DPoPProof($jwk, $this->encoder->createProof($jwk, $payload, $protectedHeader));
     }
 
     /**

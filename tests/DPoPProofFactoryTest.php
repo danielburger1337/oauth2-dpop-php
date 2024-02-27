@@ -30,18 +30,18 @@ class DPoPProofFactoryTest extends TestCase
     private DPoPProofFactory $factory;
 
     private MockClock $clock;
-    private DPoPTokenEncoderInterface&MockObject $jwtHandler;
+    private DPoPTokenEncoderInterface&MockObject $encoder;
     private NonceStorageInterface&MockObject $nonceStorage;
     private NonceStorageKeyFactoryInterface&MockObject $nonceStorageKeyFactory;
 
     protected function setUp(): void
     {
         $this->clock = new MockClock();
-        $this->jwtHandler = $this->createMock(DPoPTokenEncoderInterface::class);
+        $this->encoder = $this->createMock(DPoPTokenEncoderInterface::class);
         $this->nonceStorage = $this->createMock(NonceStorageInterface::class);
         $this->nonceStorageKeyFactory = $this->createMock(NonceStorageKeyFactoryInterface::class);
 
-        $this->factory = new DPoPProofFactory($this->clock, $this->jwtHandler, $this->nonceStorage, $this->nonceStorageKeyFactory, self::JTI_LENGTH);
+        $this->factory = new DPoPProofFactory($this->clock, $this->encoder, $this->nonceStorage, $this->nonceStorageKeyFactory, self::JTI_LENGTH);
     }
 
     /**
@@ -53,7 +53,7 @@ class DPoPProofFactoryTest extends TestCase
     {
         $jwk = $this->createMock(JwkInterface::class);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('selectJWK')
             ->with($supportedAlgorithms)
             ->willReturn($jwk);
@@ -66,7 +66,7 @@ class DPoPProofFactoryTest extends TestCase
     {
         $e = $this->createStub(MissingDPoPJwkException::class);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('selectJWK')
             ->with(['EdDSA'])
             ->willThrowException($e);
@@ -209,7 +209,7 @@ class DPoPProofFactoryTest extends TestCase
 
         $e = $this->createStub(MissingDPoPJwkException::class);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('selectJWK')
             ->with(['ES256'], 'def')
             ->willThrowException($e);
@@ -224,7 +224,7 @@ class DPoPProofFactoryTest extends TestCase
     {
         $e = $this->createStub(MissingDPoPJwkException::class);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('selectJWK')
             ->with(['ES256K'], 'jkt')
             ->willThrowException($e);
@@ -239,7 +239,7 @@ class DPoPProofFactoryTest extends TestCase
     {
         $e = $this->createStub(MissingDPoPJwkException::class);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('selectJWK')
             ->with(['EdDSA'], null)
             ->willThrowException($e);
@@ -257,12 +257,12 @@ class DPoPProofFactoryTest extends TestCase
             ->method('toPublic')
             ->willReturn(['kid' => 'kid', 'crv' => 'P-128']);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('selectJWK')
             ->with(['ES256'], null)
             ->willReturn($jwk);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('createProof')
             ->with($jwk, $this->callback(function (mixed $value): bool {
                 $this->assertIsArray($value);
@@ -309,12 +309,12 @@ class DPoPProofFactoryTest extends TestCase
             ->method('toPublic')
             ->willReturn(['kid' => 'keyId', 'crv' => 'P-256']);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('selectJWK')
             ->with(['ES256'], 'acbjkt')
             ->willReturn($jwk);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('createProof')
             ->with($jwk, $this->callback(function (mixed $value): bool {
                 $this->assertIsArray($value);
@@ -363,12 +363,12 @@ class DPoPProofFactoryTest extends TestCase
             ->method('toPublic')
             ->willReturn(['kid' => 'keyId', 'crv' => 'P-256']);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('selectJWK')
             ->with(['ES256'], 'def')
             ->willReturn($jwk);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('createProof')
             ->with($jwk, $this->callback(function (mixed $value): bool {
                 $this->assertIsArray($value);
@@ -416,7 +416,7 @@ class DPoPProofFactoryTest extends TestCase
             ->method('toPublic')
             ->willReturn(['kid' => 'keyId', 'crv' => 'P-256']);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('selectJWK')
             ->with(['ES256'], null)
             ->willReturn($jwk);
@@ -431,7 +431,7 @@ class DPoPProofFactoryTest extends TestCase
             ->with('key')
             ->willReturn('storedNonce');
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('createProof')
             ->with($jwk, $this->callback(function (mixed $value): bool {
                 $this->assertIsArray($value);
@@ -478,7 +478,7 @@ class DPoPProofFactoryTest extends TestCase
     {
         $jwk = $this->createMock(JwkInterface::class);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('selectJWK')
             ->with(['ES256'], null)
             ->willReturn($jwk);
@@ -488,7 +488,7 @@ class DPoPProofFactoryTest extends TestCase
             ->with(self::HTU)
             ->willReturn('key');
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('createProof')
             ->with($jwk, $this->callback(function (mixed $value): bool {
                 $this->assertIsArray($value);
@@ -530,7 +530,7 @@ class DPoPProofFactoryTest extends TestCase
 
         $jwk = $this->createMock(JwkInterface::class);
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('selectJWK')
             ->with(['ES256'], null)
             ->willReturn($jwk);
@@ -540,7 +540,7 @@ class DPoPProofFactoryTest extends TestCase
             ->with(self::HTU)
             ->willReturn('key');
 
-        $this->jwtHandler->expects($this->once())
+        $this->encoder->expects($this->once())
             ->method('createProof')
             ->with($jwk, $this->callback(function (mixed $value): bool {
                 $this->assertIsArray($value);

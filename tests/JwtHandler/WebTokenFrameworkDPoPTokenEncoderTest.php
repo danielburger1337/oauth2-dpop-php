@@ -41,7 +41,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     private JWKSet $jwkSet;
     private AlgorithmManager $algorithmManager;
 
-    private WebTokenFrameworkDPoPTokenEncoder $jwtHandler;
+    private WebTokenFrameworkDPoPTokenEncoder $encoder;
 
     protected function setUp(): void
     {
@@ -60,7 +60,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
 
         $this->algorithmManager = new AlgorithmManager([new ES256(), new RS256()]);
 
-        $this->jwtHandler = new WebTokenFrameworkDPoPTokenEncoder($this->jwkSet, $this->algorithmManager);
+        $this->encoder = new WebTokenFrameworkDPoPTokenEncoder($this->jwkSet, $this->algorithmManager);
     }
 
     #[Test]
@@ -74,7 +74,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     #[Test]
     public function selectJWK_supportedAlgorithm_returnsJwk(): void
     {
-        $returnValue = $this->jwtHandler->selectJWK(['ES256']);
+        $returnValue = $this->encoder->selectJWK(['ES256']);
 
         $this->assertInstanceOf(WebTokenFrameworkJwk::class, $returnValue);
 
@@ -85,7 +85,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     #[Test]
     public function selectJWK_supportedAlgorithmWithJwk_returnsJwk(): void
     {
-        $returnValue = $this->jwtHandler->selectJWK(['ES256', 'EdDSA']);
+        $returnValue = $this->encoder->selectJWK(['ES256', 'EdDSA']);
 
         $this->assertInstanceOf(WebTokenFrameworkJwk::class, $returnValue);
 
@@ -99,7 +99,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a JWK for the supported DPoP algorithms "RS256".');
 
-        $this->jwtHandler->selectJWK(['RS256']);
+        $this->encoder->selectJWK(['RS256']);
     }
 
     #[Test]
@@ -108,7 +108,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a JWK with the "'.self::JKT.'" JKT that supports the "RS256" DPoP algorithms.');
 
-        $this->jwtHandler->selectJWK(['RS256'], self::JKT);
+        $this->encoder->selectJWK(['RS256'], self::JKT);
     }
 
     #[Test]
@@ -116,9 +116,9 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     {
         $jwkSet = $this->jwkSet->with(JWKFactory::createECKey('P-256'));
 
-        $handler = new WebTokenFrameworkDPoPTokenEncoder($jwkSet, $this->algorithmManager);
+        $encoder = new WebTokenFrameworkDPoPTokenEncoder($jwkSet, $this->algorithmManager);
 
-        $returnValue = $handler->selectJWK(['ES256'], self::JKT);
+        $returnValue = $encoder->selectJWK(['ES256'], self::JKT);
 
         $this->assertInstanceOf(WebTokenFrameworkJwk::class, $returnValue);
 
@@ -132,7 +132,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a JWK for the supported DPoP algorithms "".');
 
-        $this->jwtHandler->selectJWK([]);
+        $this->encoder->selectJWK([]);
     }
 
     #[Test]
@@ -141,7 +141,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a JWK with the "'.self::JKT.'" JKT that supports the "" DPoP algorithms.');
 
-        $this->jwtHandler->selectJWK([], self::JKT);
+        $this->encoder->selectJWK([], self::JKT);
     }
 
     #[Test]
@@ -150,7 +150,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a JWK for the supported DPoP algorithms "EdDSA".');
 
-        $this->jwtHandler->selectJWK(['EdDSA']);
+        $this->encoder->selectJWK(['EdDSA']);
     }
 
     #[Test]
@@ -159,7 +159,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a JWK with the "'.self::JKT.'" JKT that supports the "EdDSA" DPoP algorithms.');
 
-        $this->jwtHandler->selectJWK(['EdDSA'], self::JKT);
+        $this->encoder->selectJWK(['EdDSA'], self::JKT);
     }
 
     #[Test]
@@ -167,7 +167,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        $this->jwtHandler->createProof($this->createStub(JwkInterface::class), [], []);
+        $this->encoder->createProof($this->createStub(JwkInterface::class), [], []);
     }
 
     #[Test]
@@ -175,7 +175,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     {
         $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
 
-        $returnValue = $this->jwtHandler->createProof($jwk, [], []);
+        $returnValue = $this->encoder->createProof($jwk, [], []);
 
         $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
 
@@ -189,7 +189,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     {
         $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
 
-        $returnValue = $this->jwtHandler->createProof($jwk, [], []);
+        $returnValue = $this->encoder->createProof($jwk, [], []);
 
         $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
 
@@ -206,7 +206,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
 
         $jwk = new WebTokenFrameworkJwk($jwk, $jwk->thumbprint('sha256'), new RS256());
 
-        $returnValue = $this->jwtHandler->createProof($jwk, [], []);
+        $returnValue = $this->encoder->createProof($jwk, [], []);
 
         $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
 
@@ -219,7 +219,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     {
         $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
 
-        $returnValue = $this->jwtHandler->createProof($jwk, [], []);
+        $returnValue = $this->encoder->createProof($jwk, [], []);
 
         $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
 
@@ -236,7 +236,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
 
         $jwk = new WebTokenFrameworkJwk($jwk, $jwk->thumbprint('sha256'), new RS256());
 
-        $returnValue = $this->jwtHandler->createProof($jwk, [], []);
+        $returnValue = $this->encoder->createProof($jwk, [], []);
 
         $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
 
@@ -249,7 +249,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     {
         $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
 
-        $returnValue = $this->jwtHandler->createProof($jwk, [], ['headerParam' => 'value']);
+        $returnValue = $this->encoder->createProof($jwk, [], ['headerParam' => 'value']);
 
         $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
 
@@ -265,7 +265,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
 
         $payload = ['claim' => 'value', 'claim2' => 'value2'];
 
-        $returnValue = $this->jwtHandler->createProof($jwk, $payload, ['headerParam' => 'value']);
+        $returnValue = $this->encoder->createProof($jwk, $payload, ['headerParam' => 'value']);
 
         $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
 
@@ -286,7 +286,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
 
         $payload = ['claim' => 'value', 'claim2' => 'value2'];
 
-        $returnValue = $this->jwtHandler->createProof($jwk, $payload, ['headerParam' => 'value']);
+        $returnValue = $this->encoder->createProof($jwk, $payload, ['headerParam' => 'value']);
 
         $jwsLoader = new JWSLoader(new JWSSerializerManager([new CompactSerializer()]), new JWSVerifier($this->algorithmManager), new HeaderCheckerManager([new AlgorithmChecker($this->algorithmManager->list())], [new JWSTokenSupport()]));
 
