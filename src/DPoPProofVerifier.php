@@ -25,14 +25,16 @@ class DPoPProofVerifier
      *                                                                 `null` will disable DPoP-Nonce support.
      * @param ReplayAttackDetectorInterface|null $replayAttackDetector [optional] A service that can detect whether the DPoP proof was already used.
      *                                                                 `null` will disable replay attack detection.
-     * @param int                                $allowedTimeDrift     [optional] Allowed time drift in seconds.
+     * @param int<0, max>                        $allowedTimeDrift     [optional] Allowed time drift in seconds.
+     * @param int<1, max>                        $allowedMaxAge        [optional] Allowed max age of the "iat" claim in seconds.
      */
     public function __construct(
         private readonly ClockInterface $clock,
         private readonly DPoPTokenLoaderInterface $tokenLoader,
         private readonly NonceFactoryInterface|null $nonceFactory = null,
         private readonly ReplayAttackDetectorInterface|null $replayAttackDetector = null,
-        private readonly int $allowedTimeDrift = 5
+        private readonly int $allowedTimeDrift = 5,
+        private readonly int $allowedMaxAge = 30
     ) {
     }
 
@@ -119,6 +121,10 @@ class DPoPProofVerifier
         }
         if ($now < $proof->payload['iat'] - $this->allowedTimeDrift) {
             throw new InvalidDPoPProofException('The DPoP proof was issued in the future.');
+        }
+
+        if ($now > $proof->payload['iat'] + $this->allowedMaxAge - $this->allowedTimeDrift) {
+            throw new InvalidDPoPProofException('The DPoP proof was issued unreasonably far back in the past.');
         }
 
         if (\array_key_exists('exp', $proof->payload)) {

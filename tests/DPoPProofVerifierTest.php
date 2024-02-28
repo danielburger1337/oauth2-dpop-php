@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 class DPoPProofVerifierTest extends TestCase
 {
     private const ALLOWED_TIME_DRIFT = 5;
+    private const ALLOWED_MAX_AGE = 30;
 
     private const PROOF_TOKEN = 'non-empty-string';
 
@@ -53,7 +54,7 @@ class DPoPProofVerifierTest extends TestCase
         $this->clock = new MockClock();
         $this->tokenLoader = $this->createMock(DPoPTokenLoaderInterface::class);
 
-        $this->verifier = new DPoPProofVerifier($this->clock, $this->tokenLoader, null, null, self::ALLOWED_TIME_DRIFT);
+        $this->verifier = new DPoPProofVerifier($this->clock, $this->tokenLoader, null, null, self::ALLOWED_TIME_DRIFT, self::ALLOWED_MAX_AGE);
     }
 
     #[Test]
@@ -523,6 +524,45 @@ class DPoPProofVerifierTest extends TestCase
     {
         $payload = $this->createDecodedPayload();
         $payload['iat'] = $this->clock->now()->add(new \DateInterval('PT3S'))->getTimestamp();
+
+        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+
+        $this->tokenLoader->expects($this->once())
+            ->method('loadProof')
+            ->with(self::PROOF_TOKEN)
+            ->willReturn($decoded);
+
+        $returnValue = $this->verifier->verifyFromRequestParts(self::PROOF_TOKEN, self::HTM, self::HTU);
+
+        $this->assertEquals($decoded, $returnValue);
+    }
+
+    #[Test]
+    public function verifyFromRequestParts_iatUnreasonablyFarInPast_throwsException(): void
+    {
+        $this->expectException(InvalidDPoPProofException::class);
+        $this->expectExceptionMessage('The DPoP proof was issued unreasonably far back in the past.');
+
+        $payload = $this->createDecodedPayload();
+        $payload['iat'] = $this->clock->now()->getTimestamp() - self::ALLOWED_MAX_AGE;
+
+        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+
+        $this->tokenLoader->expects($this->once())
+            ->method('loadProof')
+            ->with(self::PROOF_TOKEN)
+            ->willReturn($decoded);
+
+        $returnValue = $this->verifier->verifyFromRequestParts(self::PROOF_TOKEN, self::HTM, self::HTU);
+
+        $this->assertEquals($decoded, $returnValue);
+    }
+
+    #[Test]
+    public function verifyFromRequestParts_iatInPastButWithinAllowedTimeDrift_returnsDecoded(): void
+    {
+        $payload = $this->createDecodedPayload();
+        $payload['iat'] = $this->clock->now()->getTimestamp() - self::ALLOWED_MAX_AGE + self::ALLOWED_TIME_DRIFT;
 
         $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
 
