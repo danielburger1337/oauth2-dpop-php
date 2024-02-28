@@ -71,13 +71,6 @@ class WebTokenFrameworkDPoPTokenEncoder implements DPoPTokenEncoderInterface
 
         $protectedHeader['alg'] = $jwk->algorithm->name();
 
-        if ($jwk->jwk->has('kid')) {
-            $protectedHeader['kid'] = $jwk->jwk->get('kid');
-        }
-        if ($jwk->jwk->has('crv')) {
-            $protectedHeader['crv'] = $jwk->jwk->get('crv');
-        }
-
         $builder = $this->jwsBuilder->create()
             ->withPayload(JsonConverter::encode($payload))
             ->addSignature($jwk->jwk, $protectedHeader)

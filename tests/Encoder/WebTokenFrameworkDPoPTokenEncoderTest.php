@@ -30,7 +30,6 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
 {
     private const JKT = 'YhSb0W8aR6ZnO1gKJOWF2arpHk8QgwmUqvU2jgo_wkw';
     private const JWK_PUBLIC = [
-        'kid' => 'dpopkey',
         'kty' => 'EC',
         'crv' => 'P-256',
         'x' => 'K_grY8EYPtGtXkQ7CCXru3zi5SApi33gaZit1lxOhws',
@@ -47,7 +46,6 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     {
         // @phpstan-ignore-next-line
         $this->jwk = JWKFactory::createFromValues([
-            'kid' => 'dpopkey',
             'kty' => 'EC',
             'crv' => 'P-256',
             'd' => 'E6luNsWvQPVZkgkTMj6hDYz6Vi7nxvujGCBOe7DdMrc',
@@ -185,66 +183,6 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function createProof_protectedHeader_crvIsSet(): void
-    {
-        $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
-
-        $returnValue = $this->encoder->createProof($jwk, [], []);
-
-        $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
-
-        $this->assertIsArray($protectedHeader);
-        $this->assertArrayHasKey('crv', $protectedHeader);
-        $this->assertEquals('P-256', $protectedHeader['crv']);
-    }
-
-    #[Test]
-    public function createProof_protectedHeader_crvIsNotSet(): void
-    {
-        $jwk = JWKFactory::createRSAKey(1024);
-        $this->assertInstanceOf(JWK::class, $jwk);
-
-        $jwk = new WebTokenFrameworkJwk($jwk, $jwk->thumbprint('sha256'), new RS256());
-
-        $returnValue = $this->encoder->createProof($jwk, [], []);
-
-        $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
-
-        $this->assertIsArray($protectedHeader);
-        $this->assertArrayNotHasKey('crv', $protectedHeader);
-    }
-
-    #[Test]
-    public function createProof_protectedHeader_kidIsSet(): void
-    {
-        $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
-
-        $returnValue = $this->encoder->createProof($jwk, [], []);
-
-        $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
-
-        $this->assertIsArray($protectedHeader);
-        $this->assertArrayHasKey('kid', $protectedHeader);
-        $this->assertEquals('dpopkey', $protectedHeader['kid']);
-    }
-
-    #[Test]
-    public function createProof_protectedHeader_kidIsNotSet(): void
-    {
-        $jwk = JWKFactory::createRSAKey(1024);
-        $this->assertInstanceOf(JWK::class, $jwk);
-
-        $jwk = new WebTokenFrameworkJwk($jwk, $jwk->thumbprint('sha256'), new RS256());
-
-        $returnValue = $this->encoder->createProof($jwk, [], []);
-
-        $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
-
-        $this->assertIsArray($protectedHeader);
-        $this->assertArrayNotHasKey('kid', $protectedHeader);
-    }
-
-    #[Test]
     public function createProof_protectedHeader_containsExtraKeys(): void
     {
         $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
@@ -293,7 +231,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
         $jws = $jwsLoader->loadAndVerifyWithKey($returnValue, $this->jwk, $idx);
         $signature = $jws->getSignature($idx);
 
-        $this->assertEquals(['alg' => 'ES256', 'kid' => 'dpopkey', 'crv' => 'P-256', 'headerParam' => 'value'], $signature->getProtectedHeader());
+        $this->assertEquals(['alg' => 'ES256', 'headerParam' => 'value'], $signature->getProtectedHeader());
 
         $this->assertEquals($payload, JsonConverter::decode($jws->getPayload() ?? ''));
     }
