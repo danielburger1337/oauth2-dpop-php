@@ -58,3 +58,5 @@ This is done in the implementation of [DPoPTokenLoaderInterface](../src/Loader/D
 This library provides the concrete [WebTokenFrameworkDPoPTokenLoader](../src/Loader/WebTokenFrameworkDPoPTokenLoader.php) implementation that uses the [web-token/jwt-framework](https://github.com/web-token/jwt-framework).
 
 The JWT-Framework supports pretty much all existing JWAs.
+
+See [Token Loader](./token_loader.md) for more information.
