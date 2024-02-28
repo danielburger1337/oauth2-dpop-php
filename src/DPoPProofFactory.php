@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP;
+namespace danielburger1337\OAuth2\DPoP;
 
-use danielburger1337\OAuth2DPoP\Encoder\DPoPTokenEncoderInterface;
-use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
-use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
-use danielburger1337\OAuth2DPoP\Model\DPoPProof;
-use danielburger1337\OAuth2DPoP\Model\JwkInterface;
-use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
-use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageKeyFactoryInterface;
+use danielburger1337\OAuth2\DPoP\Encoder\DPoPTokenEncoderInterface;
+use danielburger1337\OAuth2\DPoP\Exception\MissingDPoPJwkException;
+use danielburger1337\OAuth2\DPoP\Model\AccessTokenModel;
+use danielburger1337\OAuth2\DPoP\Model\DPoPProof;
+use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
+use danielburger1337\OAuth2\DPoP\NonceStorage\NonceStorageInterface;
+use danielburger1337\OAuth2\DPoP\NonceStorage\NonceStorageKeyFactoryInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;

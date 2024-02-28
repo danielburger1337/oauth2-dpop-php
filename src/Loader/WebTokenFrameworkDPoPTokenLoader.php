@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Loader;
+namespace danielburger1337\OAuth2\DPoP\Loader;
 
-use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
-use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
-use danielburger1337\OAuth2DPoP\Model\DecodedWebTokenFrameworkJwk;
+use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPProofException;
+use danielburger1337\OAuth2\DPoP\Model\DecodedDPoPProof;
+use danielburger1337\OAuth2\DPoP\Model\DecodedWebTokenFrameworkJwk;
 use Jose\Component\Checker;
 use Jose\Component\Checker\InvalidHeaderException;
 use Jose\Component\Core\AlgorithmManager;

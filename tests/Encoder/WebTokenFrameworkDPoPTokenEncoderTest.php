@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests\Encoder;
+namespace danielburger1337\OAuth2\DPoP\Tests\Encoder;
 
-use danielburger1337\OAuth2DPoP\Encoder\WebTokenFrameworkDPoPTokenEncoder;
-use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
-use danielburger1337\OAuth2DPoP\Model\JwkInterface;
-use danielburger1337\OAuth2DPoP\Model\WebTokenFrameworkJwk;
+use danielburger1337\OAuth2\DPoP\Encoder\WebTokenFrameworkDPoPTokenEncoder;
+use danielburger1337\OAuth2\DPoP\Exception\MissingDPoPJwkException;
+use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
+use danielburger1337\OAuth2\DPoP\Model\WebTokenFrameworkJwk;
 use Jose\Component\Checker\AlgorithmChecker;
 use Jose\Component\Checker\HeaderCheckerManager;
 use Jose\Component\Core\AlgorithmManager;

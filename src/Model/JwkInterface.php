@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Model;
+namespace danielburger1337\OAuth2\DPoP\Model;
 
 interface JwkInterface
 {

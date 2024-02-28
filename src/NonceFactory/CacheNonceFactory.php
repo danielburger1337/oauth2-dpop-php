@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\NonceFactory;
+namespace danielburger1337\OAuth2\DPoP\NonceFactory;
 
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Cache\InvalidArgumentException;

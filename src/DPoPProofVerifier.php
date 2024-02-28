@@ -1,16 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP;
+namespace danielburger1337\OAuth2\DPoP;
 
-use danielburger1337\OAuth2DPoP\Encoder\DPoPTokenEncoderInterface;
-use danielburger1337\OAuth2DPoP\Exception\DPoPReplayAttackException;
-use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPNonceException;
-use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
-use danielburger1337\OAuth2DPoP\Loader\DPoPTokenLoaderInterface;
-use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
-use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
-use danielburger1337\OAuth2DPoP\NonceFactory\NonceFactoryInterface;
-use danielburger1337\OAuth2DPoP\ReplayAttack\ReplayAttackDetectorInterface;
+use danielburger1337\OAuth2\DPoP\Encoder\DPoPTokenEncoderInterface;
+use danielburger1337\OAuth2\DPoP\Exception\DPoPReplayAttackException;
+use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPNonceException;
+use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPProofException;
+use danielburger1337\OAuth2\DPoP\Loader\DPoPTokenLoaderInterface;
+use danielburger1337\OAuth2\DPoP\Model\AccessTokenModel;
+use danielburger1337\OAuth2\DPoP\Model\DecodedDPoPProof;
+use danielburger1337\OAuth2\DPoP\NonceFactory\NonceFactoryInterface;
+use danielburger1337\OAuth2\DPoP\ReplayAttack\ReplayAttackDetectorInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;

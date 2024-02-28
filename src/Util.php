@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP;
+namespace danielburger1337\OAuth2\DPoP;
 
 use Base64Url\Base64Url;
-use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
+use danielburger1337\OAuth2\DPoP\Model\AccessTokenModel;
 use Psr\Http\Message\UriInterface;
 
 final class Util

@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Encoder;
+namespace danielburger1337\OAuth2\DPoP\Encoder;
 
-use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
-use danielburger1337\OAuth2DPoP\Model\JwkInterface;
+use danielburger1337\OAuth2\DPoP\Exception\MissingDPoPJwkException;
+use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
 
 interface DPoPTokenEncoderInterface
 {

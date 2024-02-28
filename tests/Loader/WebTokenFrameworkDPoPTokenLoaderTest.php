@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests\Loader;
+namespace danielburger1337\OAuth2\DPoP\Tests\Loader;
 
-use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
-use danielburger1337\OAuth2DPoP\Loader\WebTokenFrameworkDPoPTokenLoader;
+use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPProofException;
+use danielburger1337\OAuth2\DPoP\Loader\WebTokenFrameworkDPoPTokenLoader;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Core\JWK;
 use Jose\Component\Signature\Algorithm\EdDSA;

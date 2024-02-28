@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Exception;
+namespace danielburger1337\OAuth2\DPoP\Exception;
 
-use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
+use danielburger1337\OAuth2\DPoP\Model\DecodedDPoPProof;
 
 class DPoPReplayAttackException extends DPoPException
 {

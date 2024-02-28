@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\NonceStorage;
+namespace danielburger1337\OAuth2\DPoP\NonceStorage;
 
 /**
  * Dummy storage that can be used if it is known that the OP does not use DPoP nonces.

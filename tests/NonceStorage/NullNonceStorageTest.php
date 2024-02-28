@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests\ReplayAttack;
+namespace danielburger1337\OAuth2\DPoP\Tests\ReplayAttack;
 
-use danielburger1337\OAuth2DPoP\NonceStorage\NullNonceStorage;
+use danielburger1337\OAuth2\DPoP\NonceStorage\NullNonceStorage;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;

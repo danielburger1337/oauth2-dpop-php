@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests\ReplayAttack;
+namespace danielburger1337\OAuth2\DPoP\Tests\ReplayAttack;
 
-use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
-use danielburger1337\OAuth2DPoP\Model\JwkInterface;
-use danielburger1337\OAuth2DPoP\ReplayAttack\CacheReplayAttackDetector;
+use danielburger1337\OAuth2\DPoP\Model\DecodedDPoPProof;
+use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
+use danielburger1337\OAuth2\DPoP\ReplayAttack\CacheReplayAttackDetector;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;

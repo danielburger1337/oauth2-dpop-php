@@ -37,12 +37,12 @@
     },
     "autoload": {
         "psr-4": {
-            "danielburger1337\\OAuth2DPoP\\": "src/"
+            "danielburger1337\\OAuth2\\DPoP\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "danielburger1337\\OAuth2DPoP\\Tests\\": "test"
+            "danielburger1337\\OAuth2\\DPoP\\Tests\\": "test"
         }
     },
     "extra": {

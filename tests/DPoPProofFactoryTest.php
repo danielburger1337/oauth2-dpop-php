@@ -1,14 +1,14 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests;
+namespace danielburger1337\OAuth2\DPoP\Tests;
 
-use danielburger1337\OAuth2DPoP\DPoPProofFactory;
-use danielburger1337\OAuth2DPoP\Encoder\DPoPTokenEncoderInterface;
-use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
-use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
-use danielburger1337\OAuth2DPoP\Model\JwkInterface;
-use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageInterface;
-use danielburger1337\OAuth2DPoP\NonceStorage\NonceStorageKeyFactoryInterface;
+use danielburger1337\OAuth2\DPoP\DPoPProofFactory;
+use danielburger1337\OAuth2\DPoP\Encoder\DPoPTokenEncoderInterface;
+use danielburger1337\OAuth2\DPoP\Exception\MissingDPoPJwkException;
+use danielburger1337\OAuth2\DPoP\Model\AccessTokenModel;
+use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
+use danielburger1337\OAuth2\DPoP\NonceStorage\NonceStorageInterface;
+use danielburger1337\OAuth2\DPoP\NonceStorage\NonceStorageKeyFactoryInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;

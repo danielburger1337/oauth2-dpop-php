@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests\Encoder;
+namespace danielburger1337\OAuth2\DPoP\Tests\Encoder;
 
-use danielburger1337\OAuth2DPoP\Model\DecodedWebTokenFrameworkJwk;
+use danielburger1337\OAuth2\DPoP\Model\DecodedWebTokenFrameworkJwk;
 use Jose\Component\Core\JWK;
 use Jose\Component\KeyManagement\JWKFactory;
 use PHPUnit\Framework\Attributes\CoversClass;

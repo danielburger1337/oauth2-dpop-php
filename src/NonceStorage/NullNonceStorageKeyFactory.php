@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\NonceStorage;
+namespace danielburger1337\OAuth2\DPoP\NonceStorage;
 
-use danielburger1337\OAuth2DPoP\Model\JwkInterface;
+use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
 
 /**
  * Dummy storage key factory that can be used if it is known that the OP does not use DPoP nonces.

@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\NonceFactory;
+namespace danielburger1337\OAuth2\DPoP\NonceFactory;
 
-use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
+use danielburger1337\OAuth2\DPoP\Exception\MissingDPoPJwkException;
 use Jose\Component\Checker;
 use Jose\Component\Checker\ClaimCheckerManager;
 use Jose\Component\Core\Algorithm;

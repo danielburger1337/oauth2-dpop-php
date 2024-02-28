@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests\NonceStorage;
+namespace danielburger1337\OAuth2\DPoP\Tests\NonceStorage;
 
-use danielburger1337\OAuth2DPoP\NonceStorage\CacheNonceStorage;
+use danielburger1337\OAuth2\DPoP\NonceStorage\CacheNonceStorage;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;

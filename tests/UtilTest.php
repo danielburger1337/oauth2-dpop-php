@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests;
+namespace danielburger1337\OAuth2\DPoP\Tests;
 
-use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
-use danielburger1337\OAuth2DPoP\Util;
+use danielburger1337\OAuth2\DPoP\Model\AccessTokenModel;
+use danielburger1337\OAuth2\DPoP\Util;
 use Nyholm\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

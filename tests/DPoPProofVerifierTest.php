@@ -1,17 +1,17 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests;
+namespace danielburger1337\OAuth2\DPoP\Tests;
 
-use danielburger1337\OAuth2DPoP\DPoPProofVerifier;
-use danielburger1337\OAuth2DPoP\Exception\DPoPReplayAttackException;
-use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPNonceException;
-use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
-use danielburger1337\OAuth2DPoP\Loader\DPoPTokenLoaderInterface;
-use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
-use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
-use danielburger1337\OAuth2DPoP\Model\JwkInterface;
-use danielburger1337\OAuth2DPoP\NonceFactory\NonceFactoryInterface;
-use danielburger1337\OAuth2DPoP\ReplayAttack\ReplayAttackDetectorInterface;
+use danielburger1337\OAuth2\DPoP\DPoPProofVerifier;
+use danielburger1337\OAuth2\DPoP\Exception\DPoPReplayAttackException;
+use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPNonceException;
+use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPProofException;
+use danielburger1337\OAuth2\DPoP\Loader\DPoPTokenLoaderInterface;
+use danielburger1337\OAuth2\DPoP\Model\AccessTokenModel;
+use danielburger1337\OAuth2\DPoP\Model\DecodedDPoPProof;
+use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
+use danielburger1337\OAuth2\DPoP\NonceFactory\NonceFactoryInterface;
+use danielburger1337\OAuth2\DPoP\ReplayAttack\ReplayAttackDetectorInterface;
 use Jose\Component\Core\JWK;
 use Jose\Component\KeyManagement\JWKFactory;
 use Nyholm\Psr7\ServerRequest;

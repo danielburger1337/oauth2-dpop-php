@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Loader;
+namespace danielburger1337\OAuth2\DPoP\Loader;
 
-use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
-use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
+use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPProofException;
+use danielburger1337\OAuth2\DPoP\Model\DecodedDPoPProof;
 
 interface DPoPTokenLoaderInterface
 {

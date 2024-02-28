@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests\Model;
+namespace danielburger1337\OAuth2\DPoP\Tests\Model;
 
-use danielburger1337\OAuth2DPoP\Model\WebTokenFrameworkJwk;
+use danielburger1337\OAuth2\DPoP\Model\WebTokenFrameworkJwk;
 use Jose\Component\Core\JWK;
 use Jose\Component\KeyManagement\JWKFactory;
 use Jose\Component\Signature\Algorithm\ES256;

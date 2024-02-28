@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\ReplayAttack;
+namespace danielburger1337\OAuth2\DPoP\ReplayAttack;
 
-use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
+use danielburger1337\OAuth2\DPoP\Model\DecodedDPoPProof;
 
 interface ReplayAttackDetectorInterface
 {

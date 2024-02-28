@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\NonceStorage;
+namespace danielburger1337\OAuth2\DPoP\NonceStorage;
 
-use danielburger1337\OAuth2DPoP\Model\JwkInterface;
+use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
 
 class NonceStorageKeyFactory implements NonceStorageKeyFactoryInterface
 {

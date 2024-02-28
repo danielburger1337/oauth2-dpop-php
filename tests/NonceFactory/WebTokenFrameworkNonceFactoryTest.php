@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests\NonceFactory;
+namespace danielburger1337\OAuth2\DPoP\Tests\NonceFactory;
 
-use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
-use danielburger1337\OAuth2DPoP\NonceFactory\WebTokenFrameworkNonceFactory;
+use danielburger1337\OAuth2\DPoP\Exception\MissingDPoPJwkException;
+use danielburger1337\OAuth2\DPoP\NonceFactory\WebTokenFrameworkNonceFactory;
 use Jose\Component\Core\Algorithm;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Core\JWK;
