@@ -69,8 +69,6 @@ class WebTokenFrameworkDPoPTokenEncoder implements DPoPTokenEncoderInterface
             throw new \InvalidArgumentException(\sprintf('$jwk must be an instance of "%s", "%s" given.', WebTokenFrameworkJwk::class, \get_debug_type($jwk)));
         }
 
-        $protectedHeader['alg'] = $jwk->algorithm->name();
-
         $builder = $this->jwsBuilder->create()
             ->withPayload(JsonConverter::encode($payload))
             ->addSignature($jwk->jwk, $protectedHeader)

@@ -3,10 +3,14 @@
 namespace danielburger1337\OAuth2\DPoP\Tests\Model;
 
 use danielburger1337\OAuth2\DPoP\Model\WebTokenFrameworkJwk;
+use Jose\Component\Core\Algorithm;
 use Jose\Component\Core\JWK;
 use Jose\Component\KeyManagement\JWKFactory;
+use Jose\Component\Signature\Algorithm\EdDSA;
 use Jose\Component\Signature\Algorithm\ES256;
+use Jose\Component\Signature\Algorithm\RS256;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -67,5 +71,31 @@ class WebTokenFrameworkJwkTest extends TestCase
         $returnValue = $model->toPublic();
 
         $this->assertEquals(\json_decode(self::JWK_PUBLIC, true, flags: \JSON_THROW_ON_ERROR), $returnValue);
+    }
+
+    #[Test]
+    #[DataProvider('algoritmDataProvider')]
+    public function algorithm_returnsAlgorithmName(Algorithm $algorithm, string $expected): void
+    {
+        $jwk = JWKFactory::createFromJsonObject(self::JWK_PUBLIC);
+        $this->assertInstanceOf(JWK::class, $jwk);
+
+        $model = new WebTokenFrameworkJwk($jwk, self::JKT, $algorithm);
+
+        $returnValue = $model->algorithm();
+
+        $this->assertEquals($expected, $returnValue);
+    }
+
+    /**
+     * @return array<array<{0: Algorithm, 1: string}>
+     */
+    public static function algoritmDataProvider(): array
+    {
+        return [
+            [new ES256(), 'ES256'],
+            [new EdDSA(), 'EdDSA'],
+            [new RS256(), 'RS256'],
+        ];
     }
 }

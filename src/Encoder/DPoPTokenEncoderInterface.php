@@ -10,17 +10,18 @@ interface DPoPTokenEncoderInterface
     final public const TYPE_HEADER_PARAMETER = 'dpop+jwt';
 
     /**
-     * Select the JWK used to sign DPoP proof.
+     * Select the JWK used to sign a DPoP proof.
      *
      * @param string[]    $serverSupportedSignatureAlgorithms The DPoP signature algorithms that the upstream server reported as supported.
      * @param string|null $jkt                                [optional] The JKT of the JWK that must be returned.
+     *                                                        This argument is provided if the token must be bound to a specific JKT.
      *
-     * @throws MissingDPoPJwkException If no suitable JWK was found.
+     * @throws MissingDPoPJwkException If no JWK that matches the given constraints was found.
      */
     public function selectJWK(array $serverSupportedSignatureAlgorithms, string|null $jkt = null): JwkInterface;
 
     /**
-     * Create a DPoP proof.
+     * Encode a DPoP proof.
      *
      * @param JwkInterface         $jwk             The JWK that must be used to sign the DPoP proof.
      * @param array<string, mixed> $payload         The DPoP payload to encode.

@@ -66,6 +66,7 @@ class DPoPProofFactory
         $protectedHeader = [
             'typ' => DPoPTokenEncoderInterface::TYPE_HEADER_PARAMETER,
             'jwk' => $jwk->toPublic(),
+            'alg' => $jwk->algorithm(),
         ];
 
         $htu = Util::createHtu($htu);

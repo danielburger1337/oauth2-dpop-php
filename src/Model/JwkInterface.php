@@ -15,4 +15,9 @@ interface JwkInterface
      * The JWK thumbprint (JKT).
      */
     public function thumbprint(): string;
+
+    /**
+     * The JWA that the proof is/will be signed with.
+     */
+    public function algorithm(): string;
 }

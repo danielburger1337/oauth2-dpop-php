@@ -269,6 +269,10 @@ class DPoPProofFactoryTest extends TestCase
             ->method('toPublic')
             ->willReturn(['kid' => 'kid', 'crv' => 'P-128']);
 
+        $jwk->expects($this->atLeastOnce())
+            ->method('algorithm')
+            ->willReturn('ES256');
+
         $this->encoder->expects($this->once())
             ->method('selectJWK')
             ->with(['ES256'], null)
@@ -300,6 +304,9 @@ class DPoPProofFactoryTest extends TestCase
                 $this->assertArrayHasKey('typ', $value);
                 $this->assertEquals('dpop+jwt', $value['typ']);
 
+                $this->assertArrayHasKey('alg', $value);
+                $this->assertEquals('ES256', $value['alg']);
+
                 $this->assertArrayHasKey('jwk', $value);
                 $this->assertEquals(['kid' => 'kid', 'crv' => 'P-128'], $value['jwk']);
 
@@ -320,6 +327,10 @@ class DPoPProofFactoryTest extends TestCase
         $jwk->expects($this->atLeastOnce())
             ->method('toPublic')
             ->willReturn(['kid' => 'keyId', 'crv' => 'P-256']);
+
+        $jwk->expects($this->atLeastOnce())
+            ->method('algorithm')
+            ->willReturn('ES256');
 
         $this->encoder->expects($this->once())
             ->method('selectJWK')
@@ -352,6 +363,9 @@ class DPoPProofFactoryTest extends TestCase
                 $this->assertArrayHasKey('typ', $value);
                 $this->assertEquals('dpop+jwt', $value['typ']);
 
+                $this->assertArrayHasKey('alg', $value);
+                $this->assertEquals('ES256', $value['alg']);
+
                 $this->assertArrayHasKey('jwk', $value);
                 $this->assertEquals(['kid' => 'keyId', 'crv' => 'P-256'], $value['jwk']);
 
@@ -374,6 +388,10 @@ class DPoPProofFactoryTest extends TestCase
         $jwk->expects($this->atLeastOnce())
             ->method('toPublic')
             ->willReturn(['kid' => 'keyId', 'crv' => 'P-256']);
+
+        $jwk->expects($this->atLeastOnce())
+            ->method('algorithm')
+            ->willReturn('ES256');
 
         $this->encoder->expects($this->once())
             ->method('selectJWK')
@@ -407,6 +425,9 @@ class DPoPProofFactoryTest extends TestCase
                 $this->assertArrayHasKey('typ', $value);
                 $this->assertEquals('dpop+jwt', $value['typ']);
 
+                $this->assertArrayHasKey('alg', $value);
+                $this->assertEquals('ES256', $value['alg']);
+
                 $this->assertArrayHasKey('jwk', $value);
                 $this->assertEquals(['kid' => 'keyId', 'crv' => 'P-256'], $value['jwk']);
 
@@ -427,6 +448,10 @@ class DPoPProofFactoryTest extends TestCase
         $jwk->expects($this->atLeastOnce())
             ->method('toPublic')
             ->willReturn(['kid' => 'keyId', 'crv' => 'P-256']);
+
+        $jwk->expects($this->atLeastOnce())
+            ->method('algorithm')
+            ->willReturn('ES256');
 
         $this->encoder->expects($this->once())
             ->method('selectJWK')
@@ -471,6 +496,9 @@ class DPoPProofFactoryTest extends TestCase
 
                 $this->assertArrayHasKey('typ', $value);
                 $this->assertEquals('dpop+jwt', $value['typ']);
+
+                $this->assertArrayHasKey('alg', $value);
+                $this->assertEquals('ES256', $value['alg']);
 
                 $this->assertArrayHasKey('jwk', $value);
                 $this->assertEquals(['kid' => 'keyId', 'crv' => 'P-256'], $value['jwk']);

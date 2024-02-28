@@ -26,4 +26,9 @@ final class WebTokenFrameworkJwk implements JwkInterface
     {
         return $this->jkt;
     }
+
+    public function algorithm(): string
+    {
+        return $this->algorithm->name();
+    }
 }
