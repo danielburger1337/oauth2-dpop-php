@@ -6,9 +6,14 @@ use Psr\Cache\CacheItemPoolInterface;
 
 class CacheNonceStorage implements NonceStorageInterface
 {
+    /**
+     * @param CacheItemPoolInterface $cache The PSR-6 cache used as the storage engine.
+     * @param \DateInterval          $ttl   How long the nonce must be cached.
+     *                                      This value should ideally match the lifetime of the nonce.
+     */
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
-        private readonly \DateInterval $ttl = new \DateInterval('PT15M')
+        private readonly \DateInterval $ttl = new \DateInterval('PT5M')
     ) {
     }
 
