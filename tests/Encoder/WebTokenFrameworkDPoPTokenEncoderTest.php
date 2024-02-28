@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP;
+namespace danielburger1337\OAuth2DPoP\Tests\Encoder;
 
 use danielburger1337\OAuth2DPoP\Encoder\WebTokenFrameworkDPoPTokenEncoder;
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
