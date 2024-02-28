@@ -7,4 +7,10 @@ parameters:
 
     ignoreErrors:
         - message: '#Parameter \#1 \$input of method OTPHP\\OTPInterface::at\(\) expects int<0, max>, int given.#'
+          path: src/NonceFactory/TotpNonceFactory.php
+
         - message: '#Parameter \#1 \$secret of static method OTPHP\\TOTP::create\(\) expects non-empty-string|null, string given.#'
+          path: src/NonceFactory/TotpNonceFactory.php
+
+        - message: '#Parameter \#1 \$values of class Jose\\Component\\Core\\JWK constructor expects array, mixed given.#'
+          path: src/Loader/WebTokenFrameworkDPoPTokenLoader.php
