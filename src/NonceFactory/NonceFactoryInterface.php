@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\NonceStorage;
+namespace danielburger1337\OAuth2DPoP\NonceFactory;
 
-interface NonceVerificationStorageInterface
+interface NonceFactoryInterface
 {
     /**
      * Get the current DPoP-Nonce or create a new one.

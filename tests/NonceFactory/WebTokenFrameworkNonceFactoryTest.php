@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\Tests\NonceStorage;
+namespace danielburger1337\OAuth2DPoP\Tests\NonceFactory;
 
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
-use danielburger1337\OAuth2DPoP\NonceStorage\WebTokenFrameworkNonceStorage;
+use danielburger1337\OAuth2DPoP\NonceFactory\WebTokenFrameworkNonceFactory;
 use Jose\Component\Core\Algorithm;
 use Jose\Component\Core\AlgorithmManager;
 use Jose\Component\Core\JWK;
@@ -19,16 +19,16 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\MockClock;
 
-#[CoversClass(WebTokenFrameworkNonceStorage::class)]
-class WebTokenFrameworkNonceStorageTest extends TestCase
+#[CoversClass(WebTokenFrameworkNonceFactory::class)]
+class WebTokenFrameworkNonceFactoryTest extends TestCase
 {
-    private const KEY = 'key';
+    private const JKT = 'key';
 
     private const SECRET = 'abcdefghijklmnopqrstuvwxyz1234567';
     private const TTL = 'PT5M';
     private const ALLOWED_TIME_DRIFT = 5;
 
-    private WebTokenFrameworkNonceStorage $nonceStorage;
+    private WebTokenFrameworkNonceFactory $nonceFactory;
 
     private MockClock $clock;
     private JWK $jwk;
@@ -43,7 +43,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         $this->jwk = JWKFactory::createFromSecret(self::SECRET);
         $this->algorithm = new HS256();
 
-        $this->nonceStorage = new WebTokenFrameworkNonceStorage(
+        $this->nonceFactory = new WebTokenFrameworkNonceFactory(
             $this->algorithm,
             new JWKSet([$this->jwk]),
             $this->clock,
@@ -57,9 +57,9 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     {
         // simple dummy test that the result of "createNewNonce" is accepted as valid
 
-        $nonce = $this->nonceStorage->createNewNonce(self::KEY);
+        $nonce = $this->nonceFactory->createNewNonce(self::JKT);
 
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce);
 
         $this->assertNull($returnValue);
     }
@@ -67,7 +67,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     #[Test]
     public function createNewNonceIfInvalid_invalidJwt_createsNewNonce(): void
     {
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, 'not a jwt');
+        $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, 'not a jwt');
 
         $this->assertIsValidNonce($returnValue);
     }
@@ -79,7 +79,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.Ilf1Ji1jecVSQlO8uU7TR435fWUvejGrWkXTi1F7bDY';
 
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce);
 
         $this->assertNull($returnValue);
     }
@@ -91,7 +91,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965522,"exp":1708965579}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1MjIsImV4cCI6MTcwODk2NTU3OX0.PS9D1EAz3i9v55q5LcE9Et4GNfhiyNLp42--T8F0vjk';
 
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce);
 
         $this->assertNull($returnValue);
     }
@@ -103,7 +103,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965522,"exp":1708965572}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1MjIsImV4cCI6MTcwODk2NTU3Mn0.JE8ktw_FRedEEfCOvNibrF20HM8E_x2T24GVHAsX-j4';
 
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce);
 
         $this->assertIsValidNonce($returnValue);
     }
@@ -115,7 +115,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.yXFg9Ci5TJ52Wlu0YlRLlGfeoNYzvuLSSc45itTe78E';
 
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce);
         $this->assertIsValidNonce($returnValue);
     }
 
@@ -126,7 +126,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         // {"typ":"dpop+none","alg":"ES256"}.{"iat":1708965582,"exp":1708965882}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiRVMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.QIl-pVKCn3FnNGnu6XBKR5twC8NMX-ZgD7EMUrkQgjqrWkvo6_qtaRHMlzw7hHhYRg0Upo1wnsBP3BouNT4zAA';
 
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce);
         $this->assertIsValidNonce($returnValue);
     }
 
@@ -137,7 +137,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         // {"alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
         $nonce = 'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.ZbeAmXvsc1mXerJhTyvYWB5cLf-svnM4S5vxGjOtGDc';
 
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce);
         $this->assertIsValidNonce($returnValue);
     }
 
@@ -148,7 +148,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         // {"typ":"nonce+dpop","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
         $nonce = 'eyJ0eXAiOiJub25jZStkcG9wIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.qLHrXQ6yYZa3HKZKPW5iHur9AY5E2MoIDc5NMtgSC-A';
 
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce);
         $this->assertIsValidNonce($returnValue);
     }
 
@@ -159,7 +159,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         // {"typ":"dpop+nonce","alg":"HS256"}.null
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.bnVsbA.O-W8qtpNGkEbIqLd7juSOi01_VKi-89m1GgXQjaSKdQ';
 
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce);
         $this->assertIsValidNonce($returnValue);
     }
 
@@ -170,7 +170,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         // {"typ":"dpop+nonce","alg":"HS256"}.{"exp":1708965882}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJleHAiOjE3MDg5NjU4ODJ9.3oB13vP_eQkaA1JfSF8l0OoN7l_fKVR820YZTYDMGBE';
 
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce);
         $this->assertIsValidNonce($returnValue);
     }
 
@@ -181,7 +181,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         // {"typ":"dpop+nonce","alg":"HS256"}.{"iat":1708965582}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODJ9.1RCMEExWDg6Rw9qp-uJNZpOMyDvxKICAAC4LHt8PTBA';
 
-        $returnValue = $this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce);
         $this->assertIsValidNonce($returnValue);
     }
 
@@ -191,13 +191,13 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         /**
          * @param array<string, int> $claims
          */
-        $closure = function (array $claims, string $key, WebTokenFrameworkNonceStorage $storage): void {
+        $closure = function (array $claims, string $key, WebTokenFrameworkNonceFactory $factory): void {
             $this->assertEquals(['iat' => 1708965582, 'exp' => 1708965882], $claims);
-            $this->assertEquals(self::KEY, $key);
-            $this->assertInstanceOf(WebTokenFrameworkNonceStorage::class, $storage);
+            $this->assertEquals(self::JKT, $key);
+            $this->assertInstanceOf(WebTokenFrameworkNonceFactory::class, $factory);
         };
 
-        $nonceStorage = new WebTokenFrameworkNonceStorage(
+        $nonceFactory = new WebTokenFrameworkNonceFactory(
             $this->algorithm,
             new JWKSet([$this->jwk]),
             $this->clock,
@@ -210,14 +210,14 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
         $nonce = 'eyJ0eXAiOiJkcG9wK25vbmNlIiwiYWxnIjoiSFMyNTYifQ.eyJpYXQiOjE3MDg5NjU1ODIsImV4cCI6MTcwODk2NTg4Mn0.Ilf1Ji1jecVSQlO8uU7TR435fWUvejGrWkXTi1F7bDY';
 
-        $returnValue = $nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce);
+        $returnValue = $nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce);
         $this->assertNull($returnValue);
     }
 
     #[Test]
     public function createNewNonce_payload_hasExpectedClaims(): void
     {
-        $nonce = $this->nonceStorage->createNewNonce(self::KEY);
+        $nonce = $this->nonceFactory->createNewNonce(self::JKT);
         $parts = \explode('.', $nonce);
         $this->assertCount(3, $parts);
 
@@ -234,13 +234,13 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         $this->assertTrue(\strlen($payload['jti']) >= 4);
 
         $this->assertArrayHasKey('jkt', $payload);
-        $this->assertEquals(self::KEY, $payload['jkt']);
+        $this->assertEquals(self::JKT, $payload['jkt']);
     }
 
     #[Test]
     public function createNewNonce_header_hasExpectedParameters(): void
     {
-        $nonce = $this->nonceStorage->createNewNonce(self::KEY);
+        $nonce = $this->nonceFactory->createNewNonce(self::JKT);
         $parts = \explode('.', $nonce);
         $this->assertCount(3, $parts);
 
@@ -251,7 +251,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         $this->assertEquals($this->algorithm->name(), $header['alg']);
 
         $this->assertArrayHasKey('typ', $header);
-        $this->assertEquals(WebTokenFrameworkNonceStorage::TYPE_PARAMETER, $header['typ']);
+        $this->assertEquals(WebTokenFrameworkNonceFactory::TYPE_PARAMETER, $header['typ']);
     }
 
     #[Test]
@@ -259,7 +259,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
     {
         $jwk = JWKFactory::createECKey('P-256', ['kid' => 'abc', 'crv' => 'P-256']);
 
-        $nonceStorage = new WebTokenFrameworkNonceStorage(
+        $nonceFactory = new WebTokenFrameworkNonceFactory(
             new ES256(),
             $jwk,
             $this->clock,
@@ -267,7 +267,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
             self::ALLOWED_TIME_DRIFT
         );
 
-        $nonce = $nonceStorage->createNewNonce(self::KEY);
+        $nonce = $nonceFactory->createNewNonce(self::JKT);
         $parts = \explode('.', $nonce);
         $this->assertCount(3, $parts);
 
@@ -287,7 +287,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a suitable JWK/JWA to sign a DPoP-Nonce token.');
 
-        $nonceStorage = new WebTokenFrameworkNonceStorage(
+        $nonceFactory = new WebTokenFrameworkNonceFactory(
             new AlgorithmManager([new ES256(), new RS256()]),
             $this->jwk,
             $this->clock,
@@ -295,7 +295,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
             self::ALLOWED_TIME_DRIFT
         );
 
-        $nonceStorage->createNewNonce(self::KEY);
+        $nonceFactory->createNewNonce(self::JKT);
     }
 
     #[Test]
@@ -304,7 +304,7 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a suitable JWK/JWA to sign a DPoP-Nonce token.');
 
-        $nonceStorage = new WebTokenFrameworkNonceStorage(
+        $nonceFactory = new WebTokenFrameworkNonceFactory(
             new AlgorithmManager([new ES256(), new RS256()]),
             $this->jwk,
             $this->clock,
@@ -312,12 +312,12 @@ class WebTokenFrameworkNonceStorageTest extends TestCase
             self::ALLOWED_TIME_DRIFT
         );
 
-        $nonceStorage->createNewNonce(self::KEY);
+        $nonceFactory->createNewNonce(self::JKT);
     }
 
     private function assertIsValidNonce(string|null $nonce): void
     {
         $this->assertIsString($nonce);
-        $this->assertNull($this->nonceStorage->createNewNonceIfInvalid(self::KEY, $nonce));
+        $this->assertNull($this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce));
     }
 }

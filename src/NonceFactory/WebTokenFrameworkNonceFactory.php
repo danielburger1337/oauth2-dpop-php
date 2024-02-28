@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\NonceStorage;
+namespace danielburger1337\OAuth2DPoP\NonceFactory;
 
 use danielburger1337\OAuth2DPoP\Exception\MissingDPoPJwkException;
 use Jose\Component\Checker;
@@ -18,10 +18,7 @@ use Jose\Component\Signature\Serializer\CompactSerializer;
 use Jose\Component\Signature\Serializer\JWSSerializerManager;
 use Psr\Clock\ClockInterface;
 
-/**
- * Statless nonce storage provider.
- */
-class WebTokenFrameworkNonceStorage implements NonceVerificationStorageInterface
+class WebTokenFrameworkNonceFactory implements NonceFactoryInterface
 {
     final public const TYPE_PARAMETER = 'dpop+nonce';
 
@@ -37,7 +34,7 @@ class WebTokenFrameworkNonceStorage implements NonceVerificationStorageInterface
      * @param ClockInterface                                                                $clock            PSR20 clock to use.
      * @param \DateInterval                                                                 $ttl              [optional] How long a DPoP-Nonce token is valid.
      * @param int                                                                           $allowedTimeDrift [optional] Allowed time skew offset in seconds.
-     * @param \Closure(array<string, int>, string, WebTokenFrameworkNonceStorage):void|null $closure          [optional] Callable that will be invoked when a valid DPoP-Nonce token was loaded.
+     * @param \Closure(array<string, int>, string, WebTokenFrameworkNonceFactory):void|null $closure          [optional] Callable that will be invoked when a valid DPoP-Nonce token was loaded.
      *                                                                                                        This callable may be used to send the client a new DPoP-Nonce.
      */
     public function __construct(

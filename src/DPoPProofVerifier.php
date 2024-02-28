@@ -9,7 +9,7 @@ use danielburger1337\OAuth2DPoP\Exception\InvalidDPoPProofException;
 use danielburger1337\OAuth2DPoP\Loader\DPoPTokenLoaderInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
-use danielburger1337\OAuth2DPoP\NonceStorage\NonceVerificationStorageInterface;
+use danielburger1337\OAuth2DPoP\NonceFactory\NonceFactoryInterface;
 use danielburger1337\OAuth2DPoP\ReplayAttack\ReplayAttackDetectorInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -19,18 +19,18 @@ use Symfony\Component\HttpFoundation\Request;
 class DPoPProofVerifier
 {
     /**
-     * @param ClockInterface                         $clock                The PSR-20 clock to use.
-     * @param DPoPTokenLoaderInterface               $tokenLoader          The DPoP token loader to use.
-     * @param NonceVerificationStorageInterface|null $nonceStorage         [optional] The "nonce" claim storage.
-     *                                                                     `null` will disable the nonce requirement.
-     * @param ReplayAttackDetectorInterface|null     $replayAttackDetector [optional] A service that can detect whether the DPoP proof was already used.
-     *                                                                     `null` will disable replay attack detection.
-     * @param int                                    $allowedTimeDrift     [optional] Allowed time drift in seconds.
+     * @param ClockInterface                     $clock                The PSR-20 clock to use.
+     * @param DPoPTokenLoaderInterface           $tokenLoader          The DPoP token loader to use.
+     * @param NonceFactoryInterface|null         $nonceFactory         [optional] The "nonce" claim factory.
+     *                                                                 `null` will disable DPoP-Nonce support.
+     * @param ReplayAttackDetectorInterface|null $replayAttackDetector [optional] A service that can detect whether the DPoP proof was already used.
+     *                                                                 `null` will disable replay attack detection.
+     * @param int                                $allowedTimeDrift     [optional] Allowed time drift in seconds.
      */
     public function __construct(
         private readonly ClockInterface $clock,
         private readonly DPoPTokenLoaderInterface $tokenLoader,
-        private readonly NonceVerificationStorageInterface|null $nonceStorage = null,
+        private readonly NonceFactoryInterface|null $nonceFactory = null,
         private readonly ReplayAttackDetectorInterface|null $replayAttackDetector = null,
         private readonly int $allowedTimeDrift = 5
     ) {
@@ -162,16 +162,16 @@ class DPoPProofVerifier
             }
         }
 
-        if (null !== $this->nonceStorage) {
+        if (null !== $this->nonceFactory) {
             $thumbprint = $proof->jwk->thumbprint();
 
             if (!\array_key_exists('nonce', $proof->payload) || !\is_string($proof->payload['nonce'])) {
-                $nonce = $this->nonceStorage->createNewNonce($thumbprint);
+                $nonce = $this->nonceFactory->createNewNonce($thumbprint);
 
                 throw new InvalidDPoPNonceException($nonce, 'The DPoP proof is missing the required "nonce" claim.');
             }
 
-            $nonce = $this->nonceStorage->createNewNonceIfInvalid($thumbprint, $proof->payload['nonce']);
+            $nonce = $this->nonceFactory->createNewNonceIfInvalid($thumbprint, $proof->payload['nonce']);
             if (null !== $nonce) {
                 throw new InvalidDPoPNonceException($nonce, 'The DPoP proof "nonce" claim is invalid.');
             }

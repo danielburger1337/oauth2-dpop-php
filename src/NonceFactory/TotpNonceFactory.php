@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace danielburger1337\OAuth2DPoP\NonceStorage;
+namespace danielburger1337\OAuth2DPoP\NonceFactory;
 
 use OTPHP\TOTP;
 use OTPHP\TOTPInterface;
@@ -10,8 +10,14 @@ use Psr\Clock\ClockInterface;
 /***
  * @experimental
  */
-class TOTPNonceStorage implements NonceVerificationStorageInterface
+class TotpNonceFactory implements NonceFactoryInterface
 {
+    /**
+     * @param non-empty-string $secret
+     * @param int<1, max>      $digits
+     * @param int<1, max>      $period
+     * @param non-empty-string $digest
+     */
     public function __construct(
         private readonly ClockInterface $clock,
         private readonly string $secret,

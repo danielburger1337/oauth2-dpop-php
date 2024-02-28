@@ -10,7 +10,7 @@ use danielburger1337\OAuth2DPoP\Loader\DPoPTokenLoaderInterface;
 use danielburger1337\OAuth2DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2DPoP\Model\DecodedDPoPProof;
 use danielburger1337\OAuth2DPoP\Model\JwkInterface;
-use danielburger1337\OAuth2DPoP\NonceStorage\NonceVerificationStorageInterface;
+use danielburger1337\OAuth2DPoP\NonceFactory\NonceFactoryInterface;
 use danielburger1337\OAuth2DPoP\ReplayAttack\ReplayAttackDetectorInterface;
 use Jose\Component\Core\JWK;
 use Jose\Component\KeyManagement\JWKFactory;
@@ -797,8 +797,8 @@ class DPoPProofVerifierTest extends TestCase
         $jwk = $this->createJwkMock();
         $decoded = new DecodedDPoPProof($jwk, $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
-        $nonceStorage = $this->createMock(NonceVerificationStorageInterface::class);
-        $nonceStorage->expects($this->once())
+        $nonceFactory = $this->createMock(NonceFactoryInterface::class);
+        $nonceFactory->expects($this->once())
             ->method('createNewNonce')
             ->with($jwk->thumbprint())
             ->willReturn('abc123');
@@ -808,7 +808,7 @@ class DPoPProofVerifierTest extends TestCase
             ->with(self::PROOF_TOKEN)
             ->willReturn($decoded);
 
-        $verifier = new DPoPProofVerifier($this->clock, $this->tokenLoader, $nonceStorage);
+        $verifier = new DPoPProofVerifier($this->clock, $this->tokenLoader, $nonceFactory);
 
         $this->expectException(InvalidDPoPNonceException::class);
         $this->expectExceptionMessage('The DPoP proof is missing the required "nonce" claim.');
@@ -831,8 +831,8 @@ class DPoPProofVerifierTest extends TestCase
         $jwk = $this->createJwkMock();
         $decoded = new DecodedDPoPProof($jwk, $payload, $this->createDecodedProtectedHeader());
 
-        $nonceStorage = $this->createMock(NonceVerificationStorageInterface::class);
-        $nonceStorage->expects($this->once())
+        $nonceFactory = $this->createMock(NonceFactoryInterface::class);
+        $nonceFactory->expects($this->once())
             ->method('createNewNonce')
             ->with($jwk->thumbprint())
             ->willReturn('abc123');
@@ -842,7 +842,7 @@ class DPoPProofVerifierTest extends TestCase
             ->with(self::PROOF_TOKEN)
             ->willReturn($decoded);
 
-        $verifier = new DPoPProofVerifier($this->clock, $this->tokenLoader, $nonceStorage);
+        $verifier = new DPoPProofVerifier($this->clock, $this->tokenLoader, $nonceFactory);
 
         $this->expectException(InvalidDPoPNonceException::class);
         $this->expectExceptionMessage('The DPoP proof is missing the required "nonce" claim.');
@@ -865,11 +865,11 @@ class DPoPProofVerifierTest extends TestCase
         $jwk = $this->createJwkMock();
         $decoded = new DecodedDPoPProof($jwk, $payload, $this->createDecodedProtectedHeader());
 
-        $nonceStorage = $this->createMock(NonceVerificationStorageInterface::class);
-        $nonceStorage->expects($this->never())
+        $nonceFactory = $this->createMock(NonceFactoryInterface::class);
+        $nonceFactory->expects($this->never())
             ->method('createNewNonce');
 
-        $nonceStorage->expects($this->once())
+        $nonceFactory->expects($this->once())
             ->method('createNewNonceIfInvalid')
             ->with($jwk->thumbprint(), 'thisNonce123')
             ->willReturn(null);
@@ -879,7 +879,7 @@ class DPoPProofVerifierTest extends TestCase
             ->with(self::PROOF_TOKEN)
             ->willReturn($decoded);
 
-        $verifier = new DPoPProofVerifier($this->clock, $this->tokenLoader, $nonceStorage);
+        $verifier = new DPoPProofVerifier($this->clock, $this->tokenLoader, $nonceFactory);
 
         $returnValue = $verifier->verifyFromRequestParts(self::PROOF_TOKEN, self::HTM, self::HTU);
 
@@ -895,11 +895,11 @@ class DPoPProofVerifierTest extends TestCase
         $jwk = $this->createJwkMock();
         $decoded = new DecodedDPoPProof($jwk, $payload, $this->createDecodedProtectedHeader());
 
-        $nonceStorage = $this->createMock(NonceVerificationStorageInterface::class);
-        $nonceStorage->expects($this->never())
+        $nonceFactory = $this->createMock(NonceFactoryInterface::class);
+        $nonceFactory->expects($this->never())
             ->method('createNewNonce');
 
-        $nonceStorage->expects($this->once())
+        $nonceFactory->expects($this->once())
             ->method('createNewNonceIfInvalid')
             ->with($jwk->thumbprint(), 'thisNonce123')
             ->willReturn('newNonce321');
@@ -909,7 +909,7 @@ class DPoPProofVerifierTest extends TestCase
             ->with(self::PROOF_TOKEN)
             ->willReturn($decoded);
 
-        $verifier = new DPoPProofVerifier($this->clock, $this->tokenLoader, $nonceStorage);
+        $verifier = new DPoPProofVerifier($this->clock, $this->tokenLoader, $nonceFactory);
 
         $this->expectException(InvalidDPoPNonceException::class);
 

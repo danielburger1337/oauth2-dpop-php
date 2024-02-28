@@ -4,3 +4,7 @@ parameters:
     paths:
         - src/
         - tests/
+
+    ignoreErrors:
+        - message: '#Parameter \#1 \$input of method OTPHP\\OTPInterface::at\(\) expects int<0, max>, int given.#'
+        - message: '#Parameter \#1 \$secret of static method OTPHP\\TOTP::create\(\) expects non-empty-string|null, string given.#'
