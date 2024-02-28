@@ -37,6 +37,7 @@ class TotpNonceFactoryTest extends TestCase
     {
         $clock = new MockClock($clock);
 
+        // @phpstan-ignore-next-line
         $nonceFactory = new TotpNonceFactory($clock, $secret, $digits, $period, $digest, $epoch);
 
         $returnValue = $nonceFactory->createNewNonce($thumbprint);
@@ -98,6 +99,9 @@ class TotpNonceFactoryTest extends TestCase
         $this->assertEquals('0573455172', $returnValue);
     }
 
+    /**
+     * @return array<array{0: string, 1: string, 2: string, 3: int, 4: int, 5: string, 6: int, 7: string}>
+     */
     public static function dataProvider_createNewNonce(): array
     {
         return [
