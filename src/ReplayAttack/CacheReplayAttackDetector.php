@@ -10,11 +10,12 @@ class CacheReplayAttackDetector implements ReplayAttackDetectorInterface
     /**
      * @param CacheItemPoolInterface $cache The PSR-6 cache to use as storage.
      * @param \DateInterval          $ttl   How long the replay information must be stored for.
-     *                                      This should ideally match the lifetime of your DPoP nonces.
+     *                                      This should ideally match the amount of seconds plus
+     *                                      the allowed time drift that a DPoP token is accepted.
      */
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
-        private readonly \DateInterval $ttl = new \DateInterval('PT15M'),
+        private readonly \DateInterval $ttl = new \DateInterval('PT45S'),
     ) {
     }
 
