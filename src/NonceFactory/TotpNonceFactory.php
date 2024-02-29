@@ -7,9 +7,6 @@ use OTPHP\TOTPInterface;
 use ParagonIE\ConstantTime\Base32;
 use Psr\Clock\ClockInterface;
 
-/***
- * @experimental
- */
 class TotpNonceFactory implements NonceFactoryInterface
 {
     /**
@@ -25,7 +22,7 @@ class TotpNonceFactory implements NonceFactoryInterface
         private readonly int $period = 180,
         private readonly string $digest = TOTPInterface::DEFAULT_DIGEST,
         private readonly int $epoch = TOTPInterface::DEFAULT_EPOCH,
-        private readonly \Closure|null $closure = null,
+        private readonly ?\Closure $closure = null,
     ) {
     }
 
