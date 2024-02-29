@@ -15,6 +15,8 @@ The documentation is split into the three different topics:
 Additionally, there are documentations for individual components that are referenced at various points in the documentation:
 
 -   [DPoP-Nonce](nonce.md)
+-   [Nonce Storage](nonce_storage.md)
+
 -   [Replay Attacks](replay_attack.md)
 -   [Supported Algorithms](supported_algorithms.md)
 
