@@ -10,6 +10,7 @@ class CacheNonceStorage implements NonceStorageInterface
      * @param CacheItemPoolInterface $cache The PSR-6 cache used as the storage engine.
      * @param \DateInterval          $ttl   How long the nonce must be cached.
      *                                      This value should ideally match the lifetime of the nonce.
+     *                                      Consult the documentation of your upstream server.
      */
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
@@ -17,7 +18,7 @@ class CacheNonceStorage implements NonceStorageInterface
     ) {
     }
 
-    public function getCurrentNonce(string $key): string|null
+    public function getCurrentNonce(string $key): ?string
     {
         $item = $this->cache->getItem($key);
         if (!$item->isHit()) {
