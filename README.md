@@ -4,7 +4,7 @@
 ![Packagist Version](https://img.shields.io/packagist/v/danielburger1337/oauth2-dpop?link=https%3A%2F%2Fpackagist.org%2Fpackages%2Fdanielburger1337%2Foauth2-dpop)
 ![Packagist Downloads](https://img.shields.io/packagist/dt/danielburger1337/oauth2-dpop?link=https%3A%2F%2Fpackagist.org%2Fpackages%2Fdanielburger1337%2Foauth2-dpop)
 
-# oauth2-dpop
+# danielburger1337/oauth2-dpop
 
 A PHP 8.2+ library that helps you both create and/or verify [OAuth2 DPoP](https://datatracker.ietf.org/doc/html/rfc9449) proof tokens.
 
