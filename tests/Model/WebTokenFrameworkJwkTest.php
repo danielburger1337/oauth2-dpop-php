@@ -88,7 +88,7 @@ class WebTokenFrameworkJwkTest extends TestCase
     }
 
     /**
-     * @return array<array<{0: Algorithm, 1: string}>
+     * @return array<array{0: Algorithm, 1: string}>
      */
     public static function algoritmDataProvider(): array
     {
