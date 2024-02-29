@@ -779,7 +779,7 @@ class DPoPProofVerifierTest extends TestCase
     public function verifyFromRequestParts_invalidAthClaim_throwsException(): void
     {
         $payload = $this->createDecodedPayload();
-        $payload['ath'] = []; // not a string
+        $payload['ath'] = 1; // not a string
 
         $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
 
@@ -789,28 +789,9 @@ class DPoPProofVerifierTest extends TestCase
             ->willReturn($decoded);
 
         $this->expectException(InvalidDPoPProofException::class);
-        $this->expectExceptionMessage('The DPoP proof is missing the required "ath" claim.');
+        $this->expectExceptionMessage('The DPoP proof "ath" claim is invalid.');
 
         $this->verifier->verifyFromRequestParts(self::PROOF_TOKEN, self::HTM, self::HTU, new AccessTokenModel('abcdefg', $this->jwk->thumbprint('sha256')));
-    }
-
-    #[Test]
-    public function verifyFromRequestParts_invalidThumbprint_throwsException(): void
-    {
-        $payload = $this->createDecodedPayload();
-        $payload['ath'] = 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0';
-
-        $decoded = new DecodedDPoPProof($this->createJwkMock(realThumbprint: false), $payload, $this->createDecodedProtectedHeader());
-
-        $this->tokenLoader->expects($this->once())
-            ->method('loadProof')
-            ->with(self::PROOF_TOKEN)
-            ->willReturn($decoded);
-
-        $this->expectException(InvalidDPoPProofException::class);
-        $this->expectExceptionMessage('The DPoP proof was signed by a different JWK than was used to issue the access token.');
-
-        $this->verifier->verifyFromRequestParts(self::PROOF_TOKEN, self::HTM, self::HTU, new AccessTokenModel('abc', $this->jwk->thumbprint('sha256')));
     }
 
     #[Test]
@@ -830,6 +811,59 @@ class DPoPProofVerifierTest extends TestCase
         $this->expectExceptionMessage('The DPoP proof "ath" claim is invalid.');
 
         $this->verifier->verifyFromRequestParts(self::PROOF_TOKEN, self::HTM, self::HTU, new AccessTokenModel('abc', $this->jwk->thumbprint('sha256')));
+    }
+
+    #[Test]
+    public function verifyFromRequestParts_accessTokenInvalidThumbprint_throwsException(): void
+    {
+        $payload = $this->createDecodedPayload();
+        $payload['ath'] = 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0';
+
+        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+
+        $this->tokenLoader->expects($this->once())
+            ->method('loadProof')
+            ->with(self::PROOF_TOKEN)
+            ->willReturn($decoded);
+
+        $this->expectException(InvalidDPoPProofException::class);
+        $this->expectExceptionMessage('The DPoP proof was signed by a different JWK than was used to issue the access token.');
+
+        $this->verifier->verifyFromRequestParts(self::PROOF_TOKEN, self::HTM, self::HTU, new AccessTokenModel('abc', 'invalidThumbprint'));
+    }
+
+    #[Test]
+    public function verifyFromRequestParts_matchingThumbprint_returnsDecoded(): void
+    {
+        $payload = $this->createDecodedPayload();
+
+        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+
+        $this->tokenLoader->expects($this->once())
+            ->method('loadProof')
+            ->with(self::PROOF_TOKEN)
+            ->willReturn($decoded);
+
+        $returnValue = $this->verifier->verifyFromRequestParts(self::PROOF_TOKEN, self::HTM, self::HTU, $this->jwk->thumbprint('sha256'));
+        $this->assertEquals($decoded, $returnValue);
+    }
+
+    #[Test]
+    public function verifyFromRequestParts_thumbprint_throwsException(): void
+    {
+        $payload = $this->createDecodedPayload();
+
+        $decoded = new DecodedDPoPProof($this->createJwkMock(realThumbprint: false), $payload, $this->createDecodedProtectedHeader());
+
+        $this->tokenLoader->expects($this->once())
+            ->method('loadProof')
+            ->with(self::PROOF_TOKEN)
+            ->willReturn($decoded);
+
+        $this->expectException(InvalidDPoPProofException::class);
+        $this->expectExceptionMessage('The DPoP proof was signed by a different JWK than the provided JKT');
+
+        $this->verifier->verifyFromRequestParts(self::PROOF_TOKEN, self::HTM, self::HTU, $this->jwk->thumbprint('sha256'));
     }
 
     #[Test]

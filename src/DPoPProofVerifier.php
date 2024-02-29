@@ -42,15 +42,15 @@ class DPoPProofVerifier
     /**
      * Verify a DPoP proof from a request.
      *
-     * @param ServerRequestInterface|Request $request     The PSR-7/Http-Foundation request to verify.
-     * @param AccessTokenModel|null          $accessToken [optional] The access token the DPoP proof must be bound to.
+     * @param ServerRequestInterface|Request $request The PSR-7/Http-Foundation request to verify.
+     * @param AccessTokenModel|string|null   $boundTo [optional] The access token / JKT the DPoP proof must be bound to.
      *
      * @throws MissingDPoPProofException If the request did not contain a DPoP header.
      * @throws InvalidDPoPProofException If the DPoP proof is invalid.
      * @throws InvalidDPoPNonceException If the DPoP nonce is invalid.
      * @throws DPoPReplayAttackException If the DPoP proof has already been used.
      */
-    public function verifyFromRequest(ServerRequestInterface|Request $request, ?AccessTokenModel $accessToken = null): DecodedDPoPProof
+    public function verifyFromRequest(ServerRequestInterface|Request $request, AccessTokenModel|string|null $boundTo = null): DecodedDPoPProof
     {
         if ($request instanceof Request) {
             /** @var string[] */
@@ -65,22 +65,22 @@ class DPoPProofVerifier
             default => throw new InvalidDPoPProofException('The request must contain exactly one "DPoP" header.')
         };
 
-        return $this->verifyFromRequestParts($headers[\array_key_first($headers)], $request->getMethod(), $request->getUri(), $accessToken);
+        return $this->verifyFromRequestParts($headers[\array_key_first($headers)], $request->getMethod(), $request->getUri(), $boundTo);
     }
 
     /**
      * Verify a DPoP proof.
      *
-     * @param string                $dpopProof   The "DPoP" header value.
-     * @param string                $htm         The expected http method of the request.
-     * @param UriInterface|string   $htu         The expected http URI of the request.
-     * @param AccessTokenModel|null $accessToken [optional] The access token the DPoP proof must be bound to.
+     * @param string                       $dpopProof The "DPoP" header value.
+     * @param string                       $htm       The expected http method of the request.
+     * @param UriInterface|string          $htu       The expected http URI of the request.
+     * @param AccessTokenModel|string|null $boundTo   [optional] The access token / JKT the DPoP proof must be bound to.
      *
      * @throws InvalidDPoPProofException If the DPoP proof is invalid.
      * @throws InvalidDPoPNonceException If the DPoP nonce is invalid.
      * @throws DPoPReplayAttackException If the DPoP proof has already been used.
      */
-    public function verifyFromRequestParts(string $dpopProof, string $htm, UriInterface|string $htu, ?AccessTokenModel $accessToken = null): DecodedDPoPProof
+    public function verifyFromRequestParts(string $dpopProof, string $htm, UriInterface|string $htu, AccessTokenModel|string|null $boundTo = null): DecodedDPoPProof
     {
         $dpopProof = \trim($dpopProof);
         if ('' === $dpopProof) {
@@ -158,17 +158,23 @@ class DPoPProofVerifier
             throw new InvalidDPoPProofException('DPoP proof must not contain a private key in the "jwk" header parameter.');
         }
 
-        if (null !== $accessToken) {
-            if (!\array_key_exists('ath', $proof->payload) || !\is_string($proof->payload['ath'])) {
-                throw new InvalidDPoPProofException('The DPoP proof is missing the required "ath" claim.');
-            }
+        if (null !== $boundTo) {
+            if ($boundTo instanceof AccessTokenModel) {
+                if (!\array_key_exists('ath', $proof->payload)) {
+                    throw new InvalidDPoPProofException('The DPoP proof is missing the required "ath" claim.');
+                }
 
-            if ($proof->jwk->thumbprint() !== $accessToken->jkt) {
-                throw new InvalidDPoPProofException('The DPoP proof was signed by a different JWK than was used to issue the access token.');
-            }
+                if (!\is_string($proof->payload['ath']) || !\hash_equals(Util::createAccessTokenHash($boundTo), $proof->payload['ath'])) {
+                    throw new InvalidDPoPProofException('The DPoP proof "ath" claim is invalid.');
+                }
 
-            if (!\hash_equals(Util::createAccessTokenHash($accessToken), $proof->payload['ath'])) {
-                throw new InvalidDPoPProofException('The DPoP proof "ath" claim is invalid.');
+                if ($proof->jwk->thumbprint() !== $boundTo->jkt) {
+                    throw new InvalidDPoPProofException('The DPoP proof was signed by a different JWK than was used to issue the access token.');
+                }
+            } else {
+                if ($proof->jwk->thumbprint() !== $boundTo) {
+                    throw new InvalidDPoPProofException('The DPoP proof was signed by a different JWK than the provided JKT.');
+                }
             }
         }
 
