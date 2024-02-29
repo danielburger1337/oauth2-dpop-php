@@ -8,9 +8,9 @@ The `DPoP-Nonce` is not a cryptographic nonce and therefor it is acceptable for 
 
 > If an adversary is able to get hold of a DPoP proof JWT, the adversary could replay that token at the same endpoint (the HTTP endpoint and method are enforced via the respective claims in the JWTs).
 
-To combat against this attack vector, [DPoPProofVerifier](../src/DPoPProofVerifier.php) has the `$allowedMaxAge` constructor argument. This argument sets maximum amount of seconds in the past allowed, that the DPoP proof was issued. If the DPoP proof was issued before that cut-off time, an [InvalidDPoPProofException](../src/Exception/InvalidDPoPProofException.php) is thrown.
+To combat against this attack vector, [DPoPProofVerifier](../src/DPoPProofVerifier.php) has the `$allowedMaxAge` constructor argument. This argument sets the maximum amount of seconds in the past allowed, that the DPoP proof was issued. If the DPoP proof was issued before that cut-off time, an [InvalidDPoPProofException](../src/Exception/InvalidDPoPProofException.php) is thrown.
 
-Together with a DPoP-Nonce that rotates in a timespan of seconds or minutes, this offers good protection but still allows an adversary to replay a token immediatly after it was captured.
+Together with a DPoP-Nonce that rotates in a timespan of seconds or minutes, this offers good protection but still allows an adversary to replay a proof immediatly after it was captured.
 
 ---
 
@@ -19,11 +19,15 @@ Together with a DPoP-Nonce that rotates in a timespan of seconds or minutes, thi
 > This feature is highly recommended but not mandatory.<br>
 > To opt out of this, use `null` as the [DPoPProofVerifier::$replayAttackDector](../src/DPoPProofVerifier.php) constructor argument.
 
-To prevent DPoP proof tokens being used multiple times, this library provides the [ReplayAttackDetectorInterface](../src/ReplayAttack/ReplayAttackDetectorInterface.php) with the [CacheReplayAttackDetector](../src/ReplayAttack/CacheReplayAttackDetector.php) implementation that uses a PSR-6 cache as storage. This stores a hash of the `jti` claim and used JKT of every DPoP token for a specified amount of time (ideally the same lifetime as `DPoPProofVerifier::$allowedMaxAge`) and prevents them being used together multiple times in that time frame by throwing a [DPoPReplayAttackException](../src/Exception/DPoPReplayAttackException.php).
+To prevent DPoP proof tokens being used more than once, this library provides the [ReplayAttackDetectorInterface](../src/ReplayAttack/ReplayAttackDetectorInterface.php) with the [CacheReplayAttackDetector](../src/ReplayAttack/CacheReplayAttackDetector.php) implementation that uses a PSR-6 cache as storage.
+
+This stores a hash of the `jti` claim and JKT of every DPoP proof for a specified amount of time (ideally the same lifetime as `DPoPProofVerifier::$allowedMaxAge`).
+The detector prevents a DPoP proof token from being used again in the specified time frame by throwing a [DPoPReplayAttackException](../src/Exception/DPoPReplayAttackException.php).
 
 ```php
 use danielburger1337\OAuth2\DPoP\DPoPProofVerifier;
 use danielburger1337\OAuth2\DPoP\ReplayAttack\CacheReplayAttackDetector;
+use Symfony\Component\HttpFoundation\Response;
 
 $detector = new CacheReplayAttackDetector(...);
 $verifier = new DPoPProofVerifier(..., $detector, ...);
