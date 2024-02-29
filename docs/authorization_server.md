@@ -16,6 +16,7 @@ This library provides an integraton with both [symfony/http-foundation](https://
 
 ```php
 use danielburger1337\OAuth2\DPoP\DPoPProofVerifier;
+use danielburger1337\OAuth2\DPoP\Exception\DPoPReplayAttackException;
 use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPNonceException;
 use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPProofException;
 use danielburger1337\OAuth2\DPoP\Exception\MissingDPoPProofException;
@@ -35,7 +36,7 @@ try {
     }
 
     // else: do nothing
-} catch (InvalidDPoPProofException $e) {
+} catch (InvalidDPoPProofException|DPoPReplayAttackException $e) {
     return new Response(json_encode([
         'error' => 'invalid_dpop_proof',
         'error_description' => $e->getMessage()
