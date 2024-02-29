@@ -18,7 +18,6 @@ Additionally, there are documentations for individual components that are refere
 -   [Nonce-Factory](nonce_factory.md)
 
 -   [Replay Attacks](replay_attack.md)
--   [Supported Algorithms](supported_algorithms.md)
 
 -   [Token Encoder](token_encoder.md)
 -   [Token Loader](token_loader.md)
