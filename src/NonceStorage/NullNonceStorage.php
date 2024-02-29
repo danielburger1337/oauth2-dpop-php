@@ -14,5 +14,6 @@ final class NullNonceStorage implements NonceStorageInterface
 
     public function storeNextNonce(string $key, string $nonce): void
     {
+        throw new \BadMethodCallException('You can not use the NullNonceStorage when the upstream server uses the DPoP-Nonce feature. Please use a real implementation of the NonceStorageInterface.');
     }
 }

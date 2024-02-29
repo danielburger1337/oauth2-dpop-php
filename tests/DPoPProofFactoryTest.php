@@ -77,6 +77,20 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
+    public function storeNextNonce_emptyNonce_doesNothing(): void
+    {
+        $jwk = $this->createStub(JwkInterface::class);
+
+        $this->nonceStorageKeyFactory->expects($this->never())
+            ->method('createKey');
+
+        $this->nonceStorage->expects($this->never())
+            ->method('storeNextNonce');
+
+        $this->factory->storeNextNonce('', $jwk, 'https://sub.example.com/path');
+    }
+
+    #[Test]
     public function storeNextNonce_htu_isNotModified(): void
     {
         $jwk = $this->createStub(JwkInterface::class);

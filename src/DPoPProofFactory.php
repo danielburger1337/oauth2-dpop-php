@@ -116,6 +116,10 @@ class DPoPProofFactory
      */
     public function storeNextNonce(string $nonce, JwkInterface $jwk, UriInterface|string $htu): void
     {
+        if ('' === $nonce) {
+            return;
+        }
+
         $key = $this->nonceStorageKeyFactory->createKey($jwk, Util::createHtu($htu));
         $this->nonceStorage->storeNextNonce($key, $nonce);
     }

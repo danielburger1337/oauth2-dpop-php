@@ -29,9 +29,9 @@ class NullNonceStorageTest extends TestCase
 
     #[Test]
     #[DataProvider('dataProvider')]
-    public function storeNextNonce_doesNothing(string $key): void
+    public function storeNextNonce_throwsException(string $key): void
     {
-        $this->expectNotToPerformAssertions();
+        $this->expectException(\BadMethodCallException::class);
 
         $this->nonceStorage->storeNextNonce($key, 'nonce');
     }
