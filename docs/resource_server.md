@@ -14,6 +14,8 @@ This authentication scheme is very simple, but offers no protection against the 
 
 To solve this issue and to ensure that the access token can only be used by the user that it was issued to, the DPoP specification defines the [DPoP](https://datatracker.ietf.org/doc/html/rfc9449#figure-5) access token type.
 
+See [How do I know that access token uses DPoP?](access_token.md) to learn when an access token is protected by DPoP.
+
 If an access token of type `DPoP` is presented at the resource server, the resource server **MUST** ensure that a DPoP proof matching the JKT that was used to issue the access token, is included in the `DPoP` http header.
 
 ```http
@@ -103,45 +105,5 @@ try {
     return new Response(null, 401, [
         'WWW-Authenticate' => 'DPoP error="invalid_token", error_description="DPoP proof was already used"'
     ]);
-}
-```
-
-### How do I know what JKT was used to issue the DPoP protected access token
-
-This information is provided by the authorization server through [token introspection](https://datatracker.ietf.org/doc/html/rfc7662).
-The introspection response will include the `cnf.jkt` parameter if the access token is protected with DPoP.
-
-```http
-https://datatracker.ietf.org/doc/html/rfc9449#figure-10
-
-HTTP/1.1 200 OK
-Content-Type: application/json
-Cache-Control: no-store
-
-{
-  "active": true,
-  "sub": "someone@example.com",
-  "iss": "https://server.example.com",
-  "nbf": 1562262611,
-  "exp": 1562266216,
-  "cnf":
-  {
-    "jkt": "0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"
-  }
-}
-```
-
-Alternativly, if the access token is a JWT, it can include the `cnf.jkt` claim.
-
-```jsonc
-// https://datatracker.ietf.org/doc/html/rfc9449#figure-8
-{
-    "sub": "someone@example.com",
-    "iss": "https://server.example.com",
-    "nbf": 1562262611,
-    "exp": 1562266216,
-    "cnf": {
-        "jkt": "0ZcOCORZNYy-DWpqq30jZyJGHTN0d2HglBV3uiguA4I"
-    }
 }
 ```
