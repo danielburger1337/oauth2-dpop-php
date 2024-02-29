@@ -169,17 +169,36 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function createProof_protectedHeader_algIsSet(): void
+    public function createProof_protectedHeader_noAlgThrowsException(): void
     {
+        // this SHOULD (and currently is) be enforced by the JWT library
+        // keep this in case of regressions
+        $this->expectException(\InvalidArgumentException::class);
+
         $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
+        $this->encoder->createProof($jwk, [], []);
+    }
 
-        $returnValue = $this->encoder->createProof($jwk, [], []);
+    #[Test]
+    public function createProof_protectedHeader_emptyAlgThrowsException(): void
+    {
+        // this SHOULD (and currently is) be enforced by the JWT library
+        // keep this in case of regressions
+        $this->expectException(\InvalidArgumentException::class);
 
-        $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
+        $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
+        $this->encoder->createProof($jwk, [], ['alg' => '']);
+    }
 
-        $this->assertIsArray($protectedHeader);
-        $this->assertArrayHasKey('alg', $protectedHeader);
-        $this->assertEquals('ES256', $protectedHeader['alg']);
+    #[Test]
+    public function createProof_protectedHeader_nullAlgThrowsException(): void
+    {
+        // this SHOULD (and currently is) be enforced by the JWT library
+        // keep this in case of regressions
+        $this->expectException(\InvalidArgumentException::class);
+
+        $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
+        $this->encoder->createProof($jwk, [], ['alg' => null]);
     }
 
     #[Test]
@@ -187,7 +206,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     {
         $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
 
-        $returnValue = $this->encoder->createProof($jwk, [], ['headerParam' => 'value']);
+        $returnValue = $this->encoder->createProof($jwk, [], ['alg' => 'ES256', 'headerParam' => 'value']);
 
         $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
 
@@ -203,7 +222,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
 
         $payload = ['claim' => 'value', 'claim2' => 'value2'];
 
-        $returnValue = $this->encoder->createProof($jwk, $payload, ['headerParam' => 'value']);
+        $returnValue = $this->encoder->createProof($jwk, $payload, ['alg' => 'ES256', 'headerParam' => 'value']);
 
         $protectedHeader = JsonConverter::decode(Base64UrlSafe::decodeNoPadding(\explode('.', $returnValue)[0]));
 
@@ -224,7 +243,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
 
         $payload = ['claim' => 'value', 'claim2' => 'value2'];
 
-        $returnValue = $this->encoder->createProof($jwk, $payload, ['headerParam' => 'value']);
+        $returnValue = $this->encoder->createProof($jwk, $payload, ['alg' => 'ES256', 'headerParam' => 'value']);
 
         $jwsLoader = new JWSLoader(new JWSSerializerManager([new CompactSerializer()]), new JWSVerifier($this->algorithmManager), new HeaderCheckerManager([new AlgorithmChecker($this->algorithmManager->list())], [new JWSTokenSupport()]));
 
