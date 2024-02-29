@@ -71,6 +71,7 @@ function makeTokenRequest(bool $retry = true): ResponseInterface {
     $request = $requestFactory->createRequest('POST', 'https://op.example.com/oauth2/token');
 
     // see "Authorization Code" section below for information on $jkt
+    // The JKT will have been stored along with your "state"/"code_verifier" during token creation
     $proof = $dpopFactory->createProofFromRequest($request, $serverSupportedAlgorithms, /** $jkt*/);
 
     $request = $request->withHeader('DPoP', $proof->proof);
@@ -165,3 +166,50 @@ $response = makeTokenRequest();
 
 // do the rest of your logic
 ```
+
+## Authorization Code Flow
+
+During the authorization code flow, you **SHOULD** make use of end-to-end token binding.
+
+This means that the issued authorization code is already bound to the JKT that subsequent issued tokens from the `token_endpoint` will be.
+
+To do this, you have to provide the `dpop_jkt` query parameter when redirecting the user to the `authorization_endpoint`.
+
+This also works for [PAR](https://datatracker.ietf.org/doc/html/rfc9126) requests. Include the `dpop_jkt` inside the body of the request instead of the query parameter.
+
+Now, the issued authorization code is bound to that JKT and can only be exchanged for an access token when the `token_endpoint` has a DPoP proof token that is signed by a JWK that matches that JKT.
+
+To dynamically get the JKT that the authorization code should be bound to:
+
+```php
+use danielburger1337\OAuth2\DPoP\DPoPProofFactory;
+use danielburger1337\OAuth2\DPoP\Exception\MissingDPoPJwkException;
+
+$dpopFactory = new DPoPProofFactory(...);
+
+// hard coded or retrieved from discovery metadata (dpop_signing_alg_values_supported)
+$serverSupportedAlgorithms = ['ES256'];
+
+try {
+    $jwk = $dpopFactory->getJwkToBind($serverSupportedAlgorithms);
+} catch (MissingDPoPJwkException $e) {
+    // thrown when no supported JWK is registered with your token encoder
+    throw $e;
+}
+
+// store the JKT along side your state/code_verifier to ensure
+// that when exchanging the authorization code, you use the same JWK
+
+// now redirect the user to the authorization_endpoint
+$url = 'https://op.example.com/authorize?'.http_build_query([
+    'client_id' => 'your client id',
+    ...
+    'dpop_jkt' => $jwk->thumbprint()
+]);
+
+header('Location: ' . $url);
+
+```
+
+To exchange the now bound authorization code for an access token, look at the "Authorization Server" section above.
+The code example mentions "$jkt" in a code comment.
