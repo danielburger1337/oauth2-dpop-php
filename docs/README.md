@@ -17,10 +17,11 @@ Additionally, there are documentations for individual components that are refere
 -   [Nonce Storage](nonce_storage.md)
 -   [Nonce-Factory](nonce_factory.md)
 
--   [Replay Attacks](replay_attack.md)
-
 -   [Token Encoder](token_encoder.md)
 -   [Token Loader](token_loader.md)
 
 -   [Proof Verifier](proof_verifier.md)
 -   [Proof Factory](proof_factory.md)
+
+-   [Replay Attack](replay_attack.md)
+-   [Access Token](access_token.md)
