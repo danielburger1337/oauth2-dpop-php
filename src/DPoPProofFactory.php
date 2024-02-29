@@ -8,6 +8,7 @@ use danielburger1337\OAuth2\DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2\DPoP\Model\DPoPProof;
 use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
 use danielburger1337\OAuth2\DPoP\NonceStorage\NonceStorageInterface;
+use danielburger1337\OAuth2\DPoP\NonceStorage\NonceStorageKeyFactory;
 use danielburger1337\OAuth2\DPoP\NonceStorage\NonceStorageKeyFactoryInterface;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\RequestInterface;
@@ -21,14 +22,14 @@ class DPoPProofFactory
      * @param DPoPTokenEncoderInterface       $encoder                The JWT encoder to use.
      * @param NonceStorageInterface           $nonceStorage           Service that stores the upstream servers "DPoP-Nonce" header.
      *                                                                `NullNonceStorage` can be used if it is known that the upstream server does not use the "DPoP-Nonce" header.
-     * @param NonceStorageKeyFactoryInterface $nonceStorageKeyFactory Server that creates the nonce storage key.
+     * @param NonceStorageKeyFactoryInterface $nonceStorageKeyFactory [optional] Service that creates the storage key under which the nonce is stored.
      * @param int<1, max>                     $jtiByteLength          [optional] The byte length of the generated "jti" claim.
      */
     public function __construct(
         private readonly ClockInterface $clock,
         private readonly DPoPTokenEncoderInterface $encoder,
         private readonly NonceStorageInterface $nonceStorage,
-        private readonly NonceStorageKeyFactoryInterface $nonceStorageKeyFactory,
+        private readonly NonceStorageKeyFactoryInterface $nonceStorageKeyFactory = new NonceStorageKeyFactory(),
         private readonly int $jtiByteLength = 32
     ) {
     }
