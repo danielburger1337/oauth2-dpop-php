@@ -5,7 +5,7 @@
 The authorization server only verifies DPoP proof tokens. It does not create them.
 
 This library uses the [DPoPProofVerifier](../src/DPoPProofVerifier.php) to verify DPoP proof tokens.
-See the [Verifier docs](verifier.md) to learn how to conifgure the verifier.
+See the [Proof Verifier docs](proof_verifier.md) to learn how to conifgure the verifier.
 
 ## Token Requests
 

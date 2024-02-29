@@ -3,7 +3,7 @@
 > This documentation tries to explain most concepts of DPoP, but please familiarize yourself with the [Specification](https://datatracker.ietf.org/doc/html/rfc9449) before continuing.
 
 This library uses the [DPoPProofVerifier](../src/DPoPProofVerifier.php) to verify DPoP proof tokens.
-See the [Verifier docs](verifier.md) to learn how to conifgure the verifier.
+See the [Proof Verifier docs](proof_verifier.md) to learn how to conifgure the verifier.
 
 > If you are looking for the documentation of how to send a DPoP protected request, see the [Client](client.md) docs.
 
