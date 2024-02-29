@@ -14,13 +14,9 @@ This library is [PSR-4](https://www.php-fig.org/psr/psr-4/) compatible and can b
 composer require danielburger1337/oauth2-dpop
 ```
 
----
+## Documentation
 
-## How To Use
-
-WIP
-
----
+You can find the documentation [here](docs/README.md).
 
 ## License
 
