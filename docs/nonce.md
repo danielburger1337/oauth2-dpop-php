@@ -108,12 +108,12 @@ This library provides two different stateless implementations.
 -   [WebTokenFrameworkNonceFactory](../src/NonceFactory/WebTokenFrameworkNonceFactory.php) <br>
     This generates a JWT that expires in a configured amount of time.
 
-    See [...] docs for more information on this factory.
+    See the PHPDoc for information on how to configure this factory.
 
 -   **RECOMMENDED** [TotpNonceFactory](../src/NonceFactory/TotpNonceFactory.php) <br>
     This uses the [TOTP](https://datatracker.ietf.org/doc/html/rfc6238) standard to generate a nonce that is valid for a specified time period. The generated nonce is way shorter than the JWT implementation but keeps a comparable amount of security.
 
-    See [...] docs for more information on this factory.
+    See the PHPDoc for information on how to configure this factory.
 
 The [DPoPProofVerifier](../src/DPoPProofVerifier.php) throws an [InvalidDPoPNonceException](../src/Exception/InvalidDPoPNonceException.php) when ever the provided DPoP proof token has in invalid `nonce` claim or it is entirely missing.
 
