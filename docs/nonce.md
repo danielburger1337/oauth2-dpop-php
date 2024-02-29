@@ -6,20 +6,13 @@ The [DPoP specification](https://datatracker.ietf.org/doc/html/rfc9449) defines 
 
 When you are the client (aka. making the request to a protected endpoint), you need to keep track of the upstream servers nonce.
 
-The [DPoPProofFactory](../src/DPoPProofFactory.php) helps you manage these nonces.
-It uses the [NonceStorageInterface](../src/NonceStorage/NonceStorageInterface.php) to store the upstream servers nonce
-and the [NonceStorageKeyFactoryInterface](../src/NonceStorage/NonceStorageKeyFactoryInterface.php) to find them.
-
-> If you know that the upstream server does not make use of DPoP nonces, you can use the [NullNonceStorage](../src/NonceStorage/NullNonceStorage.php) and [NullNonceStorageKeyFactory](../src/NonceStorage/NullNonceStorageKeyFactory.php) implementations and skip the rest of this page.
-
-This library provides the concrete [CacheNonceStorage](../src/NonceStorage/CacheNonceStorage.php) implementation that uses a PSR-6 as the storage engine.
-The default imlementation [NonceStorageKeyFactory](../src/NonceStorage/NonceStorageKeyFactory.php) uses a combination of the host component of the URL of the request and the used JWK thumbprint (JKT).
-
 The [DPoPProofFactory](../src/DPoPProofFactory.php) automatically attaches the currently stored nonce to the generated DPoP proof token.
+
+See the [Nonce Storage](nonce_storage.md) documentation for more information on how to configure it.
 
 If no nonce is currently stored, the `nonce` claim will be ommited from the generated DPoP token and the next request is expected to fail.
 
--   If the upstream server is the OP, the http response will look like
+-   If the upstream server is an authorization server, the http response will look like
 
     ```http
     HTTP/1.1 400 Bad Request
@@ -31,7 +24,7 @@ If no nonce is currently stored, the `nonce` claim will be ommited from the gene
     }
     ```
 
--   If the upstream server is an RP, the http response will look like
+-   If the upstream server is a resource server, the http response will look like
 
     ```http
     HTTP/1.1 401 Unauthorized
@@ -73,7 +66,7 @@ if ($response->getStatus(200)) {
 
 $body = $response->toArray();
 
-// if upstream is the OP
+// if upstream is a authorization server
 if ($response->getStatus(400) && 'use_dpop_nonce' === ($body['error'] ?? null)) {
     // retry the request
     $proof = $dpopFactory->createProofFromRequest($request, $serverSupportedAlgorithms);
@@ -81,7 +74,7 @@ if ($response->getStatus(400) && 'use_dpop_nonce' === ($body['error'] ?? null)) 
     $response = $httpClient->sendRequest($request);
 }
 
-// if upstream is a RP
+// if upstream is a resource server
 if ($response->getStatus(401) && str_contains($response->getHeaderLine('www-authentication'), 'error="use_dpop_nonce"')) {
     // retry the request
     $proof = $dpopFactory->createProofFromRequest($request, $serverSupportedAlgorithms);

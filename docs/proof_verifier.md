@@ -6,7 +6,7 @@ See the [Token Loader](token_loader.md) docs to see what implementations are ava
 
 It also has optional dependencies to support the [DPoP-Nonce](https://datatracker.ietf.org/doc/html/rfc9449#section-8) header and to detect [replay attacks](https://datatracker.ietf.org/doc/html/rfc9449#section-11.1).
 
-Please see the [Replay Attack](replay_attack.md) and [Nonce](nonce.md) docs for more information.
+Please see the [Replay Attack](replay_attack.md) and [Nonce Factory](nonce_factory.md) docs for more information.
 
 ```php
 use danielburger1337\OAuth2\DPoP\DPoPProofVerifier;
