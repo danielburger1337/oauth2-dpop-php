@@ -6,6 +6,7 @@ use danielburger1337\OAuth2\DPoP\Encoder\DPoPTokenEncoderInterface;
 use danielburger1337\OAuth2\DPoP\Exception\DPoPReplayAttackException;
 use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPNonceException;
 use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPProofException;
+use danielburger1337\OAuth2\DPoP\Exception\MissingDPoPProofException;
 use danielburger1337\OAuth2\DPoP\Loader\DPoPTokenLoaderInterface;
 use danielburger1337\OAuth2\DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2\DPoP\Model\DecodedDPoPProof;
@@ -31,8 +32,8 @@ class DPoPProofVerifier
     public function __construct(
         private readonly ClockInterface $clock,
         private readonly DPoPTokenLoaderInterface $tokenLoader,
-        private readonly NonceFactoryInterface|null $nonceFactory = null,
-        private readonly ReplayAttackDetectorInterface|null $replayAttackDetector = null,
+        private readonly ?NonceFactoryInterface $nonceFactory = null,
+        private readonly ?ReplayAttackDetectorInterface $replayAttackDetector = null,
         private readonly int $allowedTimeDrift = 5,
         private readonly int $allowedMaxAge = 30
     ) {
@@ -44,11 +45,12 @@ class DPoPProofVerifier
      * @param ServerRequestInterface|Request $request     The PSR-7/Http-Foundation request to verify.
      * @param AccessTokenModel|null          $accessToken [optional] The access token the DPoP proof must be bound to.
      *
+     * @throws MissingDPoPProofException If the request did not contain a DPoP header.
      * @throws InvalidDPoPProofException If the DPoP proof is invalid.
      * @throws InvalidDPoPNonceException If the DPoP nonce is invalid.
      * @throws DPoPReplayAttackException If the DPoP proof has already been used.
      */
-    public function verifyFromRequest(ServerRequestInterface|Request $request, AccessTokenModel|null $accessToken = null): DecodedDPoPProof
+    public function verifyFromRequest(ServerRequestInterface|Request $request, ?AccessTokenModel $accessToken = null): DecodedDPoPProof
     {
         if ($request instanceof Request) {
             /** @var string[] */
@@ -57,9 +59,11 @@ class DPoPProofVerifier
             $headers = $request->getHeader('dpop');
         }
 
-        if (\count($headers) !== 1) {
-            throw new InvalidDPoPProofException('The request must contain exactly one "DPoP" header.');
-        }
+        match (\count($headers)) {
+            0 => throw new MissingDPoPProofException('The request did not contain a "DPoP" header.'),
+            1 => null,
+            default => throw new InvalidDPoPProofException('The request must contain exactly one "DPoP" header.')
+        };
 
         return $this->verifyFromRequestParts($headers[\array_key_first($headers)], $request->getMethod(), $request->getUri(), $accessToken);
     }
@@ -76,7 +80,7 @@ class DPoPProofVerifier
      * @throws InvalidDPoPNonceException If the DPoP nonce is invalid.
      * @throws DPoPReplayAttackException If the DPoP proof has already been used.
      */
-    public function verifyFromRequestParts(string $dpopProof, string $htm, UriInterface|string $htu, AccessTokenModel|null $accessToken = null): DecodedDPoPProof
+    public function verifyFromRequestParts(string $dpopProof, string $htm, UriInterface|string $htu, ?AccessTokenModel $accessToken = null): DecodedDPoPProof
     {
         $dpopProof = \trim($dpopProof);
         if ('' === $dpopProof) {

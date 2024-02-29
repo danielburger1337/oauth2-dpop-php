@@ -6,6 +6,7 @@ use danielburger1337\OAuth2\DPoP\DPoPProofVerifier;
 use danielburger1337\OAuth2\DPoP\Exception\DPoPReplayAttackException;
 use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPNonceException;
 use danielburger1337\OAuth2\DPoP\Exception\InvalidDPoPProofException;
+use danielburger1337\OAuth2\DPoP\Exception\MissingDPoPProofException;
 use danielburger1337\OAuth2\DPoP\Loader\DPoPTokenLoaderInterface;
 use danielburger1337\OAuth2\DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2\DPoP\Model\DecodedDPoPProof;
@@ -100,8 +101,8 @@ class DPoPProofVerifierTest extends TestCase
     {
         $request = Request::create(self::HTU, self::HTM);
 
-        $this->expectException(InvalidDPoPProofException::class);
-        $this->expectExceptionMessage('The request must contain exactly one "DPoP" header.');
+        $this->expectException(MissingDPoPProofException::class);
+        $this->expectExceptionMessage('The request did not contain a "DPoP" header.');
 
         $this->verifier->verifyFromRequest($request);
     }
@@ -162,8 +163,8 @@ class DPoPProofVerifierTest extends TestCase
     {
         $request = new ServerRequest(self::HTM, self::HTU);
 
-        $this->expectException(InvalidDPoPProofException::class);
-        $this->expectExceptionMessage('The request must contain exactly one "DPoP" header.');
+        $this->expectException(MissingDPoPProofException::class);
+        $this->expectExceptionMessage('The request did not contain a "DPoP" header.');
 
         $this->verifier->verifyFromRequest($request);
     }
