@@ -22,12 +22,14 @@ Together with a DPoP-Nonce that rotates in a timespan of seconds or minutes, thi
 To prevent DPoP proof tokens being used multiple times, this library provides the [ReplayAttackDetectorInterface](../src/ReplayAttack/ReplayAttackDetectorInterface.php) with the [CacheReplayAttackDetector](../src/ReplayAttack/CacheReplayAttackDetector.php) implementation that uses a PSR-6 cache as storage. This stores a hash of the `jti` claim and used JKT of every DPoP token for a specified amount of time (ideally the same lifetime as `DPoPProofVerifier::$allowedMaxAge`) and prevents them being used together multiple times in that time frame by throwing a [DPoPReplayAttackException](../src/Exception/DPoPReplayAttackException.php).
 
 ```php
+use danielburger1337\OAuth2\DPoP\DPoPProofVerifier;
+use danielburger1337\OAuth2\DPoP\ReplayAttack\CacheReplayAttackDetector;
 
 $detector = new CacheReplayAttackDetector(...);
 $verifier = new DPoPProofVerifier(..., $detector, ...);
 
 try {
-    $verifier->verifyFromRequest($request);
+    $verifier->verifyFromRequest($request, /** $accessToken */);
 } catch (DPoPReplayAttackException $e) {
     // as the OP
     return new Response(json_encode(['error' => 'invalid_dpop_proof']), 400);
@@ -37,7 +39,6 @@ try {
         'WWW-Authenticate' => 'DPoP error="invalid_token" error_description="DPoP proof was already used."'
     ]);
 }
-
 ```
 
 > In the context of the target URI, servers can store the jti value of each DPoP proof for the time window in which the respective DPoP proof JWT would be accepted to prevent multiple uses of the same DPoP proof. HTTP requests to the same URI for which the jti value has been seen before would be declined. When strictly enforced, such a single-use check provides a very strong protection against DPoP proof replay, but it may not always be feasible in practice, e.g., when multiple servers behind a single endpoint have no shared state.
