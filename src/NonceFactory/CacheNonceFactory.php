@@ -27,7 +27,7 @@ class CacheNonceFactory implements NonceFactoryInterface
         return $nonce;
     }
 
-    public function createNewNonceIfInvalid(string $thumbprint, string $nonce): string|null
+    public function createNewNonceIfInvalid(string $thumbprint, string $nonce): ?string
     {
         try {
             $item = $this->cache->getItem($nonce);

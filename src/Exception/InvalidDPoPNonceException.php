@@ -12,7 +12,7 @@ class InvalidDPoPNonceException extends InvalidDPoPProofException
         public readonly string $newNonce,
         string $message = '',
         int $code = 0,
-        \Throwable|null $previous = null
+        ?\Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
     }

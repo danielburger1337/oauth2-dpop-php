@@ -11,7 +11,7 @@ interface NonceStorageInterface
      *
      * @return string|null The current nonce or `null` if none exists.
      */
-    public function getCurrentNonce(string $key): string|null;
+    public function getCurrentNonce(string $key): ?string;
 
     /**
      * Store a new DPoP-Nonce from an upstream server.

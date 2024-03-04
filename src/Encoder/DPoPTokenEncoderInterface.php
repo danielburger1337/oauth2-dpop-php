@@ -18,7 +18,7 @@ interface DPoPTokenEncoderInterface
      *
      * @throws MissingDPoPJwkException If no JWK that matches the given constraints was found.
      */
-    public function selectJWK(array $serverSupportedSignatureAlgorithms, string|null $jkt = null): JwkInterface;
+    public function selectJWK(array $serverSupportedSignatureAlgorithms, ?string $jkt = null): JwkInterface;
 
     /**
      * Encode a DPoP proof.

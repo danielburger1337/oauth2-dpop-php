@@ -32,7 +32,7 @@ class WebTokenFrameworkDPoPTokenEncoder implements DPoPTokenEncoderInterface
         $this->serializer = new JWSSerializerManager([new CompactSerializer()]);
     }
 
-    public function selectJWK(array $serverSupportedSignatureAlgorithms, string|null $jkt = null): JwkInterface
+    public function selectJWK(array $serverSupportedSignatureAlgorithms, ?string $jkt = null): JwkInterface
     {
         foreach ($serverSupportedSignatureAlgorithms as $algorithmName) {
             try {
