@@ -315,7 +315,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
         $nonceFactory->createNewNonce(self::JKT);
     }
 
-    private function assertIsValidNonce(string|null $nonce): void
+    private function assertIsValidNonce(?string $nonce): void
     {
         $this->assertIsString($nonce);
         $this->assertNull($this->nonceFactory->createNewNonceIfInvalid(self::JKT, $nonce));

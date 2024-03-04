@@ -21,5 +21,5 @@ interface NonceFactoryInterface
      *
      * @return string|null The nonce or `null` if the provided nonce is valid.
      */
-    public function createNewNonceIfInvalid(string $thumbprint, string $nonce): string|null;
+    public function createNewNonceIfInvalid(string $thumbprint, string $nonce): ?string;
 }

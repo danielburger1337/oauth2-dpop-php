@@ -13,7 +13,7 @@ class DPoPReplayAttackException extends DPoPException
         public readonly DecodedDPoPProof $proof,
         string $message = 'The given DPoP proof was already presented.',
         int $code = 0,
-        \Throwable|null $previous = null
+        ?\Throwable $previous = null
     ) {
         parent::__construct($message, $code, $previous);
     }

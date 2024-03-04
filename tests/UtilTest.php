@@ -23,7 +23,7 @@ class UtilTest extends TestCase
      */
     #[Test]
     #[DataProvider('parseSupportedAlgorithmsFromHeaderDataProvider')]
-    public function parseSupportedAlgorithmsFromHeader_returnsExpected(string $header, array|null $expected): void
+    public function parseSupportedAlgorithmsFromHeader_returnsExpected(string $header, ?array $expected): void
     {
         $returnValue = Util::parseSupportedAlgorithmsFromHeader($header);
         $this->assertEquals($expected, $returnValue);
