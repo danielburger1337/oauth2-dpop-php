@@ -14,7 +14,7 @@
     </source>
 
     <testsuites>
-        <testsuite name="OpenID Hash Test Suite">
+        <testsuite name="OAuth2 DPoP Test Suite">
             <directory>tests/</directory>
         </testsuite>
     </testsuites>
