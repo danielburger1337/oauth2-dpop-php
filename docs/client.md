@@ -56,7 +56,7 @@ If your applications http-client does not use PSR-7, you can use the `createProo
 
 ### Authorization Server
 
-When making a request to the authorizations server `authorization_endpoint` endpoint, you only need to provide the `htm` and the `htu`.
+When making a request to the authorizations server `token_endpoint` endpoint, you only need to provide the `htm` and the `htu`.
 
 ```php
 use danielburger1337\OAuth2\DPoP\DPoPProofFactory;
