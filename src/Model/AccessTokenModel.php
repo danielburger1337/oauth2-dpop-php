@@ -12,7 +12,7 @@ final class AccessTokenModel
      */
     public function __construct(
         public readonly \Stringable|string $accessToken,
-        public readonly string $jkt
+        public readonly string $jkt,
     ) {
     }
 }

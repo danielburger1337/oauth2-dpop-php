@@ -13,7 +13,7 @@ final class WebTokenFrameworkJwk implements JwkInterface
     public function __construct(
         public readonly JWK $jwk,
         public readonly string $jkt,
-        public readonly Algorithm $algorithm
+        public readonly Algorithm $algorithm,
     ) {
     }
 

@@ -30,7 +30,7 @@ class DPoPProofFactory
         private readonly DPoPTokenEncoderInterface $encoder,
         private readonly NonceStorageInterface $nonceStorage,
         private readonly NonceStorageKeyFactoryInterface $nonceStorageKeyFactory = new NonceStorageKeyFactory(),
-        private readonly int $jtiByteLength = 32
+        private readonly int $jtiByteLength = 32,
     ) {
     }
 

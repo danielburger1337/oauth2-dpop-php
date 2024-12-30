@@ -10,7 +10,7 @@ final class DPoPProof implements \Stringable
      */
     public function __construct(
         public readonly JwkInterface $jwk,
-        public readonly string $proof
+        public readonly string $proof,
     ) {
     }
 

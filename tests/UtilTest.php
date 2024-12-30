@@ -103,7 +103,7 @@ class UtilTest extends TestCase
     {
         return new class(self::ACCESS_TOKEN) implements \Stringable {
             public function __construct(
-                private readonly string $accessToken
+                private readonly string $accessToken,
             ) {
             }
 

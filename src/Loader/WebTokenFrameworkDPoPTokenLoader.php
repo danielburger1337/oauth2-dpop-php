@@ -26,7 +26,7 @@ class WebTokenFrameworkDPoPTokenLoader implements DPoPTokenLoaderInterface
      * @param AlgorithmManager $algorithmManager An algorithm manager that contains all the JWA algorithms that are supported.
      */
     public function __construct(
-        private readonly AlgorithmManager $algorithmManager
+        private readonly AlgorithmManager $algorithmManager,
     ) {
         $this->serializer = new JWSSerializerManager([new CompactSerializer()]);
     }

@@ -35,7 +35,7 @@ class DPoPProofVerifier
         private readonly ?NonceFactoryInterface $nonceFactory = null,
         private readonly ?ReplayAttackDetectorInterface $replayAttackDetector = null,
         private readonly int $allowedTimeDrift = 5,
-        private readonly int $allowedMaxAge = 30
+        private readonly int $allowedMaxAge = 30,
     ) {
     }
 
@@ -62,7 +62,7 @@ class DPoPProofVerifier
         match (\count($headers)) {
             0 => throw new MissingDPoPProofException('The request did not contain a "DPoP" header.'),
             1 => null,
-            default => throw new InvalidDPoPProofException('The request must contain exactly one "DPoP" header.')
+            default => throw new InvalidDPoPProofException('The request must contain exactly one "DPoP" header.'),
         };
 
         return $this->verifyFromRequestParts($headers[\array_key_first($headers)], $request->getMethod(), $request->getUri(), $boundTo);
