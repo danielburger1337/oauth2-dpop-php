@@ -141,7 +141,7 @@ function makeRequest(bool $retry = true, ?array $serverSupportedAlgorithms = nul
     // REMEMBER: the server can also include it on a successfull response
     $dpopFactory->storeNextNonceFromResponse($response, $request, $proof->jwk);
 
-    if ($response->getStatus() === 401) {
+    if (false === $retry || $response->getStatus() === 401) {
         // the RP can tell you to use a different DPoP algorithm
         $wwwAuthenticate = $request->getHeaderLine('WWW-Authenticate');
         $supportedAlgorithms = Util::parseSupportedAlgorithmsFromHeader($wwwAuthenticate);
