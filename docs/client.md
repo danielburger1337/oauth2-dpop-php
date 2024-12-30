@@ -82,7 +82,7 @@ function makeTokenRequest(bool $retry = true): ResponseInterface {
     // REMEMBER: the server can also include it on a successfull response
     $dpopFactory->storeNextNonceFromResponse($response, $request, $proof->jwk);
 
-    if ($response->getStatus() === 400) {
+    if (false === $retry || $response->getStatus() === 400) {
         $body = $response->toArray();
 
         if ($body['error'] === 'use_dpop_nonce') {
