@@ -14,7 +14,7 @@ class CacheNonceStorage implements NonceStorageInterface
      */
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
-        private readonly \DateInterval $ttl = new \DateInterval('PT5M')
+        private readonly \DateInterval $ttl = new \DateInterval('PT5M'),
     ) {
     }
 

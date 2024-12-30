@@ -14,7 +14,7 @@ final class DecodedDPoPProof
     public function __construct(
         public readonly JwkInterface $jwk,
         public readonly array $payload,
-        public readonly array $protectedHeader
+        public readonly array $protectedHeader,
     ) {
     }
 }

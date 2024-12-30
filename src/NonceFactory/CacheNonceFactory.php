@@ -9,7 +9,7 @@ class CacheNonceFactory implements NonceFactoryInterface
 {
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
-        private readonly \DateInterval $ttl = new \DateInterval('PT15M')
+        private readonly \DateInterval $ttl = new \DateInterval('PT15M'),
     ) {
     }
 

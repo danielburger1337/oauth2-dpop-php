@@ -231,6 +231,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
         $this->assertEquals($this->clock->now()->getTimestamp(), $payload['iat']);
 
         $this->assertArrayHasKey('jti', $payload);
+        $this->assertIsString($payload['jti']);
         $this->assertTrue(\strlen($payload['jti']) >= 4);
 
         $this->assertArrayHasKey('jkt', $payload);

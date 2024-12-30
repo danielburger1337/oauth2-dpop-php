@@ -43,7 +43,7 @@ class WebTokenFrameworkNonceFactory implements NonceFactoryInterface
         private readonly ClockInterface $clock,
         private readonly \DateInterval $ttl = new \DateInterval('PT15M'),
         private readonly int $allowedTimeDrift = 5,
-        private readonly ?\Closure $closure = null
+        private readonly ?\Closure $closure = null,
     ) {
         if ($algorithm instanceof Algorithm) {
             $algorithm = new AlgorithmManager([$algorithm]);
