@@ -307,6 +307,7 @@ class DPoPProofFactoryTest extends TestCase
                 $this->assertEquals($this->clock->now()->getTimestamp(), $value['iat']);
 
                 $this->assertArrayHasKey('jti', $value);
+                $this->assertIsString($value['jti']);
                 $this->assertTrue(\strlen($value['jti']) === (self::JTI_LENGTH * 2));
 
                 $this->assertArrayNotHasKey('ath', $value);
@@ -366,6 +367,7 @@ class DPoPProofFactoryTest extends TestCase
                 $this->assertEquals($this->clock->now()->getTimestamp(), $value['iat']);
 
                 $this->assertArrayHasKey('jti', $value);
+                $this->assertIsString($value['jti']);
                 $this->assertTrue(\strlen($value['jti']) === (self::JTI_LENGTH * 2));
 
                 $this->assertArrayNotHasKey('ath', $value);
@@ -427,6 +429,7 @@ class DPoPProofFactoryTest extends TestCase
                 $this->assertEquals($this->clock->now()->getTimestamp(), $value['iat']);
 
                 $this->assertArrayHasKey('jti', $value);
+                $this->assertIsString($value['jti']);
                 $this->assertTrue(\strlen($value['jti']) === (self::JTI_LENGTH * 2));
 
                 $this->assertArrayHasKey('ath', $value);
@@ -497,6 +500,7 @@ class DPoPProofFactoryTest extends TestCase
                 $this->assertEquals($this->clock->now()->getTimestamp(), $value['iat']);
 
                 $this->assertArrayHasKey('jti', $value);
+                $this->assertIsString($value['jti']);
                 $this->assertTrue(\strlen($value['jti']) === (self::JTI_LENGTH * 2));
 
                 $this->assertArrayHasKey('nonce', $value);
