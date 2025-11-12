@@ -76,6 +76,14 @@ function makeTokenRequest(bool $retry = true): ResponseInterface {
 
     $request = $request->withHeader('DPoP', $proof->proof);
 
+    // Don't forget to add the body
+    $request = $request->withBody($streamFactory->createStream(\http_build_query([
+        'grant_type' => 'authorization_code',
+        'code' => $_SESSION['authorization_code'],
+        'state' => $_SESSION['state']
+        // etc...
+    ])));
+
     $response = $httpClient->sendRequest($request);
 
     // always store the next nonce
@@ -123,11 +131,11 @@ function makeRequest(bool $retry = true, ?array $serverSupportedAlgorithms = nul
     $model = new AccessTokenModel($accessToken, $jkt);
 
     $request = $requestFactory->createRequest('POST', 'https://rp.example.com/protected')
-        ->withHeader('Authorization', $accessToken);
+        ->withHeader('Authorization', 'DPoP ' . $accessToken);
 
     try {
         $proof = $dpopFactory->createProofFromRequest($request, $serverSupportedAlgorithms, $model);
-    } catch (MissindDPoPJwkException $e) {
+    } catch (MissingDPoPJwkException $e) {
         // this error is thrown when the JWK the access token is bound to
         // is not registered with the token encoder
         throw $e;
