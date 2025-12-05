@@ -38,7 +38,7 @@ jobs:
                     - php_version: "8.5"
                       dependency_version: ""
 
-        name: PHPUnit with PHP ${{ matrix.php_version }}
+        name: PHPUnit with PHP ${{ matrix.php_version }} ${{ matrix.dependency_version }}
 
         env:
             PHP_EXTENSIONS: xdebug,gmp,bcmath
