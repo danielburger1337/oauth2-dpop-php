@@ -39,6 +39,11 @@ class CacheReplayAttackDetector implements ReplayAttackDetectorInterface
 
     protected function createKey(DecodedDPoPProof $proof): string
     {
-        return \hash('xxh128', $proof->jwk->thumbprint().$proof->payload['jti']);
+        $jti = $proof->payload['jti'] ?? null;
+        if (!\is_string($jti)) {
+            throw new \InvalidArgumentException('Decoded DPoP proof does not contain a valid "jti" claim');
+        }
+
+        return \hash('xxh128', $proof->jwk->thumbprint().$jti);
     }
 }

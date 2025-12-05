@@ -24,7 +24,7 @@ class NullNonceStorageTest extends TestCase
     {
         $returnValue = $this->nonceStorage->getCurrentNonce($key);
 
-        $this->assertNull($returnValue);
+        $this->assertNull($returnValue); // @phpstan-ignore method.alreadyNarrowedType
     }
 
     #[Test]

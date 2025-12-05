@@ -40,6 +40,7 @@ class WebTokenFrameworkDPoPTokenLoader implements DPoPTokenLoaderInterface
         }
 
         try {
+            // @phpstan-ignore-next-line argument.type
             $jwk = new JWK($jws->getSignature(0)->getProtectedHeaderParameter('jwk'));
         } catch (\Throwable $e) {
             throw new InvalidDPoPProofException('Failed to get "jwk" from DPoP proof header.', previous: $e);
@@ -95,6 +96,7 @@ class WebTokenFrameworkDPoPTokenLoader implements DPoPTokenLoaderInterface
 
         $jwk = new WebTokenFrameworkJwk($jwk, $jwk->thumbprint('sha256'), $algorithm);
 
+        // @phpstan-ignore-next-line argument.type
         return new DecodedDPoPProof($jwk, $unverifiedClaims, $signature->getProtectedHeader());
     }
 
