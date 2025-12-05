@@ -49,7 +49,7 @@ class DPoPProofFactoryTest extends TestCase
      */
     #[Test]
     #[DataProvider('getJwkToBindDataProvider')]
-    public function getJwkToBind_returnsJwk(array $supportedAlgorithms): void
+    public function getJwkToBindReturnsJwk(array $supportedAlgorithms): void
     {
         $jwk = $this->createMock(JwkInterface::class);
 
@@ -62,7 +62,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function getJwkToBind_throwsException(): void
+    public function getJwkToBindThrowsException(): void
     {
         $e = $this->createStub(MissingDPoPJwkException::class);
 
@@ -77,7 +77,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function storeNextNonce_emptyNonce_doesNothing(): void
+    public function storeNextNonceEmptyNonceDoesNothing(): void
     {
         $jwk = $this->createStub(JwkInterface::class);
 
@@ -91,7 +91,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function storeNextNonce_htu_isNotModified(): void
+    public function storeNextNonceHtuIsNotModified(): void
     {
         $jwk = $this->createStub(JwkInterface::class);
 
@@ -108,7 +108,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function storeNextNonce_htu_isTransformed(): void
+    public function storeNextNonceHtuIsTransformed(): void
     {
         $jwk = $this->createStub(JwkInterface::class);
 
@@ -125,7 +125,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function storeNextNonceFromResponse_emptyHeader_doesNothing(): void
+    public function storeNextNonceFromResponseEmptyHeaderDoesNothing(): void
     {
         $jwk = $this->createStub(JwkInterface::class);
 
@@ -144,7 +144,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function storeNextNonceFromResponse_multipleHeader_throwsException(): void
+    public function storeNextNonceFromResponseMultipleHeaderThrowsException(): void
     {
         $jwk = $this->createStub(JwkInterface::class);
 
@@ -163,7 +163,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function storeNextNonceFromResponse_includesNonce_storesNonce(): void
+    public function storeNextNonceFromResponseIncludesNonceStoresNonce(): void
     {
         $jwk = $this->createStub(JwkInterface::class);
 
@@ -196,7 +196,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function storeNextNonceFromResponse_includesNonceAndQueryParameter_storesNonce(): void
+    public function storeNextNonceFromResponseIncludesNonceAndQueryParameterStoresNonce(): void
     {
         $jwk = $this->createStub(JwkInterface::class);
 
@@ -229,7 +229,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createProof_boundToAccessToken_unsupportedJkt_throwsException(): void
+    public function createProofBoundToAccessTokenUnsupportedJktThrowsException(): void
     {
         $accessToken = new AccessTokenModel('abc', 'def');
 
@@ -246,7 +246,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createProof_boundToUnsupportedJkt_throwsException(): void
+    public function createProofBoundToUnsupportedJktThrowsException(): void
     {
         $e = $this->createStub(MissingDPoPJwkException::class);
 
@@ -261,7 +261,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createProof_unsupportedAlgorithms_throwsException(): void
+    public function createProofUnsupportedAlgorithmsThrowsException(): void
     {
         $e = $this->createStub(MissingDPoPJwkException::class);
 
@@ -276,7 +276,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createProof_boundToNothing_checkPayload(): void
+    public function createProofBoundToNothingCheckPayload(): void
     {
         $jwk = $this->createMock(JwkInterface::class);
         $jwk->expects($this->atLeastOnce())
@@ -336,7 +336,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createProof_boundToJkt_checkPayload(): void
+    public function createProofBoundToJktCheckPayload(): void
     {
         $jwk = $this->createMock(JwkInterface::class);
         $jwk->expects($this->atLeastOnce())
@@ -396,7 +396,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createProof_boundToAccessToken_addsAthToPayload(): void
+    public function createProofBoundToAccessTokenAddsAthToPayload(): void
     {
         $accessToken = new AccessTokenModel('123456', 'def');
 
@@ -459,7 +459,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createProof_hasStoredNonce_addsNonceToPayload(): void
+    public function createProofHasStoredNonceAddsNonceToPayload(): void
     {
         $jwk = $this->createMock(JwkInterface::class);
         $jwk->expects($this->atLeastOnce())
@@ -532,7 +532,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createProof_hti_isTransformed(): void
+    public function createProofHtiIsTransformed(): void
     {
         $jwk = $this->createMock(JwkInterface::class);
 
@@ -565,7 +565,7 @@ class DPoPProofFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createProofFromRequest_returnsProof(): void
+    public function createProofFromRequestReturnsProof(): void
     {
         $request = $this->createMock(RequestInterface::class);
         $request->expects($this->once())

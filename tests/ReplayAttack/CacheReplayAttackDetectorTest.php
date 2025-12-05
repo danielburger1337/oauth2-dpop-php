@@ -51,7 +51,7 @@ class CacheReplayAttackDetectorTest extends TestCase
     }
 
     #[Test]
-    public function consumeProof_cacheHit_returnsFalse(): void
+    public function consumeProofCacheHitReturnsFalse(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects($this->once())
@@ -68,7 +68,7 @@ class CacheReplayAttackDetectorTest extends TestCase
     }
 
     #[Test]
-    public function consumeProof_cacheMiss_returnsTrue(): void
+    public function consumeProofCacheMissReturnsTrue(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects($this->once())
@@ -85,7 +85,7 @@ class CacheReplayAttackDetectorTest extends TestCase
     }
 
     #[Test]
-    public function consumeProof_cacheKey_isIdempotent(): void
+    public function consumeProofCacheKeyIsIdempotent(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects($this->once())

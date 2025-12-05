@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 class DPoPProofTest extends TestCase
 {
     #[Test]
-    public function __toString_returnsProof(): void
+    public function toStringReturnsProof(): void
     {
         $jwk = $this->createMock(JwkInterface::class);
 

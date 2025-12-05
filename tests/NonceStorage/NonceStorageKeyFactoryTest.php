@@ -31,7 +31,7 @@ class NonceStorageKeyFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createKey_withUrl_returnsExpected(): void
+    public function createKeyWithUrlReturnsExpected(): void
     {
         $returnValue = $this->nonceStorageKeyFactory->createKey($this->jwk, self::URL);
 
@@ -39,7 +39,7 @@ class NonceStorageKeyFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createKey_upperCaseUrl_returnsExpected(): void
+    public function createKeyUpperCaseUrlReturnsExpected(): void
     {
         $returnValue = $this->nonceStorageKeyFactory->createKey($this->jwk, \strtoupper(self::URL));
 
@@ -47,7 +47,7 @@ class NonceStorageKeyFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createKey_invalidUrl_throwsException(): void
+    public function createKeyInvalidUrlThrowsException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('The htu has an invalid scheme or host.');
@@ -56,7 +56,7 @@ class NonceStorageKeyFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createKey_malformedUrl_throwsException(): void
+    public function createKeyMalformedUrlThrowsException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('The htu is not a valid URL.');
@@ -65,7 +65,7 @@ class NonceStorageKeyFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createKey_urlWithoutScheme_throwsException(): void
+    public function createKeyUrlWithoutSchemeThrowsException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('The htu has an invalid scheme or host.');

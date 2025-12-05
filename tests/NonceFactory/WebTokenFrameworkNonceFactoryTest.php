@@ -53,7 +53,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_createdNonce_returnsNull(): void
+    public function createNewNonceIfInvalidCreatedNonceReturnsNull(): void
     {
         // simple dummy test that the result of "createNewNonce" is accepted as valid
 
@@ -65,7 +65,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_invalidJwt_createsNewNonce(): void
+    public function createNewNonceIfInvalidInvalidJwtCreatesNewNonce(): void
     {
         $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::JKT, 'not a jwt');
 
@@ -73,7 +73,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_validNonce_returnsNull(): void
+    public function createNewNonceIfInvalidValidNonceReturnsNull(): void
     {
         // issued now, expires in 5 minutes
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
@@ -85,7 +85,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_expiredNonce_withinTimeDrift_returnsTrue(): void
+    public function createNewNonceIfInvalidExpiredNonceWithinTimeDriftReturnsTrue(): void
     {
         // issued 1 minute ago, expired 3 seconds ago
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965522,"exp":1708965579}
@@ -97,7 +97,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_expiredNonce_createsNewNonce(): void
+    public function createNewNonceIfInvalidExpiredNonceCreatesNewNonce(): void
     {
         // issued 1 minute ago, expired 10 seconds ago
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965522,"exp":1708965572}
@@ -109,7 +109,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_invalidSignature_createsNewNonce(): void
+    public function createNewNonceIfInvalidInvalidSignatureCreatesNewNonce(): void
     {
         // issued now, expires in 5 minutes, signed with \strrev(self::SECRET)
         // {"typ":"dpop+none","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
@@ -120,7 +120,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_unsupportedAlgorithm_createsNewNonce(): void
+    public function createNewNonceIfInvalidUnsupportedAlgorithmCreatesNewNonce(): void
     {
         // issued now, expires in 5 minutes
         // {"typ":"dpop+none","alg":"ES256"}.{"iat":1708965582,"exp":1708965882}
@@ -131,7 +131,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_missingTypHeader_createsNewNonce(): void
+    public function createNewNonceIfInvalidMissingTypHeaderCreatesNewNonce(): void
     {
         // issued now, expires in 5 minutes
         // {"alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
@@ -142,7 +142,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_invalidTypHeader_createsNewNonce(): void
+    public function createNewNonceIfInvalidInvalidTypHeaderCreatesNewNonce(): void
     {
         // issued now, expires in 5 minutes
         // {"typ":"nonce+dpop","alg":"HS256"}.{"iat":1708965582,"exp":1708965882}
@@ -153,7 +153,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_invalidPayload_createsNewNonce(): void
+    public function createNewNonceIfInvalidInvalidPayloadCreatesNewNonce(): void
     {
         // issued now, expires in 5 minutes
         // {"typ":"dpop+nonce","alg":"HS256"}.null
@@ -164,7 +164,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_missingIatClaim_createsNewNonce(): void
+    public function createNewNonceIfInvalidMissingIatClaimCreatesNewNonce(): void
     {
         // expires in 5 minutes
         // {"typ":"dpop+nonce","alg":"HS256"}.{"exp":1708965882}
@@ -175,7 +175,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_missingExpClaim_createsNewNonce(): void
+    public function createNewNonceIfInvalidMissingExpClaimCreatesNewNonce(): void
     {
         // issued now
         // {"typ":"dpop+nonce","alg":"HS256"}.{"iat":1708965582}
@@ -186,7 +186,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_validNonce_callsClosure(): void
+    public function createNewNonceIfInvalidValidNonceCallsClosure(): void
     {
         /**
          * @param array<string, int> $claims
@@ -215,7 +215,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonce_payload_hasExpectedClaims(): void
+    public function createNewNoncePayloadHasExpectedClaims(): void
     {
         $nonce = $this->nonceFactory->createNewNonce(self::JKT);
         $parts = \explode('.', $nonce);
@@ -239,7 +239,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonce_header_hasExpectedParameters(): void
+    public function createNewNonceHeaderHasExpectedParameters(): void
     {
         $nonce = $this->nonceFactory->createNewNonce(self::JKT);
         $parts = \explode('.', $nonce);
@@ -256,7 +256,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonce_header_hasKidAndCrv(): void
+    public function createNewNonceHeaderHasKidAndCrv(): void
     {
         $jwk = JWKFactory::createECKey('P-256', ['kid' => 'abc', 'crv' => 'P-256']);
 
@@ -283,7 +283,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonce_noMatchingAlgorithm_throwsException(): void
+    public function createNewNonceNoMatchingAlgorithmThrowsException(): void
     {
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a suitable JWK/JWA to sign a DPoP-Nonce token.');
@@ -300,7 +300,7 @@ class WebTokenFrameworkNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonce_noneAlgorithm_throwsException(): void
+    public function createNewNonceNoneAlgorithmThrowsException(): void
     {
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a suitable JWK/JWA to sign a DPoP-Nonce token.');

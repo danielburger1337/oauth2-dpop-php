@@ -30,7 +30,7 @@ class CacheNonceStorageTest extends TestCase
     }
 
     #[Test]
-    public function getCurrentNonce_cacheHit_returnsValue(): void
+    public function getCurrentNonceCacheHitReturnsValue(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects($this->once())
@@ -50,7 +50,7 @@ class CacheNonceStorageTest extends TestCase
     }
 
     #[Test]
-    public function getCurrentNonce_cacheHit_returnsNullValue(): void
+    public function getCurrentNonceCacheHitReturnsNullValue(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects($this->once())
@@ -70,7 +70,7 @@ class CacheNonceStorageTest extends TestCase
     }
 
     #[Test]
-    public function getCurrentNonce_cacheMiss_returnsNull(): void
+    public function getCurrentNonceCacheMissReturnsNull(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects($this->once())
@@ -89,7 +89,7 @@ class CacheNonceStorageTest extends TestCase
     }
 
     #[Test]
-    public function storeNextNonce_isSaved(): void
+    public function storeNextNonceIsSaved(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects($this->once())
