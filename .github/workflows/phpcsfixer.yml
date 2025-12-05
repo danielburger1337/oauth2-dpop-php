@@ -9,25 +9,23 @@ permissions:
 
 jobs:
     phpcsfixer:
-        runs-on: ${{ matrix.operating-system }}
+        runs-on: ubuntu-latest
 
         strategy:
             matrix:
-                operating-system: [ubuntu-latest]
-                php-versions: ["8.2"]
+                php_version: ["8.2"]
 
-        name: PHPCSFixer with PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
-
+        name: PHPCSFixer with PHP ${{ matrix.php_version }}
         steps:
             - uses: actions/checkout@v4
 
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: ${{ matrix.php-versions }}
+                  php-version: ${{ matrix.php_version }}
 
             - name: Install Composer packages
-              run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+              run: composer install -q --no-ansi --no-interaction
 
             - name: Run PHPCSFixer
               run: $GITHUB_WORKSPACE/vendor/bin/php-cs-fixer fix --dry-run
