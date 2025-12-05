@@ -9,14 +9,36 @@ permissions:
 
 jobs:
     phpunit:
-        runs-on: ${{ matrix.operating-system }}
+        runs-on: ubuntu-latest
 
         strategy:
             matrix:
-                operating-system: [ubuntu-latest]
-                php-versions: ["8.2", "8.3", "8.4", "8.5"]
+                include:
+                    - php_version: "8.2"
+                      dependency_version: "--prefer-lowest"
 
-        name: PHPUnit with PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
+                    - php_version: "8.3"
+                      dependency_version: "--prefer-lowest"
+
+                    - php_version: "8.4"
+                      dependency_version: "--prefer-lowest"
+
+                    - php_version: "8.5"
+                      dependency_version: "--prefer-lowest"
+
+                    - php_version: "8.2"
+                      dependency_version: ""
+
+                    - php_version: "8.3"
+                      dependency_version: ""
+
+                    - php_version: "8.4"
+                      dependency_version: ""
+
+                    - php_version: "8.5"
+                      dependency_version: ""
+
+        name: PHPUnit with PHP ${{ matrix.php_version }}
 
         env:
             PHP_EXTENSIONS: xdebug,gmp,bcmath
@@ -29,7 +51,7 @@ jobs:
               id: extcache
               uses: shivammathur/cache-extensions@v1
               with:
-                  php-version: ${{ matrix.php-versions }}
+                  php-version: ${{ matrix.php_version }}
                   extensions: ${{ env.PHP_EXTENSIONS }}
                   key: ${{ env.PHP_EXTENSIONS_CACHE_KEY }}
 
@@ -43,11 +65,11 @@ jobs:
             - name: Setup PHP
               uses: shivammathur/setup-php@v2
               with:
-                  php-version: ${{ matrix.php-versions }}
+                  php-version: ${{ matrix.php_version }}
                   extensions: ${{ env.PHP_EXTENSIONS }}
 
             - name: Install Composer packages
-              run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+              run: composer update -q --no-ansi --no-interaction ${{ matrix.dependency_version }}
 
             - name: Run PHPUnit
               run: $GITHUB_WORKSPACE/vendor/bin/phpunit --coverage-text
