@@ -20,7 +20,7 @@ class NullNonceStorageTest extends TestCase
 
     #[Test]
     #[DataProvider('dataProvider')]
-    public function getCurrentNonce_returnsNull(string $key): void
+    public function getCurrentNonceReturnsNull(string $key): void
     {
         $returnValue = $this->nonceStorage->getCurrentNonce($key);
 
@@ -29,7 +29,7 @@ class NullNonceStorageTest extends TestCase
 
     #[Test]
     #[DataProvider('dataProvider')]
-    public function storeNextNonce_throwsException(string $key): void
+    public function storeNextNonceThrowsException(string $key): void
     {
         $this->expectException(\BadMethodCallException::class);
 

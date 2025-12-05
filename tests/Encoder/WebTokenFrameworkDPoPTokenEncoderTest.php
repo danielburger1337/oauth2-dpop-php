@@ -62,7 +62,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function __construct_jwk_createsJWKSet(): void
+    public function constructJwkCreatesJWKSet(): void
     {
         $this->expectNotToPerformAssertions();
 
@@ -70,7 +70,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function selectJWK_supportedAlgorithm_returnsJwk(): void
+    public function selectJWKSupportedAlgorithmReturnsJwk(): void
     {
         $returnValue = $this->encoder->selectJWK(['ES256']);
 
@@ -81,7 +81,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function selectJWK_supportedAlgorithmWithJwk_returnsJwk(): void
+    public function selectJWKSupportedAlgorithmWithJwkReturnsJwk(): void
     {
         $returnValue = $this->encoder->selectJWK(['ES256', 'EdDSA']);
 
@@ -92,7 +92,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function selectJWK_supportedAlgorithmWithoutJwk_throwsException(): void
+    public function selectJWKSupportedAlgorithmWithoutJwkThrowsException(): void
     {
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a JWK for the supported DPoP algorithms "RS256".');
@@ -101,7 +101,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function selectJWK_supportedAlgorithmWithJKTWithoutJwk_throwsException(): void
+    public function selectJWKSupportedAlgorithmWithJKTWithoutJwkThrowsException(): void
     {
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a JWK with the "'.self::JKT.'" JKT that supports the "RS256" DPoP algorithms.');
@@ -110,7 +110,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function selectJWK_supportedAlgorithmWithMultipleKeys_returnsJKTMatch(): void
+    public function selectJWKSupportedAlgorithmWithMultipleKeysReturnsJKTMatch(): void
     {
         $jwkSet = $this->jwkSet->with(JWKFactory::createECKey('P-256'));
 
@@ -125,7 +125,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function selectJWK_emptyServerSupportedAlgorithms_throwsException(): void
+    public function selectJWKEmptyServerSupportedAlgorithmsThrowsException(): void
     {
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a JWK for the supported DPoP algorithms "".');
@@ -134,7 +134,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function selectJWK_emptyServerSupportedAlgorithmsWithJKT_throwsException(): void
+    public function selectJWKEmptyServerSupportedAlgorithmsWithJKTThrowsException(): void
     {
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a JWK with the "'.self::JKT.'" JKT that supports the "" DPoP algorithms.');
@@ -143,7 +143,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function selectJWK_unsupportedAlgorithm_throwsException(): void
+    public function selectJWKUnsupportedAlgorithmThrowsException(): void
     {
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a JWK for the supported DPoP algorithms "EdDSA".');
@@ -152,7 +152,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function selectJWK_unsupportedAlgorithmWithJkt_throwsException(): void
+    public function selectJWKUnsupportedAlgorithmWithJktThrowsException(): void
     {
         $this->expectException(MissingDPoPJwkException::class);
         $this->expectExceptionMessage('Failed to find a JWK with the "'.self::JKT.'" JKT that supports the "EdDSA" DPoP algorithms.');
@@ -161,7 +161,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function createProof_unsupportedJwk_throwsException(): void
+    public function createProofUnsupportedJwkThrowsException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 
@@ -169,7 +169,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function createProof_protectedHeader_noAlgThrowsException(): void
+    public function createProofProtectedHeaderNoAlgThrowsException(): void
     {
         // this SHOULD (and currently is) be enforced by the JWT library
         // keep this in case of regressions
@@ -180,7 +180,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function createProof_protectedHeader_emptyAlgThrowsException(): void
+    public function createProofProtectedHeaderEmptyAlgThrowsException(): void
     {
         // this SHOULD (and currently is) be enforced by the JWT library
         // keep this in case of regressions
@@ -191,7 +191,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function createProof_protectedHeader_nullAlgThrowsException(): void
+    public function createProofProtectedHeaderNullAlgThrowsException(): void
     {
         // this SHOULD (and currently is) be enforced by the JWT library
         // keep this in case of regressions
@@ -202,7 +202,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function createProof_protectedHeader_containsExtraKeys(): void
+    public function createProofProtectedHeaderContainsExtraKeys(): void
     {
         $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
 
@@ -216,7 +216,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function createProof_payload_isEncoded(): void
+    public function createProofPayloadIsEncoded(): void
     {
         $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
 
@@ -237,7 +237,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
     }
 
     #[Test]
-    public function createProof_isSignedJwt(): void
+    public function createProofIsSignedJwt(): void
     {
         $jwk = new WebTokenFrameworkJwk($this->jwk, $this->jwk->thumbprint('sha256'), new ES256());
 

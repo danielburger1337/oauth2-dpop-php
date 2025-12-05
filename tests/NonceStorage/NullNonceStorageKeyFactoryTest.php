@@ -21,7 +21,7 @@ class NullNonceStorageKeyFactoryTest extends TestCase
 
     #[Test]
     #[DataProvider('dataProvider_createKey')]
-    public function createKey_returnsEmptyString(string $thumbprint): void
+    public function createKeyReturnsEmptyString(string $thumbprint): void
     {
         $returnValue = $this->nonceStorageKeyFactory->createKey($this->createStub(JwkInterface::class), $thumbprint);
 

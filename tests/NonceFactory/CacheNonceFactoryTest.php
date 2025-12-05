@@ -30,7 +30,7 @@ class CacheNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_validNonce_returnsNull(): void
+    public function createNewNonceIfInvalidValidNonceReturnsNull(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects($this->once())
@@ -50,7 +50,7 @@ class CacheNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_invalidNonce_createsNewNonce(): void
+    public function createNewNonceIfInvalidInvalidNonceCreatesNewNonce(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
         $item->expects($this->once())
@@ -86,7 +86,7 @@ class CacheNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonce_createsNewNonce(): void
+    public function createNewNonceCreatesNewNonce(): void
     {
         $item = $this->createMock(CacheItemInterface::class);
 

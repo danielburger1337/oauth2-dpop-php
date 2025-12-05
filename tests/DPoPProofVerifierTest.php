@@ -59,7 +59,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequest_httpFoundation_passesThrough(): void
+    public function verifyFromRequestHttpFoundationPassesThrough(): void
     {
         $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
         $this->tokenLoader->expects($this->once())
@@ -75,7 +75,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequest_httpFoundation_passesThroughWithAccessToken(): void
+    public function verifyFromRequestHttpFoundationPassesThroughWithAccessToken(): void
     {
         $jwk = $this->createJwkMock();
         $accessToken = new AccessTokenModel('abc', $jwk->thumbprint());
@@ -97,7 +97,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequest_httpFoundation_noHeaders_throwsException(): void
+    public function verifyFromRequestHttpFoundationNoHeadersThrowsException(): void
     {
         $request = Request::create(self::HTU, self::HTM);
 
@@ -108,7 +108,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequest_httpFoundation_multipleHeaders_throwsException(): void
+    public function verifyFromRequestHttpFoundationMultipleHeadersThrowsException(): void
     {
         $request = Request::create(self::HTU, self::HTM, server: ['HTTP_DPOP' => ['value1', 'value2']]);
 
@@ -119,7 +119,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequest_psr7_passesThrough(): void
+    public function verifyFromRequestPsr7PassesThrough(): void
     {
         $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
         $this->tokenLoader->expects($this->once())
@@ -136,7 +136,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequest_psr7_passesThroughWithAccessToken(): void
+    public function verifyFromRequestPsr7PassesThroughWithAccessToken(): void
     {
         $jwk = $this->createJwkMock();
         $accessToken = new AccessTokenModel('abc', $jwk->thumbprint());
@@ -159,7 +159,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequest_psr7_noHeader_throwsException(): void
+    public function verifyFromRequestPsr7NoHeaderThrowsException(): void
     {
         $request = new ServerRequest(self::HTM, self::HTU);
 
@@ -170,7 +170,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequest_psr7_multipleHeaders_throwsException(): void
+    public function verifyFromRequestPsr7MultipleHeadersThrowsException(): void
     {
         $request = new ServerRequest(self::HTM, self::HTU);
         $request = $request->withHeader('DPoP', ['value1', 'value2']);
@@ -182,7 +182,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_emptyString_throwsException(): void
+    public function verifyFromRequestPartsEmptyStringThrowsException(): void
     {
         $this->expectException(InvalidDPoPProofException::class);
         $this->expectExceptionMessage('The DPoP proof must be a non empty string.');
@@ -191,7 +191,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_privateJwk_throwsException(): void
+    public function verifyFromRequestPartsPrivateJwkThrowsException(): void
     {
         $jwk = $this->createJwkMock(toPublic: false);
 
@@ -212,7 +212,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_missingTypHeader_throwsException(): void
+    public function verifyFromRequestPartsMissingTypHeaderThrowsException(): void
     {
         $protectedHeader = $this->createDecodedProtectedHeader();
         unset($protectedHeader['typ']);
@@ -231,7 +231,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_invalidTypHeader_throwsException(): void
+    public function verifyFromRequestPartsInvalidTypHeaderThrowsException(): void
     {
         $protectedHeader = $this->createDecodedProtectedHeader();
         $protectedHeader['typ'] = 'invalidValue';
@@ -250,7 +250,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_missingHtmClaim_throwsException(): void
+    public function verifyFromRequestPartsMissingHtmClaimThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         unset($payload['htm']);
@@ -269,7 +269,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_invalidHtmClaim_throwsException(): void
+    public function verifyFromRequestPartsInvalidHtmClaimThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['htm'] = 1; // not a string
@@ -288,7 +288,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_unexpectedHtmClaim_throwsException(): void
+    public function verifyFromRequestPartsUnexpectedHtmClaimThrowsException(): void
     {
         $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
@@ -304,7 +304,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_htmClaim_isCaseInsensitive(): void
+    public function verifyFromRequestPartsHtmClaimIsCaseInsensitive(): void
     {
         $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
@@ -319,7 +319,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_missingJtiClaim_throwsException(): void
+    public function verifyFromRequestPartsMissingJtiClaimThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         unset($payload['jti']);
@@ -338,7 +338,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_invalidJtiClaim_throwsException(): void
+    public function verifyFromRequestPartsInvalidJtiClaimThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['jti'] = 1; // not a string
@@ -357,7 +357,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_jtiClaimTooShort_throwsException(): void
+    public function verifyFromRequestPartsJtiClaimTooShortThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['jti'] = 'abcdef';
@@ -376,7 +376,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_jtiClaimTooLong_throwsException(): void
+    public function verifyFromRequestPartsJtiClaimTooLongThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['jti'] = \bin2hex(\random_bytes(2049));
@@ -395,7 +395,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_missingHtuClaim_throwsException(): void
+    public function verifyFromRequestPartsMissingHtuClaimThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         unset($payload['htu']);
@@ -414,7 +414,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_invalidHtuClaim_throwsException(): void
+    public function verifyFromRequestPartsInvalidHtuClaimThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['htu'] = 1; // not a string
@@ -433,7 +433,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_unexpectedHtuClaim_throwsException(): void
+    public function verifyFromRequestPartsUnexpectedHtuClaimThrowsException(): void
     {
         $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
@@ -449,7 +449,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_htuClaim_isCaseInsensitive(): void
+    public function verifyFromRequestPartsHtuClaimIsCaseInsensitive(): void
     {
         $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
@@ -464,7 +464,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_missingIatClaim_throwsException(): void
+    public function verifyFromRequestPartsMissingIatClaimThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         unset($payload['iat']);
@@ -483,7 +483,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_invalidIatClaim_throwsException(): void
+    public function verifyFromRequestPartsInvalidIatClaimThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['iat'] = $this->clock->now()->format('c'); // not a unix timestamp
@@ -502,7 +502,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_iatInFuture_throwsException(): void
+    public function verifyFromRequestPartsIatInFutureThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['iat'] = $this->clock->now()->add(new \DateInterval('PT10S'))->getTimestamp();
@@ -521,7 +521,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_iatInFutureButWithinAllowedTimeDrift_returnsDecoded(): void
+    public function verifyFromRequestPartsIatInFutureButWithinAllowedTimeDriftReturnsDecoded(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['iat'] = $this->clock->now()->add(new \DateInterval('PT3S'))->getTimestamp();
@@ -539,7 +539,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_iatUnreasonablyFarInPast_throwsException(): void
+    public function verifyFromRequestPartsIatUnreasonablyFarInPastThrowsException(): void
     {
         $this->expectException(InvalidDPoPProofException::class);
         $this->expectExceptionMessage('The DPoP proof was issued unreasonably far back in the past.');
@@ -560,7 +560,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_iatInPastButWithinAllowedTimeDrift_returnsDecoded(): void
+    public function verifyFromRequestPartsIatInPastButWithinAllowedTimeDriftReturnsDecoded(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['iat'] = $this->clock->now()->getTimestamp() - self::ALLOWED_MAX_AGE + self::ALLOWED_TIME_DRIFT;
@@ -578,7 +578,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_expClaim_throwsException(): void
+    public function verifyFromRequestPartsExpClaimThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['exp'] = $this->clock->now()->add(new \DateInterval('PT15M'))->getTimestamp();
@@ -596,7 +596,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_invalidExpClaim_throwsException(): void
+    public function verifyFromRequestPartsInvalidExpClaimThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['exp'] = $this->clock->now()->format('c'); // not a unix timestamp
@@ -615,7 +615,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_expInPast_throwsException(): void
+    public function verifyFromRequestPartsExpInPastThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['exp'] = $this->clock->now()->sub(new \DateInterval('PT10S'))->getTimestamp();
@@ -634,7 +634,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_expInPastButWithinAllowedTimeDrift_returnsDecoded(): void
+    public function verifyFromRequestPartsExpInPastButWithinAllowedTimeDriftReturnsDecoded(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['exp'] = $this->clock->now()->sub(new \DateInterval('PT3S'))->getTimestamp();
@@ -652,7 +652,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_nbfClaim_returnsDecoded(): void
+    public function verifyFromRequestPartsNbfClaimReturnsDecoded(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['nbf'] = $this->clock->now()->getTimestamp();
@@ -670,7 +670,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_invalidNbfClaim_throwsException(): void
+    public function verifyFromRequestPartsInvalidNbfClaimThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['nbf'] = $this->clock->now()->format('c'); // not a unix timestamp
@@ -689,7 +689,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_nbfInFuture_throwsException(): void
+    public function verifyFromRequestPartsNbfInFutureThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['nbf'] = $this->clock->now()->add(new \DateInterval('PT10S'))->getTimestamp();
@@ -708,7 +708,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_nbfInFutureButWithinAllowedTimeDrift_returnsDecoded(): void
+    public function verifyFromRequestPartsNbfInFutureButWithinAllowedTimeDriftReturnsDecoded(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['nbf'] = $this->clock->now()->add(new \DateInterval('PT3S'))->getTimestamp();
@@ -726,7 +726,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_athClaim_returnsDecoded(): void
+    public function verifyFromRequestPartsAthClaimReturnsDecoded(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0';
@@ -744,7 +744,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_athWithoutAccessToken_isIgnored(): void
+    public function verifyFromRequestPartsAthWithoutAccessTokenIsIgnored(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 'abc';
@@ -760,7 +760,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_missingAthClaim_throwsException(): void
+    public function verifyFromRequestPartsMissingAthClaimThrowsException(): void
     {
         $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
@@ -776,7 +776,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_invalidAthClaim_throwsException(): void
+    public function verifyFromRequestPartsInvalidAthClaimThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 1; // not a string
@@ -795,7 +795,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_invalidAthHash_throwsException(): void
+    public function verifyFromRequestPartsInvalidAthHashThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 'invalid hash';
@@ -814,7 +814,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_accessTokenInvalidThumbprint_throwsException(): void
+    public function verifyFromRequestPartsAccessTokenInvalidThumbprintThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0';
@@ -833,7 +833,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_matchingThumbprint_returnsDecoded(): void
+    public function verifyFromRequestPartsMatchingThumbprintReturnsDecoded(): void
     {
         $payload = $this->createDecodedPayload();
 
@@ -849,7 +849,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_thumbprint_throwsException(): void
+    public function verifyFromRequestPartsThumbprintThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
 
@@ -867,7 +867,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_missingNonce_throwsException(): void
+    public function verifyFromRequestPartsMissingNonceThrowsException(): void
     {
         $jwk = $this->createJwkMock();
         $decoded = new DecodedDPoPProof($jwk, $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
@@ -898,7 +898,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_malformedNonce_throwsException(): void
+    public function verifyFromRequestPartsMalformedNonceThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['nonce'] = 1; // not a string
@@ -932,7 +932,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_validNonce_returnsDecoded(): void
+    public function verifyFromRequestPartsValidNonceReturnsDecoded(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['nonce'] = 'thisNonce123';
@@ -962,7 +962,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_invalidNonce_throwsException(): void
+    public function verifyFromRequestPartsInvalidNonceThrowsException(): void
     {
         $payload = $this->createDecodedPayload();
         $payload['nonce'] = 'thisNonce123';
@@ -998,7 +998,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_noReplayAttack_returnsDecoded(): void
+    public function verifyFromRequestPartsNoReplayAttackReturnsDecoded(): void
     {
         $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
@@ -1021,7 +1021,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function verifyFromRequestParts_replayAttack_throwsException(): void
+    public function verifyFromRequestPartsReplayAttackThrowsException(): void
     {
         $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
@@ -1050,7 +1050,7 @@ class DPoPProofVerifierTest extends TestCase
     }
 
     #[Test]
-    public function createWwwAuthenticateChallengeLine_returnsTokenLoaderSupportedAlgorithms(): void
+    public function createWwwAuthenticateChallengeLineReturnsTokenLoaderSupportedAlgorithms(): void
     {
         $this->tokenLoader->expects($this->once())
             ->method('getSupportedAlgorithms')

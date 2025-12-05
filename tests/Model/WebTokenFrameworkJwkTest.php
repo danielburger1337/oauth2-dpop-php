@@ -22,7 +22,7 @@ class WebTokenFrameworkJwkTest extends TestCase
     private const JKT = 'u-OgFMUQNFo0PC7x32Il3T_n_FOgRrUZJj4DA9LKy3M';
 
     #[Test]
-    public function thumbprint_privateKey_returnsSha256Thumbprint(): void
+    public function thumbprintPrivateKeyReturnsSha256Thumbprint(): void
     {
         $jwk = JWKFactory::createFromJsonObject(self::JWK);
         $this->assertInstanceOf(JWK::class, $jwk);
@@ -35,7 +35,7 @@ class WebTokenFrameworkJwkTest extends TestCase
     }
 
     #[Test]
-    public function thumbprint_publicKey_returnsSha256Thumbprint(): void
+    public function thumbprintPublicKeyReturnsSha256Thumbprint(): void
     {
         $jwk = JWKFactory::createFromJsonObject(self::JWK_PUBLIC);
         $this->assertInstanceOf(JWK::class, $jwk);
@@ -48,7 +48,7 @@ class WebTokenFrameworkJwkTest extends TestCase
     }
 
     #[Test]
-    public function toPublic_privateKey_returnsPublicKey(): void
+    public function toPublicPrivateKeyReturnsPublicKey(): void
     {
         $jwk = JWKFactory::createFromJsonObject(self::JWK);
         $this->assertInstanceOf(JWK::class, $jwk);
@@ -61,7 +61,7 @@ class WebTokenFrameworkJwkTest extends TestCase
     }
 
     #[Test]
-    public function toPublic_publicKey_returnsPublicKey(): void
+    public function toPublicPublicKeyReturnsPublicKey(): void
     {
         $jwk = JWKFactory::createFromJsonObject(self::JWK_PUBLIC);
         $this->assertInstanceOf(JWK::class, $jwk);
@@ -75,7 +75,7 @@ class WebTokenFrameworkJwkTest extends TestCase
 
     #[Test]
     #[DataProvider('algoritmDataProvider')]
-    public function algorithm_returnsAlgorithmName(Algorithm $algorithm, string $expected): void
+    public function algorithmReturnsAlgorithmName(Algorithm $algorithm, string $expected): void
     {
         $jwk = JWKFactory::createFromJsonObject(self::JWK_PUBLIC);
         $this->assertInstanceOf(JWK::class, $jwk);

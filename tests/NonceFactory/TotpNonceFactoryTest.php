@@ -33,7 +33,7 @@ class TotpNonceFactoryTest extends TestCase
 
     #[Test]
     #[DataProvider('dataProvider_createNewNonce')]
-    public function createNewNonce_returnsExpected(string $clock, string $thumbprint, string $secret, int $digits, int $period, string $digest, int $epoch, string $expected): void
+    public function createNewNonceReturnsExpected(string $clock, string $thumbprint, string $secret, int $digits, int $period, string $digest, int $epoch, string $expected): void
     {
         $clock = new MockClock($clock);
 
@@ -46,7 +46,7 @@ class TotpNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_validNonce_returnsNull(): void
+    public function createNewNonceIfInvalidValidNonceReturnsNull(): void
     {
         $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::THUMBPRINT, '0573455172');
 
@@ -54,7 +54,7 @@ class TotpNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_validNonceWithClosure_invokesClosureAndReturnsNull(): void
+    public function createNewNonceIfInvalidValidNonceWithClosureInvokesClosureAndReturnsNull(): void
     {
         $closure = function (TOTPInterface $totp): void {
             // this test is important, it ensures that each JKT has a unique nonce
@@ -69,7 +69,7 @@ class TotpNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_validNextNonce_returnsNull(): void
+    public function createNewNonceIfInvalidValidNextNonceReturnsNull(): void
     {
         $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::THUMBPRINT, '1585442449');
 
@@ -77,7 +77,7 @@ class TotpNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_validNonceWithClosure_doesNotInvokeClosureAndReturnsNull(): void
+    public function createNewNonceIfInvalidValidNonceWithClosureDoesNotInvokeClosureAndReturnsNull(): void
     {
         $closure = function (TOTPInterface $totp): void {
             // fail if invoked
@@ -92,7 +92,7 @@ class TotpNonceFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createNewNonceIfInvalid_invalidNonce_returnsCurrentNonce(): void
+    public function createNewNonceIfInvalidInvalidNonceReturnsCurrentNonce(): void
     {
         $returnValue = $this->nonceFactory->createNewNonceIfInvalid(self::THUMBPRINT, 'invalid');
 

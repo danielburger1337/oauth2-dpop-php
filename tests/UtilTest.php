@@ -23,7 +23,7 @@ class UtilTest extends TestCase
      */
     #[Test]
     #[DataProvider('parseSupportedAlgorithmsFromHeaderDataProvider')]
-    public function parseSupportedAlgorithmsFromHeader_returnsExpected(string $header, ?array $expected): void
+    public function parseSupportedAlgorithmsFromHeaderReturnsExpected(string $header, ?array $expected): void
     {
         $returnValue = Util::parseSupportedAlgorithmsFromHeader($header);
         $this->assertEquals($expected, $returnValue);
@@ -31,7 +31,7 @@ class UtilTest extends TestCase
 
     #[Test]
     #[DataProvider('createHtuDataProvider')]
-    public function createHtu_withUri_returnsHtu(string $attach): void
+    public function createHtuWithUriReturnsHtu(string $attach): void
     {
         $returnValue = Util::createHtu(new Uri(self::HTU.$attach));
 
@@ -40,7 +40,7 @@ class UtilTest extends TestCase
 
     #[Test]
     #[DataProvider('createHtuDataProvider')]
-    public function createHtu_withString_returnsHtu(string $attach): void
+    public function createHtuWithStringReturnsHtu(string $attach): void
     {
         $returnValue = Util::createHtu(self::HTU.$attach);
 
@@ -48,7 +48,7 @@ class UtilTest extends TestCase
     }
 
     #[Test]
-    public function createHtu_invalidUrl_removesQuery(): void
+    public function createHtuInvalidUrlRemovesQuery(): void
     {
         $returnValue = Util::createHtu('is this working? yes');
 
@@ -56,7 +56,7 @@ class UtilTest extends TestCase
     }
 
     #[Test]
-    public function createHtu_invalidUrl_returnsUnchanged(): void
+    public function createHtuInvalidUrlReturnsUnchanged(): void
     {
         $returnValue = Util::createHtu('not a url');
 
@@ -64,7 +64,7 @@ class UtilTest extends TestCase
     }
 
     #[Test]
-    public function createAccessTokenHash_string_returnsExpected(): void
+    public function createAccessTokenHashStringReturnsExpected(): void
     {
         $returnValue = Util::createAccessTokenHash(self::ACCESS_TOKEN);
 
@@ -72,7 +72,7 @@ class UtilTest extends TestCase
     }
 
     #[Test]
-    public function createAccessTokenHash_AccessTokenModel_returnsExpected(): void
+    public function createAccessTokenHashAccessTokenModelReturnsExpected(): void
     {
         $accessTokenModel = new AccessTokenModel(self::ACCESS_TOKEN, 'doesnt matter');
 
@@ -82,7 +82,7 @@ class UtilTest extends TestCase
     }
 
     #[Test]
-    public function createAccessTokenHash_AccessTokenModelWithStringable_returnsExpected(): void
+    public function createAccessTokenHashAccessTokenModelWithStringableReturnsExpected(): void
     {
         $accessTokenModel = new AccessTokenModel($this->createStringableAccessToken(), 'doesnt matter');
 
@@ -92,7 +92,7 @@ class UtilTest extends TestCase
     }
 
     #[Test]
-    public function createAccessTokenHash_Stringable_returnsExpected(): void
+    public function createAccessTokenHashStringableReturnsExpected(): void
     {
         $returnValue = Util::createAccessTokenHash($this->createStringableAccessToken());
 

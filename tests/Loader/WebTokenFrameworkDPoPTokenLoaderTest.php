@@ -28,7 +28,7 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
     }
 
     #[Test]
-    public function loadProof_returnsExpected(): void
+    public function loadProofReturnsExpected(): void
     {
         // {"typ":"dpop+jwt","alg":"ES256","jwk":{"kty":"EC"...}.{"iat": 1708956826,"ath":"123","nonce":"abc"}
         $proof = 'eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiSUpRcm5FNTVBeXcycVFmcnFjRnJRSGdCdTNCTnFmUUUxLTdzYU03OVN4YyIsInkiOiJWTGFkLVdyZXJnUGdnSzI4T0VrdmlsR0VDZ1ppeU5NUVlIV2FVZGtTd0RVIn19.eyJpYXQiOjE3MDg5NTY4MjYsImF0aCI6IjEyMyIsIm5vbmNlIjoiYWJjIn0.uEf2x9f6tpmGWuwrBVQaC8rJp3VJ-AdlAA7SPdbY7ukTsulR8So09bgd9xYneJm1nE1U3ec1bO-MEzZ_VBggMA';
@@ -54,7 +54,7 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
     }
 
     #[Test]
-    public function loadProof_notAJwt_throwsException(): void
+    public function loadProofNotAJwtThrowsException(): void
     {
         $this->expectException(InvalidDPoPProofException::class);
         $this->expectExceptionMessage('The presented DPoP proof is not in a supported JWT format.');
@@ -63,7 +63,7 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
     }
 
     #[Test]
-    public function loadProof_noJwkInHeader_throwsException(): void
+    public function loadProofNoJwkInHeaderThrowsException(): void
     {
         // {"typ":"dpop+jwt","alg":"ES256"}.{"iat": 1708956826,"ath":"123","nonce":"abc"}
         $proof = 'eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2In0.eyJpYXQiOjE3MDg5NTY4MjYsImF0aCI6IjEyMyIsIm5vbmNlIjoiYWJjIn0.G-EsowaAiZL6kG1sb8pqCkfZU6dMu_jUvvTzvC_0RR7bRSZPv4RZXsHBoE1-ZpyhkLcfL1ukUnykvQxew0gX1A';
@@ -75,7 +75,7 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
     }
 
     #[Test]
-    public function loadProof_unsupportedAlgorithm_throwsException(): void
+    public function loadProofUnsupportedAlgorithmThrowsException(): void
     {
         // {"typ":"dpop+jwt","alg":"EdDSA","jwk":{...}.{"iat": 1708956826,"ath":"123","nonce":"abc"}
         $proof = 'eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVkRFNBIiwiandrIjp7Imt0eSI6Ik9LUCIsImNydiI6IkVkMjU1MTkiLCJ4IjoiU1M4Q1RzdFFQdjl1ZW9lT3c1Q0xWQWNRN1BMMG9mVnFjTmgxcUY4ZGZEZyJ9fQ.eyJpYXQiOjE3MDg5NTY4MjYsImF0aCI6IjEyMyIsIm5vbmNlIjoiYWJjIn0.Ud_4w9tOTD3cgA_7x6mnY957xog71osp0pdDmdxe_MbATpJRgXTDEcQr6d45hte9jic1N9ER7SD1D1O54bB2Bw';
@@ -87,7 +87,7 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
     }
 
     #[Test]
-    public function loadProof_invalidSignature_throwsException(): void
+    public function loadProofInvalidSignatureThrowsException(): void
     {
         // {"typ":"dpop+jwt","alg":"EdDSA","jwk":{...}.{"iat": 1708956826,"ath":"123","nonce":"abc"}
         $proof = 'eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVkRFNBIiwiandrIjp7Imt0eSI6Ik9LUCIsImNydiI6IkVkMjU1MTkiLCJ4IjoiU1M4Q1RzdFFQdjl1ZW9lT3c1Q0xWQWNRN1BMMG9mVnFjTmgxcUY4ZGZEZyJ9fQ.eyJpYXQiOjE3MDg5NTY4MjYsImF0aCI6IjEyMyIsIm5vbmNlIjoiYWJjIn0.invalidsignature';
@@ -99,7 +99,7 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
     }
 
     #[Test]
-    public function loadProof_signedByOtherJwk_throwsException(): void
+    public function loadProofSignedByOtherJwkThrowsException(): void
     {
         // the "jwk" in the header is not the one that signed the token
 
@@ -113,7 +113,7 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
     }
 
     #[Test]
-    public function loadProof_missingAlgHeader_throwsException(): void
+    public function loadProofMissingAlgHeaderThrowsException(): void
     {
         // {"typ":"dpop+jwt","jwk":{...}.{"iat": 1708956826,"ath":"123","nonce":"abc"}
         $proof = 'eyJ0eXAiOiJkcG9wK2p3dCIsImp3ayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6Ik91U2x3OGNEX042WW9EZE5xMjlRYkd0YzRTR2NEaERPaHVKa0J5aU9YbjAiLCJ5IjoiWWxpVzU2cHAybUpUWnBXMlRJb2tlbzVFMm9RRkpQY2U2cERrbVVPSmtNbyJ9fQ.eyJpYXQiOjE3MDg5NTY4MjYsImF0aCI6IjEyMyIsIm5vbmNlIjoiYWJjIn0.SeuoDSzk2iOdGFa3wlxo4LUKsuETgMeoUm4XBnABktVqkuC7V2mzlnSAZj7FJ_6e1qbNuP4TLG_7xaZwhtpt8w';
@@ -125,7 +125,7 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
     }
 
     #[Test]
-    public function loadProof_macAlgorithm_throwsException(): void
+    public function loadProofMacAlgorithmThrowsException(): void
     {
         // {"typ":"dpop+jwt","alg":"HS256","jwk":{"kty":"oct"...}.{"iat": 1708956826,"ath":"123","nonce":"abc"}
         $proof = 'eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkhTMjU2IiwiandrIjp7Imt0eSI6Im9jdCIsImsiOiJuM2JjU0RFUFBUdTB3cW10enlSSmMxbkp1Zlh6Mm94SFJiVFFDaEhGNmRVIn19.eyJpYXQiOjE3MDg5NTY4MjYsImF0aCI6IjEyMyIsIm5vbmNlIjoiYWJjIn0.zQ2PZl32eKr6yj9kRyllFPn0Wr7ZiHWDQf4AE5rxED0';
@@ -137,7 +137,7 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
     }
 
     #[Test]
-    public function loadProof_noneAlgorithm_throwsException(): void
+    public function loadProofNoneAlgorithmThrowsException(): void
     {
         // {"typ":"dpop+jwt","alg":"none","jwk":{"kty":"none"...}.{"iat": 1708956826,"ath":"123","nonce":"abc"}
         $proof = 'eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6Im5vbmUiLCJqd2siOnsia3R5Ijoibm9uZSIsImFsZyI6Im5vbmUiLCJ1c2UiOiJzaWcifX0.eyJpYXQiOjE3MDg5NTY4MjYsImF0aCI6IjEyMyIsIm5vbmNlIjoiYWJjIn0.';
@@ -149,7 +149,7 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
     }
 
     #[Test]
-    public function loadProof_invalidPayload_throwsException(): void
+    public function loadProofInvalidPayloadThrowsException(): void
     {
         // {"typ":"dpop+jwt","alg":"ES256","jwk":{"kty":"EC"...}.null
         $proof = 'eyJ0eXAiOiJkcG9wK2p3dCIsImFsZyI6IkVTMjU2IiwiandrIjp7Imt0eSI6IkVDIiwiY3J2IjoiUC0yNTYiLCJ4IjoiQm5DNGNwcmNZck5hSm8tYTlJdFlKZFdIYS1OUkc4Q0RSMTAyNk4zRGpZbyIsInkiOiJBTUVQYkF5U2ZsY3h4MzdSWExwSURzd1FVLUdhRFlOTEMwWHJFWlBKZGJRIn19.bnVsbA.RWTiF1-s2bBVR2I6fJh6JS3k0M2SAW0EZm3xBr9T1rPqqJIHFOhMbDSMR_rbpi5RoKaNnakEB8u334aVPdC0bQ';
@@ -165,7 +165,7 @@ class WebTokenFrameworkDPoPTokenLoaderTest extends TestCase
      */
     #[Test]
     #[DataProvider('algorithmManagerDataProvider')]
-    public function getSupportedAlgorithms_returnsList(AlgorithmManager $algorithmManager, array $expected): void
+    public function getSupportedAlgorithmsReturnsList(AlgorithmManager $algorithmManager, array $expected): void
     {
         $loader = new WebTokenFrameworkDPoPTokenLoader($algorithmManager);
 
