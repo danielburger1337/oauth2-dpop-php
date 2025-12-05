@@ -43,7 +43,7 @@ class DPoPProofVerifierTest extends TestCase
 
     protected function setUp(): void
     {
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore-next-line assign.propertyType
         $this->jwk = JWKFactory::createFromValues([
             'kty' => 'EC',
             'crv' => 'P-256',

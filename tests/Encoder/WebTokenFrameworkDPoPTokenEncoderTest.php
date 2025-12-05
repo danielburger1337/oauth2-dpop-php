@@ -44,7 +44,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
 
     protected function setUp(): void
     {
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore-next-line assign.propertyType
         $this->jwk = JWKFactory::createFromValues([
             'kty' => 'EC',
             'crv' => 'P-256',
@@ -53,7 +53,6 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
             'y' => 'kU_N4_T4y_M5SEmJwILgvd7Gnj_ckyljLO2FsVGXVTM',
         ]);
 
-        // @phpstan-ignore-next-line
         $this->jwkSet = new JWKSet([$this->jwk]);
 
         $this->algorithmManager = new AlgorithmManager([new ES256(), new RS256()]);
@@ -248,6 +247,9 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
         $jwsLoader = new JWSLoader(new JWSSerializerManager([new CompactSerializer()]), new JWSVerifier($this->algorithmManager), new HeaderCheckerManager([new AlgorithmChecker($this->algorithmManager->list())], [new JWSTokenSupport()]));
 
         $jws = $jwsLoader->loadAndVerifyWithKey($returnValue, $this->jwk, $idx);
+        if (null === $idx) {
+            throw new \RuntimeException('Impossible to reach codepath');
+        }
         $signature = $jws->getSignature($idx);
 
         $this->assertEquals(['alg' => 'ES256', 'headerParam' => 'value'], $signature->getProtectedHeader());

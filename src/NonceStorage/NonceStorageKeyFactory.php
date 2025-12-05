@@ -14,7 +14,7 @@ class NonceStorageKeyFactory implements NonceStorageKeyFactoryInterface
             throw new \InvalidArgumentException('The htu is not a valid URL.');
         }
 
-        if (!\array_key_exists('scheme', $parts) || !\is_string($parts['scheme']) || !\array_key_exists('host', $parts) || !\is_string($parts['host'])) {
+        if (!\array_key_exists('scheme', $parts) || !\array_key_exists('host', $parts)) {
             throw new \InvalidArgumentException('The htu has an invalid scheme or host.');
         }
 

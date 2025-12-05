@@ -65,6 +65,7 @@ class DPoPProofVerifier
             default => throw new InvalidDPoPProofException('The request must contain exactly one "DPoP" header.'),
         };
 
+        // @phpstan-ignore-next-line offsetAccess.invalidOffset
         return $this->verifyFromRequestParts($headers[\array_key_first($headers)], $request->getMethod(), $request->getUri(), $boundTo);
     }
 

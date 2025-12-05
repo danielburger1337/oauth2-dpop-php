@@ -37,7 +37,7 @@ class TotpNonceFactoryTest extends TestCase
     {
         $clock = new MockClock($clock);
 
-        // @phpstan-ignore-next-line
+        // @phpstan-ignore-next-line argument.type
         $nonceFactory = new TotpNonceFactory($clock, $secret, $digits, $period, $digest, $epoch);
 
         $returnValue = $nonceFactory->createNewNonce($thumbprint);
