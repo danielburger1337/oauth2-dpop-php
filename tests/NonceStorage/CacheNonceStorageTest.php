@@ -13,9 +13,9 @@ use Psr\Cache\CacheItemPoolInterface;
 #[CoversClass(CacheNonceStorage::class)]
 class CacheNonceStorageTest extends TestCase
 {
-    private const STORED_NONCE = 'abcdef';
-    private const CACHE_KEY = 'cache_key';
-    private const CACHE_TTL = 'PT5S';
+    private const string STORED_NONCE = 'abcdef';
+    private const string CACHE_KEY = 'cache_key';
+    private const string CACHE_TTL = 'PT5S';
 
     private CacheItemPoolInterface&MockObject $cache;
 

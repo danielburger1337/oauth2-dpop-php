@@ -13,10 +13,10 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(Util::class)]
 class UtilTest extends TestCase
 {
-    private const ACCESS_TOKEN = 'wf92ckbY6AB8KqPKdR4pEm6taHw5T2x1';
-    private const EXPECTED_HASH = '75ti-TxjY8HQdW-a7Znaj1IdZmRTOZME4kTBb3KyJ8Y';
+    private const string ACCESS_TOKEN = 'wf92ckbY6AB8KqPKdR4pEm6taHw5T2x1';
+    private const string EXPECTED_HASH = '75ti-TxjY8HQdW-a7Znaj1IdZmRTOZME4kTBb3KyJ8Y';
 
-    private const HTU = 'https://example.com/path';
+    private const string HTU = 'https://example.com/path';
 
     /**
      * @param string[]|null $expected

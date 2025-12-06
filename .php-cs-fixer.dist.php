@@ -1,10 +1,7 @@
 <?php declare(strict_types=1);
 
-if (!\file_exists(__DIR__.'/src')) {
-    exit(0);
-}
-
-return (new PhpCsFixer\Config())
+return new PhpCsFixer\Config()
+    ->setParallelConfig(PhpCsFixer\Runner\Parallel\ParallelConfigFactory::detect())
     ->setRules([
         '@Symfony' => true,
         '@Symfony:risky' => false,

@@ -17,9 +17,9 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(WebTokenFrameworkJwk::class)]
 class WebTokenFrameworkJwkTest extends TestCase
 {
-    private const JWK = '{"kty":"EC","crv":"P-256","d":"sEMeoG1U6USSiJdVw1J33P0OJMo0wyUuFbbWaoJ7Zt4","x":"NiQqdaWrDMjDsHhZorjo7jl0Fwvvn-ZMnRUjKHYAjrU","y":"zFVN2ZRaQk74tAtMnnLBr-_w0v3SszrB3NsVsOHVtg0"}';
-    private const JWK_PUBLIC = '{"kty":"EC","crv":"P-256","x":"NiQqdaWrDMjDsHhZorjo7jl0Fwvvn-ZMnRUjKHYAjrU","y":"zFVN2ZRaQk74tAtMnnLBr-_w0v3SszrB3NsVsOHVtg0"}';
-    private const JKT = 'u-OgFMUQNFo0PC7x32Il3T_n_FOgRrUZJj4DA9LKy3M';
+    private const string JWK = '{"kty":"EC","crv":"P-256","d":"sEMeoG1U6USSiJdVw1J33P0OJMo0wyUuFbbWaoJ7Zt4","x":"NiQqdaWrDMjDsHhZorjo7jl0Fwvvn-ZMnRUjKHYAjrU","y":"zFVN2ZRaQk74tAtMnnLBr-_w0v3SszrB3NsVsOHVtg0"}';
+    private const string JWK_PUBLIC = '{"kty":"EC","crv":"P-256","x":"NiQqdaWrDMjDsHhZorjo7jl0Fwvvn-ZMnRUjKHYAjrU","y":"zFVN2ZRaQk74tAtMnnLBr-_w0v3SszrB3NsVsOHVtg0"}';
+    private const string JKT = 'u-OgFMUQNFo0PC7x32Il3T_n_FOgRrUZJj4DA9LKy3M';
 
     #[Test]
     public function thumbprintPrivateKeyReturnsSha256Thumbprint(): void

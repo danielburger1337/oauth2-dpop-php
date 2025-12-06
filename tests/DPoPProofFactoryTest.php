@@ -23,10 +23,10 @@ use Symfony\Component\Clock\MockClock;
 #[CoversClass(DPoPProofFactory::class)]
 class DPoPProofFactoryTest extends TestCase
 {
-    private const HTM = 'GET';
-    private const HTU = 'https://example.com/path';
+    private const string HTM = 'GET';
+    private const string HTU = 'https://example.com/path';
 
-    private const JTI_LENGTH = 8;
+    private const int JTI_LENGTH = 8;
 
     private DPoPProofFactory $factory;
 

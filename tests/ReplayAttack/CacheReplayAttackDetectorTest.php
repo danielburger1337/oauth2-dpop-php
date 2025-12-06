@@ -16,15 +16,16 @@ use Psr\Cache\CacheItemPoolInterface;
 #[CoversClass(CacheReplayAttackDetector::class)]
 class CacheReplayAttackDetectorTest extends TestCase
 {
-    private const JKT = 'yYmxBVlNJm6VAqMGB0pTKpXo6ivw-4KkEbDrAWZPrs4';
-    private const JWK = ['kty' => 'EC', 'crv' => 'P-256', 'x' => 'zuP6hlEe7XT45mswO_TQ4WirICzTwVNiF1vZQCHBbss', 'y' => 'lvjkoOUXl11tSF42fbXv-IdShtMJM6v19zz_9HLZ4AU'];
+    private const string JKT = 'yYmxBVlNJm6VAqMGB0pTKpXo6ivw-4KkEbDrAWZPrs4';
+    /** @var array{kty: string, crv: string, x: string, y: string} */
+    private const array JWK = ['kty' => 'EC', 'crv' => 'P-256', 'x' => 'zuP6hlEe7XT45mswO_TQ4WirICzTwVNiF1vZQCHBbss', 'y' => 'lvjkoOUXl11tSF42fbXv-IdShtMJM6v19zz_9HLZ4AU'];
+    /** @var array{jti: string} */
+    private const array PAYLOAD = ['jti' => 'abcdefghijklmnopqrstuvwxyz'];
+    /** @var array{alg: string} */
+    private const array HEADER = ['alg' => 'ES256'];
 
-    private const PAYLOAD = ['jti' => 'abcdefghijklmnopqrstuvwxyz'];
-    private const HEADER = ['alg' => 'ES256'];
-
-    private const CACHE_KEY = '1c8bd6965e72ac2be40b4f6ddfe2f33e';
-
-    private const CACHE_TTL = 'PT5S';
+    private const string CACHE_KEY = '1c8bd6965e72ac2be40b4f6ddfe2f33e';
+    private const string CACHE_TTL = 'PT5S';
 
     private CacheItemPoolInterface&MockObject $cache;
 

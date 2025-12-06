@@ -14,12 +14,12 @@ use Symfony\Component\Clock\MockClock;
 #[CoversClass(TotpNonceFactory::class)]
 class TotpNonceFactoryTest extends TestCase
 {
-    private const THUMBPRINT = 'thumprint';
-    private const SECRET = 'abcdefghijklmnopqrstuvwxyz';
-    private const DIGITS = 10;
-    private const PERIOD = 180;
-    private const DIGEST = 'sha1';
-    private const EPOCH = 0;
+    private const string THUMBPRINT = 'thumprint';
+    private const string SECRET = 'abcdefghijklmnopqrstuvwxyz';
+    private const int DIGITS = 10;
+    private const int PERIOD = 180;
+    private const string DIGEST = 'sha1';
+    private const int EPOCH = 0;
 
     private TotpNonceFactory $nonceFactory;
     private MockClock $clock;
