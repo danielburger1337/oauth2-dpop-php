@@ -12,10 +12,10 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(NonceStorageKeyFactory::class)]
 class NonceStorageKeyFactoryTest extends TestCase
 {
-    private const JKT = 'ifwanbiofnwaiofnbafwioafhnwiafn';
+    private const string JKT = 'ifwanbiofnwaiofnbafwioafhnwiafn';
 
-    private const URL = 'https://example.com/path?query=abc';
-    private const EXPECTED = 'e7a78bf47628267c';
+    private const string URL = 'https://example.com/path?query=abc';
+    private const string EXPECTED = 'e7a78bf47628267c';
 
     private NonceStorageKeyFactory $nonceStorageKeyFactory;
     private JwkInterface&Stub $jwk;

@@ -7,7 +7,7 @@ use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
 
 interface DPoPTokenEncoderInterface
 {
-    final public const TYPE_HEADER_PARAMETER = 'dpop+jwt';
+    final public const string TYPE_HEADER_PARAMETER = 'dpop+jwt';
 
     /**
      * Select the JWK used to sign a DPoP proof.

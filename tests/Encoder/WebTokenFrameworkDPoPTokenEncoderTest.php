@@ -28,8 +28,9 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(WebTokenFrameworkDPoPTokenEncoder::class)]
 class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
 {
-    private const JKT = 'YhSb0W8aR6ZnO1gKJOWF2arpHk8QgwmUqvU2jgo_wkw';
-    private const JWK_PUBLIC = [
+    private const string JKT = 'YhSb0W8aR6ZnO1gKJOWF2arpHk8QgwmUqvU2jgo_wkw';
+    /** @var array{kty: string, crv: string, x: string, y: string} */
+    private const array JWK_PUBLIC = [
         'kty' => 'EC',
         'crv' => 'P-256',
         'x' => 'K_grY8EYPtGtXkQ7CCXru3zi5SApi33gaZit1lxOhws',

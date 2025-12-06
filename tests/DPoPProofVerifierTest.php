@@ -27,13 +27,13 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(DPoPProofVerifier::class)]
 class DPoPProofVerifierTest extends TestCase
 {
-    private const ALLOWED_TIME_DRIFT = 5;
-    private const ALLOWED_MAX_AGE = 30;
+    private const int ALLOWED_TIME_DRIFT = 5;
+    private const int ALLOWED_MAX_AGE = 30;
 
-    private const PROOF_TOKEN = 'non-empty-string';
+    private const string PROOF_TOKEN = 'non-empty-string';
 
-    private const HTM = 'GET';
-    private const HTU = 'https://example.com/path';
+    private const string HTM = 'GET';
+    private const string HTU = 'https://example.com/path';
 
     private MockClock $clock;
     private DPoPTokenLoaderInterface&MockObject $tokenLoader;

@@ -22,11 +22,11 @@ use Symfony\Component\Clock\MockClock;
 #[CoversClass(WebTokenFrameworkNonceFactory::class)]
 class WebTokenFrameworkNonceFactoryTest extends TestCase
 {
-    private const JKT = 'key';
+    private const string JKT = 'key';
 
-    private const SECRET = 'abcdefghijklmnopqrstuvwxyz1234567';
-    private const TTL = 'PT5M';
-    private const ALLOWED_TIME_DRIFT = 5;
+    private const string SECRET = 'abcdefghijklmnopqrstuvwxyz1234567';
+    private const string TTL = 'PT5M';
+    private const int ALLOWED_TIME_DRIFT = 5;
 
     private WebTokenFrameworkNonceFactory $nonceFactory;
 

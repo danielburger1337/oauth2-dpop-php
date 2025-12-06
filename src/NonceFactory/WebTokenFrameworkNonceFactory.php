@@ -20,7 +20,7 @@ use Psr\Clock\ClockInterface;
 
 class WebTokenFrameworkNonceFactory implements NonceFactoryInterface
 {
-    final public const TYPE_PARAMETER = 'dpop+nonce';
+    final public const string TYPE_PARAMETER = 'dpop+nonce';
 
     private readonly AlgorithmManager $algorithmManager;
     private readonly JWKSet $jwkSet;
