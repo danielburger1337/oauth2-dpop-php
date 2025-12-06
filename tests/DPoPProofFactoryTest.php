@@ -13,6 +13,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -30,16 +31,20 @@ class DPoPProofFactoryTest extends TestCase
     private DPoPProofFactory $factory;
 
     private MockClock $clock;
-    private DPoPTokenEncoderInterface&MockObject $encoder;
-    private NonceStorageInterface&MockObject $nonceStorage;
-    private NonceStorageKeyFactoryInterface&MockObject $nonceStorageKeyFactory;
+    private (DPoPTokenEncoderInterface&MockObject)|(DPoPTokenEncoderInterface&Stub) $encoder;
+    private (NonceStorageInterface&MockObject)|(NonceStorageInterface&Stub) $nonceStorage;
+    private (NonceStorageKeyFactoryInterface&MockObject)|(NonceStorageKeyFactoryInterface&Stub) $nonceStorageKeyFactory;
 
     protected function setUp(): void
     {
         $this->clock = new MockClock();
-        $this->encoder = $this->createMock(DPoPTokenEncoderInterface::class);
-        $this->nonceStorage = $this->createMock(NonceStorageInterface::class);
-        $this->nonceStorageKeyFactory = $this->createMock(NonceStorageKeyFactoryInterface::class);
+    }
+
+    private function createFactory(bool $encoder = false, bool $nonceStorage = false, bool $nonceStorageKeyFactory = false): void
+    {
+        $this->encoder = $encoder ? $this->createMock(DPoPTokenEncoderInterface::class) : $this->createStub(DPoPTokenEncoderInterface::class);
+        $this->nonceStorage = $nonceStorage ? $this->createMock(NonceStorageInterface::class) : $this->createStub(NonceStorageInterface::class);
+        $this->nonceStorageKeyFactory = $nonceStorageKeyFactory ? $this->createMock(NonceStorageKeyFactoryInterface::class) : $this->createStub(NonceStorageKeyFactoryInterface::class);
 
         $this->factory = new DPoPProofFactory($this->clock, $this->encoder, $this->nonceStorage, $this->nonceStorageKeyFactory, self::JTI_LENGTH);
     }
@@ -51,7 +56,9 @@ class DPoPProofFactoryTest extends TestCase
     #[DataProvider('getJwkToBindDataProvider')]
     public function getJwkToBindReturnsJwk(array $supportedAlgorithms): void
     {
-        $jwk = $this->createMock(JwkInterface::class);
+        $this->createFactory(encoder: true);
+
+        $jwk = $this->createStub(JwkInterface::class);
 
         $this->encoder->expects($this->once())
             ->method('selectJWK')
@@ -64,6 +71,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function getJwkToBindThrowsException(): void
     {
+        $this->createFactory(encoder: true);
+
         $e = $this->createStub(MissingDPoPJwkException::class);
 
         $this->encoder->expects($this->once())
@@ -79,6 +88,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function storeNextNonceEmptyNonceDoesNothing(): void
     {
+        $this->createFactory(nonceStorage: true, nonceStorageKeyFactory: true);
+
         $jwk = $this->createStub(JwkInterface::class);
 
         $this->nonceStorageKeyFactory->expects($this->never())
@@ -93,6 +104,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function storeNextNonceHtuIsNotModified(): void
     {
+        $this->createFactory(nonceStorage: true, nonceStorageKeyFactory: true);
+
         $jwk = $this->createStub(JwkInterface::class);
 
         $this->nonceStorageKeyFactory->expects($this->once())
@@ -110,6 +123,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function storeNextNonceHtuIsTransformed(): void
     {
+        $this->createFactory(nonceStorage: true, nonceStorageKeyFactory: true);
+
         $jwk = $this->createStub(JwkInterface::class);
 
         $this->nonceStorageKeyFactory->expects($this->once())
@@ -127,9 +142,11 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function storeNextNonceFromResponseEmptyHeaderDoesNothing(): void
     {
+        $this->createFactory(nonceStorage: true);
+
         $jwk = $this->createStub(JwkInterface::class);
 
-        $request = $this->createMock(RequestInterface::class);
+        $request = $this->createStub(RequestInterface::class);
 
         $response = $this->createMock(ResponseInterface::class);
         $response->expects($this->once())
@@ -146,9 +163,11 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function storeNextNonceFromResponseMultipleHeaderThrowsException(): void
     {
+        $this->createFactory();
+
         $jwk = $this->createStub(JwkInterface::class);
 
-        $request = $this->createMock(RequestInterface::class);
+        $request = $this->createStub(RequestInterface::class);
 
         $response = $this->createMock(ResponseInterface::class);
         $response->expects($this->once())
@@ -165,6 +184,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function storeNextNonceFromResponseIncludesNonceStoresNonce(): void
     {
+        $this->createFactory(nonceStorage: true, nonceStorageKeyFactory: true);
+
         $jwk = $this->createStub(JwkInterface::class);
 
         $uri = $this->createMock(UriInterface::class);
@@ -198,6 +219,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function storeNextNonceFromResponseIncludesNonceAndQueryParameterStoresNonce(): void
     {
+        $this->createFactory(nonceStorage: true, nonceStorageKeyFactory: true);
+
         $jwk = $this->createStub(JwkInterface::class);
 
         $uri = $this->createMock(UriInterface::class);
@@ -231,6 +254,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function createProofBoundToAccessTokenUnsupportedJktThrowsException(): void
     {
+        $this->createFactory(encoder: true);
+
         $accessToken = new AccessTokenModel('abc', 'def');
 
         $e = $this->createStub(MissingDPoPJwkException::class);
@@ -248,6 +273,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function createProofBoundToUnsupportedJktThrowsException(): void
     {
+        $this->createFactory(encoder: true);
+
         $e = $this->createStub(MissingDPoPJwkException::class);
 
         $this->encoder->expects($this->once())
@@ -263,6 +290,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function createProofUnsupportedAlgorithmsThrowsException(): void
     {
+        $this->createFactory(encoder: true);
+
         $e = $this->createStub(MissingDPoPJwkException::class);
 
         $this->encoder->expects($this->once())
@@ -278,6 +307,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function createProofBoundToNothingCheckPayload(): void
     {
+        $this->createFactory(encoder: true);
+
         $jwk = $this->createMock(JwkInterface::class);
         $jwk->expects($this->atLeastOnce())
             ->method('toPublic')
@@ -338,6 +369,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function createProofBoundToJktCheckPayload(): void
     {
+        $this->createFactory(encoder: true);
+
         $jwk = $this->createMock(JwkInterface::class);
         $jwk->expects($this->atLeastOnce())
             ->method('toPublic')
@@ -398,6 +431,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function createProofBoundToAccessTokenAddsAthToPayload(): void
     {
+        $this->createFactory(encoder: true);
+
         $accessToken = new AccessTokenModel('123456', 'def');
 
         $jwk = $this->createMock(JwkInterface::class);
@@ -461,6 +496,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function createProofHasStoredNonceAddsNonceToPayload(): void
     {
+        $this->createFactory(encoder: true, nonceStorage: true, nonceStorageKeyFactory: true);
+
         $jwk = $this->createMock(JwkInterface::class);
         $jwk->expects($this->atLeastOnce())
             ->method('toPublic')
@@ -534,7 +571,9 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function createProofHtiIsTransformed(): void
     {
-        $jwk = $this->createMock(JwkInterface::class);
+        $this->createFactory(encoder: true, nonceStorageKeyFactory: true);
+
+        $jwk = $this->createStub(JwkInterface::class);
 
         $this->encoder->expects($this->once())
             ->method('selectJWK')
@@ -567,6 +606,8 @@ class DPoPProofFactoryTest extends TestCase
     #[Test]
     public function createProofFromRequestReturnsProof(): void
     {
+        $this->createFactory(encoder: true, nonceStorageKeyFactory: true);
+
         $request = $this->createMock(RequestInterface::class);
         $request->expects($this->once())
             ->method('getMethod')
@@ -581,7 +622,7 @@ class DPoPProofFactoryTest extends TestCase
             ->method('getUri')
             ->willReturn($uri);
 
-        $jwk = $this->createMock(JwkInterface::class);
+        $jwk = $this->createStub(JwkInterface::class);
 
         $this->encoder->expects($this->once())
             ->method('selectJWK')

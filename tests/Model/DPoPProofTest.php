@@ -12,7 +12,7 @@ class DPoPProofTest extends TestCase
     #[Test]
     public function toStringReturnsProof(): void
     {
-        $jwk = $this->createMock(JwkInterface::class);
+        $jwk = $this->createStub(JwkInterface::class);
 
         $proof = new DPoPProof($jwk, 'abcdefg');
 

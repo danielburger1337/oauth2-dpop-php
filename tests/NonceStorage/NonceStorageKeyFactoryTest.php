@@ -6,7 +6,7 @@ use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
 use danielburger1337\OAuth2\DPoP\NonceStorage\NonceStorageKeyFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(NonceStorageKeyFactory::class)]
@@ -18,13 +18,12 @@ class NonceStorageKeyFactoryTest extends TestCase
     private const EXPECTED = 'e7a78bf47628267c';
 
     private NonceStorageKeyFactory $nonceStorageKeyFactory;
-    private JwkInterface&MockObject $jwk;
+    private JwkInterface&Stub $jwk;
 
     protected function setUp(): void
     {
-        $this->jwk = $this->createMock(JwkInterface::class);
-        $this->jwk->expects($this->any())
-            ->method('thumbprint')
+        $this->jwk = $this->createStub(JwkInterface::class);
+        $this->jwk->method('thumbprint')
             ->willReturn(self::JKT);
 
         $this->nonceStorageKeyFactory = new NonceStorageKeyFactory();

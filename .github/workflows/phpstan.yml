@@ -13,7 +13,7 @@ jobs:
 
         strategy:
             matrix:
-                php_version: ["8.2", "8.3", "8.4", "8.5"]
+                php_version: ["8.4", "8.5"]
 
         name: PHPStan with PHP ${{ matrix.php_version }}
 

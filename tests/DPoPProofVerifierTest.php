@@ -19,6 +19,7 @@ use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,7 +62,7 @@ class DPoPProofVerifierTest extends TestCase
     #[Test]
     public function verifyFromRequestHttpFoundationPassesThrough(): void
     {
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
             ->with(self::PROOF_TOKEN)
@@ -77,13 +78,13 @@ class DPoPProofVerifierTest extends TestCase
     #[Test]
     public function verifyFromRequestHttpFoundationPassesThroughWithAccessToken(): void
     {
-        $jwk = $this->createJwkMock();
+        $jwk = $this->createJwkStub();
         $accessToken = new AccessTokenModel('abc', $jwk->thumbprint());
 
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0';
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
             ->with(self::PROOF_TOKEN)
@@ -104,6 +105,8 @@ class DPoPProofVerifierTest extends TestCase
         $this->expectException(MissingDPoPProofException::class);
         $this->expectExceptionMessage('The request did not contain a "DPoP" header.');
 
+        $this->tokenLoader->expects($this->never())->method('loadProof');
+
         $this->verifier->verifyFromRequest($request);
     }
 
@@ -115,13 +118,15 @@ class DPoPProofVerifierTest extends TestCase
         $this->expectException(InvalidDPoPProofException::class);
         $this->expectExceptionMessage('The request must contain exactly one "DPoP" header.');
 
+        $this->tokenLoader->expects($this->never())->method('loadProof');
+
         $this->verifier->verifyFromRequest($request);
     }
 
     #[Test]
     public function verifyFromRequestPsr7PassesThrough(): void
     {
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
             ->with(self::PROOF_TOKEN)
@@ -138,13 +143,13 @@ class DPoPProofVerifierTest extends TestCase
     #[Test]
     public function verifyFromRequestPsr7PassesThroughWithAccessToken(): void
     {
-        $jwk = $this->createJwkMock();
+        $jwk = $this->createJwkStub();
         $accessToken = new AccessTokenModel('abc', $jwk->thumbprint());
 
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0';
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
             ->with(self::PROOF_TOKEN)
@@ -166,6 +171,8 @@ class DPoPProofVerifierTest extends TestCase
         $this->expectException(MissingDPoPProofException::class);
         $this->expectExceptionMessage('The request did not contain a "DPoP" header.');
 
+        $this->tokenLoader->expects($this->never())->method('loadProof');
+
         $this->verifier->verifyFromRequest($request);
     }
 
@@ -178,6 +185,8 @@ class DPoPProofVerifierTest extends TestCase
         $this->expectException(InvalidDPoPProofException::class);
         $this->expectExceptionMessage('The request must contain exactly one "DPoP" header.');
 
+        $this->tokenLoader->expects($this->never())->method('loadProof');
+
         $this->verifier->verifyFromRequest($request);
     }
 
@@ -187,13 +196,15 @@ class DPoPProofVerifierTest extends TestCase
         $this->expectException(InvalidDPoPProofException::class);
         $this->expectExceptionMessage('The DPoP proof must be a non empty string.');
 
+        $this->tokenLoader->expects($this->never())->method('loadProof');
+
         $this->verifier->verifyFromRequestParts('', self::HTM, self::HTU);
     }
 
     #[Test]
     public function verifyFromRequestPartsPrivateJwkThrowsException(): void
     {
-        $jwk = $this->createJwkMock(toPublic: false);
+        $jwk = $this->createJwkStub(toPublic: false);
 
         $protectedHeader = $this->createDecodedProtectedHeader();
         $protectedHeader['jwk'] = $this->jwk->jsonSerialize();
@@ -217,7 +228,7 @@ class DPoPProofVerifierTest extends TestCase
         $protectedHeader = $this->createDecodedProtectedHeader();
         unset($protectedHeader['typ']);
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $protectedHeader);
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $this->createDecodedPayload(), $protectedHeader);
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -236,7 +247,7 @@ class DPoPProofVerifierTest extends TestCase
         $protectedHeader = $this->createDecodedProtectedHeader();
         $protectedHeader['typ'] = 'invalidValue';
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $protectedHeader);
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $this->createDecodedPayload(), $protectedHeader);
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -255,7 +266,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         unset($payload['htm']);
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -274,7 +285,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['htm'] = 1; // not a string
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -290,7 +301,7 @@ class DPoPProofVerifierTest extends TestCase
     #[Test]
     public function verifyFromRequestPartsUnexpectedHtmClaimThrowsException(): void
     {
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -306,7 +317,7 @@ class DPoPProofVerifierTest extends TestCase
     #[Test]
     public function verifyFromRequestPartsHtmClaimIsCaseInsensitive(): void
     {
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -324,7 +335,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         unset($payload['jti']);
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -343,7 +354,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['jti'] = 1; // not a string
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -362,7 +373,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['jti'] = 'abcdef';
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -381,7 +392,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['jti'] = \bin2hex(\random_bytes(2049));
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -400,7 +411,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         unset($payload['htu']);
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -419,7 +430,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['htu'] = 1; // not a string
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -435,7 +446,7 @@ class DPoPProofVerifierTest extends TestCase
     #[Test]
     public function verifyFromRequestPartsUnexpectedHtuClaimThrowsException(): void
     {
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -451,7 +462,7 @@ class DPoPProofVerifierTest extends TestCase
     #[Test]
     public function verifyFromRequestPartsHtuClaimIsCaseInsensitive(): void
     {
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -469,7 +480,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         unset($payload['iat']);
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -488,7 +499,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['iat'] = $this->clock->now()->format('c'); // not a unix timestamp
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -507,7 +518,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['iat'] = $this->clock->now()->add(new \DateInterval('PT10S'))->getTimestamp();
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -526,7 +537,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['iat'] = $this->clock->now()->add(new \DateInterval('PT3S'))->getTimestamp();
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -547,7 +558,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['iat'] = $this->clock->now()->getTimestamp() - self::ALLOWED_MAX_AGE;
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -565,7 +576,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['iat'] = $this->clock->now()->getTimestamp() - self::ALLOWED_MAX_AGE + self::ALLOWED_TIME_DRIFT;
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -583,7 +594,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['exp'] = $this->clock->now()->add(new \DateInterval('PT15M'))->getTimestamp();
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -601,7 +612,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['exp'] = $this->clock->now()->format('c'); // not a unix timestamp
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -620,7 +631,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['exp'] = $this->clock->now()->sub(new \DateInterval('PT10S'))->getTimestamp();
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -639,7 +650,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['exp'] = $this->clock->now()->sub(new \DateInterval('PT3S'))->getTimestamp();
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -657,7 +668,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['nbf'] = $this->clock->now()->getTimestamp();
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -675,7 +686,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['nbf'] = $this->clock->now()->format('c'); // not a unix timestamp
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -694,7 +705,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['nbf'] = $this->clock->now()->add(new \DateInterval('PT10S'))->getTimestamp();
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -713,7 +724,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['nbf'] = $this->clock->now()->add(new \DateInterval('PT3S'))->getTimestamp();
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -731,7 +742,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0';
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -749,7 +760,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 'abc';
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -762,7 +773,7 @@ class DPoPProofVerifierTest extends TestCase
     #[Test]
     public function verifyFromRequestPartsMissingAthClaimThrowsException(): void
     {
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -781,7 +792,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 1; // not a string
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -800,7 +811,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 'invalid hash';
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -819,7 +830,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['ath'] = 'ungWv48Bz-pBQUDeXa4iI7ADYaOWF3qctBD_YfIAFa0';
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -837,7 +848,7 @@ class DPoPProofVerifierTest extends TestCase
     {
         $payload = $this->createDecodedPayload();
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -853,7 +864,7 @@ class DPoPProofVerifierTest extends TestCase
     {
         $payload = $this->createDecodedPayload();
 
-        $decoded = new DecodedDPoPProof($this->createJwkMock(realThumbprint: false), $payload, $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(realThumbprint: false), $payload, $this->createDecodedProtectedHeader());
 
         $this->tokenLoader->expects($this->once())
             ->method('loadProof')
@@ -869,7 +880,7 @@ class DPoPProofVerifierTest extends TestCase
     #[Test]
     public function verifyFromRequestPartsMissingNonceThrowsException(): void
     {
-        $jwk = $this->createJwkMock();
+        $jwk = $this->createJwkStub();
         $decoded = new DecodedDPoPProof($jwk, $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
         $nonceFactory = $this->createMock(NonceFactoryInterface::class);
@@ -903,7 +914,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['nonce'] = 1; // not a string
 
-        $jwk = $this->createJwkMock();
+        $jwk = $this->createJwkStub();
         $decoded = new DecodedDPoPProof($jwk, $payload, $this->createDecodedProtectedHeader());
 
         $nonceFactory = $this->createMock(NonceFactoryInterface::class);
@@ -937,7 +948,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['nonce'] = 'thisNonce123';
 
-        $jwk = $this->createJwkMock();
+        $jwk = $this->createJwkStub();
         $decoded = new DecodedDPoPProof($jwk, $payload, $this->createDecodedProtectedHeader());
 
         $nonceFactory = $this->createMock(NonceFactoryInterface::class);
@@ -967,7 +978,7 @@ class DPoPProofVerifierTest extends TestCase
         $payload = $this->createDecodedPayload();
         $payload['nonce'] = 'thisNonce123';
 
-        $jwk = $this->createJwkMock();
+        $jwk = $this->createJwkStub();
         $decoded = new DecodedDPoPProof($jwk, $payload, $this->createDecodedProtectedHeader());
 
         $nonceFactory = $this->createMock(NonceFactoryInterface::class);
@@ -1000,7 +1011,7 @@ class DPoPProofVerifierTest extends TestCase
     #[Test]
     public function verifyFromRequestPartsNoReplayAttackReturnsDecoded(): void
     {
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
         $replayAttackDetector = $this->createMock(ReplayAttackDetectorInterface::class);
         $replayAttackDetector->expects($this->once())
@@ -1023,7 +1034,7 @@ class DPoPProofVerifierTest extends TestCase
     #[Test]
     public function verifyFromRequestPartsReplayAttackThrowsException(): void
     {
-        $decoded = new DecodedDPoPProof($this->createJwkMock(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
+        $decoded = new DecodedDPoPProof($this->createJwkStub(), $this->createDecodedPayload(), $this->createDecodedProtectedHeader());
 
         $replayAttackDetector = $this->createMock(ReplayAttackDetectorInterface::class);
         $replayAttackDetector->expects($this->once())
@@ -1061,18 +1072,16 @@ class DPoPProofVerifierTest extends TestCase
         $this->assertEquals('DPoP algs="ES256 EdDSA"', $returnValue);
     }
 
-    private function createJwkMock(bool $toPublic = true, bool $realThumbprint = true): JwkInterface&MockObject
+    private function createJwkStub(bool $toPublic = true, bool $realThumbprint = true): JwkInterface&Stub
     {
-        $mock = $this->createMock(JwkInterface::class);
-        $mock->expects($this->any())
-            ->method('toPublic')
+        $jwk = $this->createStub(JwkInterface::class);
+        $jwk->method('toPublic')
             ->willReturn($toPublic ? $this->jwk->toPublic()->jsonSerialize() : $this->jwk->jsonSerialize());
 
-        $mock->expects($this->any())
-            ->method('thumbprint')
+        $jwk->method('thumbprint')
             ->willReturn($realThumbprint ? $this->jwk->thumbprint('sha256') : $this->jwk->thumbprint('sha1'));
 
-        return $mock;
+        return $jwk;
     }
 
     /**

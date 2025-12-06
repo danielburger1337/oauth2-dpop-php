@@ -8,6 +8,7 @@ use danielburger1337\OAuth2\DPoP\ReplayAttack\CacheReplayAttackDetector;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
@@ -30,17 +31,15 @@ class CacheReplayAttackDetectorTest extends TestCase
     private CacheReplayAttackDetector $replayAttackDetector;
     private DecodedDPoPProof $proof;
 
-    private JwkInterface&MockObject $jwk;
+    private JwkInterface&Stub $jwk;
 
     #[\Override]
     protected function setUp(): void
     {
-        $this->jwk = $this->createMock(JwkInterface::class);
-        $this->jwk->expects($this->any())
-            ->method('thumbprint')
+        $this->jwk = $this->createStub(JwkInterface::class);
+        $this->jwk->method('thumbprint')
             ->willReturn(self::JKT);
-        $this->jwk->expects($this->any())
-            ->method('toPublic')
+        $this->jwk->method('toPublic')
             ->willReturn(self::JWK);
 
         $this->proof = new DecodedDPoPProof($this->jwk, self::PAYLOAD, self::HEADER);
