@@ -54,6 +54,7 @@ class WebTokenFrameworkDPoPTokenEncoderTest extends TestCase
             'y' => 'kU_N4_T4y_M5SEmJwILgvd7Gnj_ckyljLO2FsVGXVTM',
         ]);
 
+        // @phpstan-ignore-next-line argument.type
         $this->jwkSet = new JWKSet([$this->jwk]);
 
         $this->algorithmManager = new AlgorithmManager([new ES256(), new RS256()]);

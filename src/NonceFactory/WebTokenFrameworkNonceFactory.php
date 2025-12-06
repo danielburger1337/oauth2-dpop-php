@@ -124,8 +124,9 @@ class WebTokenFrameworkNonceFactory implements NonceFactoryInterface
             }
 
             $claimCheckerManager = new ClaimCheckerManager([
-                new Checker\ExpirationTimeChecker($this->allowedTimeDrift, false, $this->clock),
-                new Checker\IssuedAtChecker($this->allowedTimeDrift, false, $this->clock),
+                // named arguments can be removed when support of web-token/jwt-library v3 is dropped
+                new Checker\ExpirationTimeChecker(clock: $this->clock, allowedTimeDrift: $this->allowedTimeDrift, protectedHeaderOnly: false),
+                new Checker\IssuedAtChecker(clock: $this->clock, allowedTimeDrift: $this->allowedTimeDrift, protectedHeaderOnly: false),
                 new Checker\IsEqualChecker('jkt', $thumbprint),
             ]);
 

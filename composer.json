@@ -20,8 +20,8 @@
         "spomky-labs/base64url": "^2.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.66.0",
-        "nyholm/psr7": "^1.8.2",
+        "friendsofphp/php-cs-fixer": "^3.91",
+        "nyholm/psr7": "^1.8",
         "paragonie/constant_time_encoding": "^3.1",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^12.5",
@@ -30,7 +30,7 @@
         "spomky-labs/otphp": "^11.3",
         "symfony/clock": "^7.2 || ^8.0",
         "symfony/http-foundation": "^7.2 || ^8.0",
-        "web-token/jwt-library": "^3.4.6"
+        "web-token/jwt-library": "^3.4.6 || ^4.0"
     },
     "config": {
         "sort-packages": true
