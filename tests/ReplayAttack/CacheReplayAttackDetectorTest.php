@@ -102,4 +102,15 @@ class CacheReplayAttackDetectorTest extends TestCase
         $returnValue = $this->replayAttackDetector->consumeProof($proof);
         $this->assertTrue($returnValue);
     }
+
+    #[Test]
+    public function consumeProofThrowsExceptionWhenNoJTIisPresent(): void
+    {
+        $this->cache->expects($this->never())->method('getItem');
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        $proof = new DecodedDPoPProof($this->jwk, [], self::HEADER);
+        $this->replayAttackDetector->consumeProof($proof);
+    }
 }
