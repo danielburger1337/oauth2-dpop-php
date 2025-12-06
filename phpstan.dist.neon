@@ -1,8 +1,6 @@
 parameters:
     level: 9
 
-    reportUnmatchedIgnoredErrors: false
-
     paths:
         - src/
         - tests/
@@ -13,4 +11,13 @@ parameters:
 
         - message: '#Parameter \#1 \$secret of static method OTPHP\\TOTP::create\(\) expects non-empty-string\|null, string given.#'
           path: src/NonceFactory/TotpNonceFactory.php
+
+        - message: '#Call to an undefined method danielburger1337\\OAuth2\\DPoP\\Encoder\\DPoPTokenEncoderInterface&PHPUnit\\Framework\\MockObject\\Stub::expects\(\).#'
+          path: tests/DPoPProofFactoryTest.php
+
+        - message: '#Call to an undefined method danielburger1337\\OAuth2\\DPoP\\NonceStorage\\NonceStorageKeyFactoryInterface&PHPUnit\\Framework\\MockObject\\Stub::expects\(\).#'
+          path: tests/DPoPProofFactoryTest.php
+
+        - message: '#Call to an undefined method danielburger1337\\OAuth2\\DPoP\\NonceStorage\\NonceStorageInterface&PHPUnit\\Framework\\MockObject\\Stub::expects\(\).#'
+          path: tests/DPoPProofFactoryTest.php
 
