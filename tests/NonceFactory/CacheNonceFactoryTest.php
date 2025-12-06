@@ -60,7 +60,7 @@ class CacheNonceFactoryTest extends TestCase
         $item2 = $this->createMock(CacheItemInterface::class);
         $item2->expects($this->once())
             ->method('set')
-            ->with($this->isType('string'));
+            ->with($this->isString());
 
         $item2->expects($this->once())
             ->method('expiresAfter')
@@ -92,7 +92,7 @@ class CacheNonceFactoryTest extends TestCase
 
         $item->expects($this->once())
             ->method('set')
-            ->with($this->isType('string'));
+            ->with($this->isString());
 
         $item->expects($this->once())
             ->method('expiresAfter')
