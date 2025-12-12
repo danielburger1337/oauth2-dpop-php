@@ -49,15 +49,9 @@ final class Util
      */
     public static function createHtu(UriInterface|Uri|string $htu): string
     {
-        if ($htu instanceof UriInterface) {
-            $htu = (string) $htu;
-        } elseif ($htu instanceof Uri) {
-            $htu = $htu->toString();
-        }
-
         if (\PHP_VERSION_ID >= 80500) {
             try {
-                $uri = new Uri($htu);
+                $uri = $htu instanceof Uri ? $htu : new Uri((string) $htu);
             } catch (InvalidUriException $e) {
                 throw new \InvalidArgumentException('The provided "htu" is not a valid URI.', previous: $e);
             }
@@ -67,6 +61,15 @@ final class Util
                 ->withFragment(null)
                 ->toString();
         } else {
+            if ($htu instanceof UriInterface) {
+                return $htu
+                    ->withQuery('')
+                    ->withFragment('')
+                    ->__toString();
+            }
+
+            // This parser is really bad and error prone.
+            // TODO: Remove when min PHP version is 8.5
             $pos = \strpos($htu, '?');
             if ($pos !== false) {
                 $htu = \substr($htu, 0, $pos);
