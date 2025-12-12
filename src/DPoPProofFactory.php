@@ -111,11 +111,11 @@ class DPoPProofFactory
     /**
      * Store the "DPoP-Nonce" received by the upstream server.
      *
-     * @param string              $nonce The "DPoP-Nonce" header value.
-     * @param JwkInterface        $jwk   The JWK that was used in the request that received the "DPoP-Nonce" in the response.
-     * @param UriInterface|string $htu   The http URI of the request that responded with the "DPoP-Nonce" header.
+     * @param string                  $nonce The "DPoP-Nonce" header value.
+     * @param JwkInterface            $jwk   The JWK that was used in the request that received the "DPoP-Nonce" in the response.
+     * @param UriInterface|Uri|string $htu   The http URI of the request that responded with the "DPoP-Nonce" header.
      */
-    public function storeNextNonce(string $nonce, JwkInterface $jwk, UriInterface|string $htu): void
+    public function storeNextNonce(string $nonce, JwkInterface $jwk, UriInterface|Uri|string $htu): void
     {
         if ('' === $nonce) {
             return;
