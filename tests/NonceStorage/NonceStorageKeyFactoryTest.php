@@ -58,7 +58,7 @@ class NonceStorageKeyFactoryTest extends TestCase
     public function createKeyMalformedUrlThrowsException(): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('The htu is not a valid URL.');
+        $this->expectExceptionMessage('The htu has an invalid scheme or host.');
 
         $this->nonceStorageKeyFactory->createKey($this->jwk, 'https://#path?query');
     }
