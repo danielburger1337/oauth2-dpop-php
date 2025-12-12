@@ -62,10 +62,7 @@ final class Util
                 ->toString();
         } else {
             if ($htu instanceof UriInterface) {
-                return $htu
-                    ->withQuery('')
-                    ->withFragment('')
-                    ->__toString();
+                $htu = (string) $htu;
             }
 
             // This parser is really bad and error prone.
