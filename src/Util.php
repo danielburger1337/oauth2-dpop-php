@@ -49,7 +49,7 @@ final class Util
      */
     public static function createHtu(UriInterface|Uri|string $htu): string
     {
-        if (\PHP_VERSION_ID >= 80500) {
+        if (\PHP_VERSION_ID >= 80500 || $htu instanceof Uri) {
             try {
                 $uri = $htu instanceof Uri ? $htu : new Uri((string) $htu);
             } catch (InvalidUriException $e) {

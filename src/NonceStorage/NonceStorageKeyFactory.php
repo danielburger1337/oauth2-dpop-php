@@ -22,8 +22,8 @@ class NonceStorageKeyFactory implements NonceStorageKeyFactoryInterface
         } else {
             $parts = \parse_url($htu);
             if (false !== $parts) {
-                $scheme = $parts['scheme'];
-                $host = $parts['host'];
+                $scheme = $parts['scheme'] ?? null;
+                $host = $parts['host'] ?? null;
             }
         }
 
