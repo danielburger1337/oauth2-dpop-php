@@ -4,11 +4,13 @@ namespace danielburger1337\OAuth2\DPoP\Tests;
 
 use danielburger1337\OAuth2\DPoP\Model\AccessTokenModel;
 use danielburger1337\OAuth2\DPoP\Util;
-use Nyholm\Psr7\Uri;
+use Nyholm\Psr7\Uri as Psr7Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\UriInterface;
+use Uri\Rfc3986\Uri;
 
 #[CoversClass(Util::class)]
 class UtilTest extends TestCase
@@ -31,36 +33,17 @@ class UtilTest extends TestCase
 
     #[Test]
     #[DataProvider('createHtuDataProvider')]
-    public function createHtuWithUriReturnsHtu(string $attach): void
+    public function createHtuReturnsHtu(UriInterface|Uri|string $htu, string|bool $expected): void
     {
-        $returnValue = Util::createHtu(new Uri(self::HTU.$attach));
+        if (false === $expected) {
+            $this->expectException(\InvalidArgumentException::class);
+        }
 
-        $this->assertEquals(self::HTU, $returnValue);
-    }
+        $returnValue = Util::createHtu($htu);
 
-    #[Test]
-    #[DataProvider('createHtuDataProvider')]
-    public function createHtuWithStringReturnsHtu(string $attach): void
-    {
-        $returnValue = Util::createHtu(self::HTU.$attach);
-
-        $this->assertEquals(self::HTU, $returnValue);
-    }
-
-    #[Test]
-    public function createHtuInvalidUrlRemovesQuery(): void
-    {
-        $returnValue = Util::createHtu('is this working? yes');
-
-        $this->assertEquals('is this working', $returnValue);
-    }
-
-    #[Test]
-    public function createHtuInvalidUrlReturnsUnchanged(): void
-    {
-        $returnValue = Util::createHtu('not a url');
-
-        $this->assertEquals('not a url', $returnValue);
+        if (false !== $expected) {
+            $this->assertEquals($expected, $returnValue);
+        }
     }
 
     #[Test]
@@ -136,15 +119,25 @@ class UtilTest extends TestCase
     }
 
     /**
-     * @return array<string[]>
+     * @return list<array{0: UriInterface|Uri|string, 1: string|false}>
      */
     public static function createHtuDataProvider(): array
     {
         return [
-            [''],
-            ['#fragmet'],
-            ['?query=param'],
-            ['?query=param#fragment'],
+            [self::HTU, self::HTU],
+            [self::HTU.'#fragmet', self::HTU],
+            [self::HTU.'?query=param', self::HTU],
+            [self::HTU.'?query=param#fragment', self::HTU],
+
+            [new Psr7Uri(self::HTU.'#fragmet'), self::HTU],
+            [new Psr7Uri(self::HTU.'?query=param'), self::HTU],
+            [new Psr7Uri(self::HTU.'?query=param#fragment'), self::HTU],
+
+            [new Uri(self::HTU.'#fragmet'), self::HTU],
+            [new Uri(self::HTU.'?query=param'), self::HTU],
+            [new Uri(self::HTU.'?query=param#fragment'), self::HTU],
+
+            ['invalid uri', false],
         ];
     }
 }

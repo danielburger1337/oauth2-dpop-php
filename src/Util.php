@@ -5,6 +5,8 @@ namespace danielburger1337\OAuth2\DPoP;
 use Base64Url\Base64Url;
 use danielburger1337\OAuth2\DPoP\Model\AccessTokenModel;
 use Psr\Http\Message\UriInterface;
+use Uri\InvalidUriException;
+use Uri\Rfc3986\Uri;
 
 final class Util
 {
@@ -38,21 +40,38 @@ final class Util
     /**
      * Create an "htu" claim.
      *
-     * @param UriInterface|string $htu The URI to create the "htu" from.
+     * @param UriInterface|Uri|string $htu The URI to create the "htu" from.
+     *
+     * @throws \InvalidArgumentException If the htu is not a valid URI.
      */
-    public static function createHtu(UriInterface|string $htu): string
+    public static function createHtu(UriInterface|Uri|string $htu): string
     {
         if ($htu instanceof UriInterface) {
             $htu = (string) $htu;
+        } elseif ($htu instanceof Uri) {
+            $htu = $htu->toString();
         }
 
-        $pos = \strpos($htu, '?');
-        if ($pos !== false) {
-            $htu = \substr($htu, 0, $pos);
+        if (\PHP_VERSION_ID >= 80500) {
+            try {
+                $uri = new Uri($htu);
+            } catch (InvalidUriException $e) {
+                throw new \InvalidArgumentException('The provided "htu" is not a valid URI.', previous: $e);
+            }
+
+            return $uri
+                ->withQuery(null)
+                ->withFragment(null)
+                ->toString();
         } else {
-            $pos = \strpos($htu, '#');
+            $pos = \strpos($htu, '?');
             if ($pos !== false) {
                 $htu = \substr($htu, 0, $pos);
+            } else {
+                $pos = \strpos($htu, '#');
+                if ($pos !== false) {
+                    $htu = \substr($htu, 0, $pos);
+                }
             }
         }
 
