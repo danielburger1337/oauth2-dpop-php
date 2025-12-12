@@ -16,6 +16,7 @@ use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Uri\Rfc3986\Uri;
 
 class DPoPProofVerifier
 {
@@ -74,14 +75,14 @@ class DPoPProofVerifier
      *
      * @param string                       $dpopProof The "DPoP" header value.
      * @param string                       $htm       The expected http method of the request.
-     * @param UriInterface|string          $htu       The expected http URI of the request.
+     * @param UriInterface|Uri|string      $htu       The expected http URI of the request.
      * @param AccessTokenModel|string|null $boundTo   [optional] The access token / JKT the DPoP proof must be bound to.
      *
      * @throws InvalidDPoPProofException If the DPoP proof is invalid.
      * @throws InvalidDPoPNonceException If the DPoP nonce is invalid.
      * @throws DPoPReplayAttackException If the DPoP proof has already been used.
      */
-    public function verifyFromRequestParts(string $dpopProof, string $htm, UriInterface|string $htu, AccessTokenModel|string|null $boundTo = null): DecodedDPoPProof
+    public function verifyFromRequestParts(string $dpopProof, string $htm, UriInterface|Uri|string $htu, AccessTokenModel|string|null $boundTo = null): DecodedDPoPProof
     {
         $dpopProof = \trim($dpopProof);
         if ('' === $dpopProof) {

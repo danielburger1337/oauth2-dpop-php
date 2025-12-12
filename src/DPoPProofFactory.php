@@ -14,6 +14,7 @@ use Psr\Clock\ClockInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
+use Uri\Rfc3986\Uri;
 
 class DPoPProofFactory
 {
@@ -50,7 +51,7 @@ class DPoPProofFactory
      * Create a DPoP proof token.
      *
      * @param string                       $htm                                The http method of the request.
-     * @param UriInterface|string          $htu                                The http URI of the request.
+     * @param UriInterface|Uri|string      $htu                                The http URI of the request.
      * @param string[]                     $serverSupportedSignatureAlgorithms The DPoP signature algorithms that the upstream server reported as supported.
      * @param AccessTokenModel|string|null $bindTo                             [optional] The access token the DPoP proof must be bound to.
      *                                                                         If the argument is of type `string`, it is assumed that a JKT
@@ -58,7 +59,7 @@ class DPoPProofFactory
      *
      * @throws MissingDPoPJwkException If no suitable JWK is registered.
      */
-    public function createProof(string $htm, UriInterface|string $htu, array $serverSupportedSignatureAlgorithms, AccessTokenModel|string|null $bindTo = null): DPoPProof
+    public function createProof(string $htm, UriInterface|Uri|string $htu, array $serverSupportedSignatureAlgorithms, AccessTokenModel|string|null $bindTo = null): DPoPProof
     {
         $jkt = $bindTo instanceof AccessTokenModel ? $bindTo->jkt : $bindTo;
 
@@ -110,11 +111,11 @@ class DPoPProofFactory
     /**
      * Store the "DPoP-Nonce" received by the upstream server.
      *
-     * @param string              $nonce The "DPoP-Nonce" header value.
-     * @param JwkInterface        $jwk   The JWK that was used in the request that received the "DPoP-Nonce" in the response.
-     * @param UriInterface|string $htu   The http URI of the request that responded with the "DPoP-Nonce" header.
+     * @param string                  $nonce The "DPoP-Nonce" header value.
+     * @param JwkInterface            $jwk   The JWK that was used in the request that received the "DPoP-Nonce" in the response.
+     * @param UriInterface|Uri|string $htu   The http URI of the request that responded with the "DPoP-Nonce" header.
      */
-    public function storeNextNonce(string $nonce, JwkInterface $jwk, UriInterface|string $htu): void
+    public function storeNextNonce(string $nonce, JwkInterface $jwk, UriInterface|Uri|string $htu): void
     {
         if ('' === $nonce) {
             return;

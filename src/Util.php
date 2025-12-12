@@ -5,7 +5,12 @@ namespace danielburger1337\OAuth2\DPoP;
 use Base64Url\Base64Url;
 use danielburger1337\OAuth2\DPoP\Model\AccessTokenModel;
 use Psr\Http\Message\UriInterface;
+use Uri\InvalidUriException;
+use Uri\Rfc3986\Uri;
 
+/**
+ * @internal
+ */
 final class Util
 {
     /**
@@ -38,21 +43,38 @@ final class Util
     /**
      * Create an "htu" claim.
      *
-     * @param UriInterface|string $htu The URI to create the "htu" from.
+     * @param UriInterface|Uri|string $htu The URI to create the "htu" from.
+     *
+     * @throws \InvalidArgumentException If the htu is not a valid URI.
      */
-    public static function createHtu(UriInterface|string $htu): string
+    public static function createHtu(UriInterface|Uri|string $htu): string
     {
-        if ($htu instanceof UriInterface) {
-            $htu = (string) $htu;
-        }
+        if (\PHP_VERSION_ID >= 80500 || $htu instanceof Uri) {
+            try {
+                $uri = $htu instanceof Uri ? $htu : new Uri((string) $htu);
+            } catch (InvalidUriException $e) {
+                throw new \InvalidArgumentException('The provided "htu" is not a valid URI.', previous: $e);
+            }
 
-        $pos = \strpos($htu, '?');
-        if ($pos !== false) {
-            $htu = \substr($htu, 0, $pos);
+            return $uri
+                ->withQuery(null)
+                ->withFragment(null)
+                ->toString();
         } else {
-            $pos = \strpos($htu, '#');
+            if ($htu instanceof UriInterface) {
+                $htu = (string) $htu;
+            }
+
+            // This parser is really bad and error prone.
+            // TODO: Remove when min PHP version is 8.5
+            $pos = \strpos($htu, '?');
             if ($pos !== false) {
                 $htu = \substr($htu, 0, $pos);
+            } else {
+                $pos = \strpos($htu, '#');
+                if ($pos !== false) {
+                    $htu = \substr($htu, 0, $pos);
+                }
             }
         }
 

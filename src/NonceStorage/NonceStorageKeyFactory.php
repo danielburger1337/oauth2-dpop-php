@@ -3,21 +3,34 @@
 namespace danielburger1337\OAuth2\DPoP\NonceStorage;
 
 use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
+use Uri\InvalidUriException;
+use Uri\Rfc3986\Uri;
 
 class NonceStorageKeyFactory implements NonceStorageKeyFactoryInterface
 {
     public function createKey(JwkInterface $jwk, string $htu): string
     {
-        $parts = \parse_url($htu);
+        $scheme = $host = $e = null;
 
-        if (false === $parts) {
-            throw new \InvalidArgumentException('The htu is not a valid URL.');
+        if (\PHP_VERSION_ID >= 80500) {
+            try {
+                $url = new Uri($htu);
+                $scheme = $url->getScheme();
+                $host = $url->getHost();
+            } catch (InvalidUriException $e) {
+            }
+        } else {
+            $parts = \parse_url($htu);
+            if (false !== $parts) {
+                $scheme = $parts['scheme'] ?? null;
+                $host = $parts['host'] ?? null;
+            }
         }
 
-        if (!\array_key_exists('scheme', $parts) || !\array_key_exists('host', $parts)) {
-            throw new \InvalidArgumentException('The htu has an invalid scheme or host.');
+        if (empty($scheme) || empty($host)) {
+            throw new \InvalidArgumentException('The htu has an invalid scheme or host.', previous: $e);
         }
 
-        return \hash('xxh3', $jwk->thumbprint().\strtolower($parts['scheme'].$parts['host']));
+        return \hash('xxh3', $jwk->thumbprint().\strtolower($scheme.$host));
     }
 }
