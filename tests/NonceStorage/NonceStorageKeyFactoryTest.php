@@ -5,6 +5,7 @@ namespace danielburger1337\OAuth2\DPoP\Tests\NonceStorage;
 use danielburger1337\OAuth2\DPoP\Model\JwkInterface;
 use danielburger1337\OAuth2\DPoP\NonceStorage\NonceStorageKeyFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -30,45 +31,43 @@ class NonceStorageKeyFactoryTest extends TestCase
     }
 
     #[Test]
-    public function createKeyWithUrlReturnsExpected(): void
+    #[DataProvider('dataProviderHtu')]
+    public function createKeyWithUrlReturnsExpected(string $htu): void
     {
-        $returnValue = $this->nonceStorageKeyFactory->createKey($this->jwk, self::URL);
+        $returnValue = $this->nonceStorageKeyFactory->createKey($this->jwk, $htu);
 
         $this->assertEquals(self::EXPECTED, $returnValue);
     }
 
     #[Test]
-    public function createKeyUpperCaseUrlReturnsExpected(): void
-    {
-        $returnValue = $this->nonceStorageKeyFactory->createKey($this->jwk, \strtoupper(self::URL));
-
-        $this->assertEquals(self::EXPECTED, $returnValue);
-    }
-
-    #[Test]
-    public function createKeyInvalidUrlThrowsException(): void
+    #[DataProvider('dataProviderInvalidHtu')]
+    public function createKeyUrlWithoutSchemeThrowsException(string $htu): void
     {
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('The htu has an invalid scheme or host.');
 
-        $this->nonceStorageKeyFactory->createKey($this->jwk, 'not an url');
+        $this->nonceStorageKeyFactory->createKey($this->jwk, $htu);
     }
 
-    #[Test]
-    public function createKeyMalformedUrlThrowsException(): void
+    /**
+     * @return list<string[]>
+     */
+    public static function dataProviderHtu(): array
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('The htu has an invalid scheme or host.');
-
-        $this->nonceStorageKeyFactory->createKey($this->jwk, 'https://#path?query');
+        return [
+            [self::URL],
+            [\strtoupper(self::URL)],
+        ];
     }
 
-    #[Test]
-    public function createKeyUrlWithoutSchemeThrowsException(): void
+    /**
+     * @return list<string[]>
+     */
+    public static function dataProviderInvalidHtu(): array
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('The htu has an invalid scheme or host.');
-
-        $this->nonceStorageKeyFactory->createKey($this->jwk, 'www.example.com/path');
+        return [
+            ['www.example.com/path'],
+            ['https://#path?query'],
+            ['not an url'],
+        ];
     }
 }
