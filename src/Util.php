@@ -8,6 +8,9 @@ use Psr\Http\Message\UriInterface;
 use Uri\InvalidUriException;
 use Uri\Rfc3986\Uri;
 
+/**
+ * @internal
+ */
 final class Util
 {
     /**
