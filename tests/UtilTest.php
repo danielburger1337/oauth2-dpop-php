@@ -123,7 +123,7 @@ class UtilTest extends TestCase
      */
     public static function createHtuDataProvider(): array
     {
-        return [
+        $providedData = [
             [self::HTU, self::HTU],
             [self::HTU.'#fragmet', self::HTU],
             [self::HTU.'?query=param', self::HTU],
@@ -133,11 +133,15 @@ class UtilTest extends TestCase
             [new Psr7Uri(self::HTU.'?query=param'), self::HTU],
             [new Psr7Uri(self::HTU.'?query=param#fragment'), self::HTU],
 
-            [new Uri(self::HTU.'#fragmet'), self::HTU],
-            [new Uri(self::HTU.'?query=param'), self::HTU],
-            [new Uri(self::HTU.'?query=param#fragment'), self::HTU],
-
             ['invalid uri', false],
         ];
+
+        if (\PHP_VERSION_ID >= 80500) {
+            $providedData[] = [new Uri(self::HTU.'#fragmet'), self::HTU];
+            $providedData[] = [new Uri(self::HTU.'?query=param'), self::HTU];
+            $providedData[] = [new Uri(self::HTU.'?query=param#fragment'), self::HTU];
+        }
+
+        return $providedData;
     }
 }
