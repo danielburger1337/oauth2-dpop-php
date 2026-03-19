@@ -60,21 +60,20 @@ final class Util
                 ->withQuery(null)
                 ->withFragment(null)
                 ->toString();
-        } else {
-            if ($htu instanceof UriInterface) {
-                $htu = (string) $htu;
-            }
+        }
+        if ($htu instanceof UriInterface) {
+            $htu = (string) $htu;
+        }
 
-            // This parser is really bad and error prone.
-            // TODO: Remove when min PHP version is 8.5
-            $pos = \strpos($htu, '?');
+        // This parser is really bad and error prone.
+        // TODO: Remove when min PHP version is 8.5
+        $pos = \strpos($htu, '?');
+        if ($pos !== false) {
+            $htu = \substr($htu, 0, $pos);
+        } else {
+            $pos = \strpos($htu, '#');
             if ($pos !== false) {
                 $htu = \substr($htu, 0, $pos);
-            } else {
-                $pos = \strpos($htu, '#');
-                if ($pos !== false) {
-                    $htu = \substr($htu, 0, $pos);
-                }
             }
         }
 

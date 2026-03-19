@@ -7,7 +7,7 @@ namespace danielburger1337\OAuth2\DPoP\NonceStorage;
  */
 final class NullNonceStorage implements NonceStorageInterface
 {
-    public function getCurrentNonce(string $key): null
+    public function getCurrentNonce(string $key): ?string
     {
         return null;
     }

@@ -14,11 +14,17 @@ jobs:
         strategy:
             matrix:
                 include:
+                    - php_version: "8.3"
+                      dependency_version: "--prefer-lowest"
+
                     - php_version: "8.4"
                       dependency_version: "--prefer-lowest"
 
                     - php_version: "8.5"
                       dependency_version: "--prefer-lowest"
+
+                    - php_version: "8.3"
+                      dependency_version: ""
 
                     - php_version: "8.4"
                       dependency_version: ""
